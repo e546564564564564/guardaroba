@@ -56,7 +56,7 @@ nav.tabs button[aria-current=true]{color:var(--acc)}
 .selbar .pri{background:var(--acc);border-color:var(--acc);color:#fff}
 /* aggiungi + scheda */
 .photo{background:conic-gradient(var(--soft) 25%,var(--bg) 0 50%,var(--soft) 0 75%,var(--bg) 0) 0 0/22px 22px;border-radius:20px;aspect-ratio:4/5;max-height:46vh;width:100%;display:grid;place-items:center;overflow:hidden;position:relative;border:1px solid var(--line)}
-.photo img{max-width:92%;max-height:92%;object-fit:contain}
+.photo img{max-width:92%;max-height:92%;object-fit:contain;transition:transform .15s}
 .photo .over{position:absolute;inset:0;display:grid;place-items:center;align-content:center;gap:10px;background:color-mix(in srgb,var(--bg) 72%,transparent);font-weight:500}
 .pbar{height:6px;background:var(--line);border-radius:9px;overflow:hidden;width:60%}.pbar i{display:block;height:100%;background:var(--acc);width:0;transition:width .2s}
 .pick{display:grid;grid-template-columns:1fr 1fr;gap:10px}
@@ -153,6 +153,7 @@ b,strong{font-weight:500}
   <p class="mut" id="pickTip" style="margin:12px 0 0">Consiglio: appoggia il capo su un fondo semplice e in contrasto. Dalla galleria puoi sceglierne fino a 50 insieme: li salvo tutti già scontornati, senza chiederti niente.</p>
   <div id="editArea" class="hide">
     <div class="photo" id="photo"><img id="photoImg" alt="Anteprima del capo"><div class="over hide" id="over"><span id="overT">Tolgo lo sfondo…</span><div class="pbar"><i id="overB"></i></div></div></div>
+    <div class="ltools" id="rotBar" style="margin:8px 0 0"><button type="button" class="ico" id="rotL" aria-label="Ruota a sinistra di 90 gradi" title="Ruota a sinistra">↺</button><input type="range" id="rotF" min="-30" max="30" step="1" value="0" aria-label="Raddrizza (gradi)"><button type="button" class="ico" id="rotR" aria-label="Ruota a destra di 90 gradi" title="Ruota a destra">↻</button><span class="mut" id="rotV" style="min-width:3.5em">0°</span></div>
     <div class="form">
       <div><span class="lbl">Categoria</span><div class="chips" id="cMacro"></div><div id="cSubBox" class="hide" style="margin-top:12px;padding:12px;background:var(--soft);border-radius:14px"><span class="lbl" id="cSubL" style="font-weight:500">Tipo</span><div class="chips sub" id="cSub"></div></div></div>
       <div><span class="lbl">Stagione</span><div class="chips" id="cSea"></div></div>
@@ -321,7 +322,7 @@ function renderCapo(){const it=S.items.find(i=>i.id===S.capoId);if(!it){$('#capo
   if($('#okDraft'))$('#okDraft').onclick=()=>S.col.doc(it.id).update({draft:false}).then(()=>toast('Scheda confermata')).catch(()=>toast('Non riuscito'));
   $('#capoToOutfit').onclick=()=>{newDraft(layFor([it.id]));go('crea');renderCrea()}}
 $('#capoEdit').onclick=()=>{const it=S.items.find(i=>i.id===S.capoId);if(!it)return;S.form={id:it.id,cat:it.cat,sea:new Set(it.sea||[]),name:it.name||'',fit:it.fit||''};S.cur=null;S.queue=[];
-  $('#addTitle').textContent='Modifica capo';$('#pick').classList.add('hide');$('#pickTip').classList.add('hide');$('#editArea').classList.remove('hide');$('#photoImg').src=src(it.img);$('#over').classList.add('hide');$('#desc').value=S.form.name;$('#save').textContent='Salva modifiche';$('#addNote').innerHTML='<button class="danger" id="delOne" style="margin-top:6px">Elimina capo</button>';
+  S.rot=0;rotUI();$('#addTitle').textContent='Modifica capo';$('#pick').classList.add('hide');$('#pickTip').classList.add('hide');$('#editArea').classList.remove('hide');$('#photoImg').src=src(it.img);$('#over').classList.add('hide');$('#desc').value=S.form.name;$('#save').textContent='Salva modifiche';$('#addNote').innerHTML='<button class="danger" id="delOne" style="margin-top:6px">Elimina capo</button>';
   $('#delOne').onclick=async()=>{if(!(await ask('Eliminare questo capo? Non si può annullare.')))return;try{await S.col.doc(it.id).delete();S.assets.delete(it.img).catch(()=>{});S.form=null;toast('Capo eliminato');go('armadio')}catch{toast('Non riuscito')}};
   drawForm();location.hash='aggiungi'};
 
@@ -366,6 +367,13 @@ async function deskew(blob){const im=await loadImg(blob);const W=im.width,H=im.h
 // foto → (migliorata) → scontornata → raddrizzata
 async function processPhoto(f,onp){let sm=await shrink(f);if(autoOn())sm=await enhance(sm).catch(()=>sm);let cut=null;
   try{cut=await trim(await removeBg(sm,onp));if(autoOn())cut=await deskew(cut).catch(()=>cut)}catch(err){console.error(err)}return{orig:sm,cut}}
+// rotazione manuale nella scheda
+function rotUI(){const d=S.rot||0;$('#photoImg').style.transform=`rotate(${d}deg) scale(${Math.abs(Math.sin(d*Math.PI/180))>.5?.72:1})`;const f=((d%90)+90)%90;const fine=f>45?f-90:f;$('#rotF').value=Math.round(fine);$('#rotV').textContent=`${Math.round(((d%360)+360)%360>180?((d%360)+360)%360-360:((d%360)+360)%360)}°`}
+function setRot(d){S.rot=d;rotUI()}
+$('#rotL').onclick=()=>setRot((S.rot||0)-90);$('#rotR').onclick=()=>setRot((S.rot||0)+90);
+$('#rotF').oninput=e=>{const base=Math.round((S.rot||0)/90)*90;setRot(base+ +e.target.value)};
+async function rotateBlob(blob,deg){const im=await loadImg(blob);const W=im.width,H=im.height,rad=deg*Math.PI/180,cs=Math.abs(Math.cos(rad)),sn=Math.abs(Math.sin(rad));const o=document.createElement('canvas');o.width=Math.round(W*cs+H*sn);o.height=Math.round(W*sn+H*cs);const x=o.getContext('2d');x.translate(o.width/2,o.height/2);x.rotate(rad);x.drawImage(im,-W/2,-H/2);
+  const out=await new Promise(r=>o.toBlob(r,'image/png'));return deg%90?trim(out):out}
 function startAdd(){S.form=null;S.cur=null;$('#addTitle').textContent='Nuovo capo';$('#pick').classList.remove('hide');$('#pickTip').classList.remove('hide');$('#editArea').classList.add('hide');$('#save').textContent="Salva nell'armadio";$('#addNote').textContent='';$('#queue').textContent=''}
 function onFiles(e){const fs=[...e.target.files];e.target.value='';if(fs.length>1){startBulk(fs);return}S.queue.push(...fs);if(!S.cur)next()}
 // ---------- caricamento massivo ----------
@@ -388,7 +396,7 @@ async function autoTag(ids){const its=ids.map(id=>S.items.find(i=>i.id===id)).fi
 $('#fileCam').onchange=onFiles;$('#fileGal').onchange=onFiles;
 async function next(){const f=S.queue.shift();$('#queue').textContent=S.queue.length?`altre ${S.queue.length}`:'';
   if(!f){S.cur=null;S.form=null;go('armadio');return}
-  const prev=S.form;S.form={id:null,cat:prev&&!prev.id?prev.cat:null,sea:new Set(prev&&!prev.id?prev.sea:[]),name:'',fit:''};S.cur={orig:null,cut:null};
+  S.rot=0;rotUI();const prev=S.form;S.form={id:null,cat:prev&&!prev.id?prev.cat:null,sea:new Set(prev&&!prev.id?prev.sea:[]),name:'',fit:''};S.cur={orig:null,cut:null};
   $('#pick').classList.add('hide');$('#pickTip').classList.add('hide');$('#editArea').classList.remove('hide');$('#desc').value='';$('#addNote').textContent='';drawForm();
   $('#photoImg').src=URL.createObjectURL(f);$('#over').classList.remove('hide');$('#overT').textContent=autoOn()?'Miglioro la foto…':'Tolgo lo sfondo…';$('#overB').style.width='0';drawForm();
   const r=await processPhoto(f,(t,p)=>{$('#overT').textContent=t;$('#overB').style.width=p==null?'100%':Math.round(p*100)+'%'});S.cur.orig=r.orig;S.cur.cut=r.cut;$('#photoImg').src=URL.createObjectURL(r.cut||r.orig);
@@ -403,8 +411,8 @@ $('#cMacro').onclick=e=>{const b=e.target.closest('[data-m]');if(!b)return;const
 $('#cSub').onclick=e=>{const b=e.target.closest('[data-s]');if(!b)return;S.form.cat=b.dataset.s;drawForm()};
 $('#cSea').onclick=e=>{const b=e.target.closest('[data-k]');if(!b)return;const s=S.form.sea;s.has(b.dataset.k)?s.delete(b.dataset.k):s.add(b.dataset.k);drawForm()};
 $('#save').onclick=async()=>{const F=S.form;if(!F?.cat)return;const btn=$('#save');btn.disabled=true;const old=btn.textContent;btn.textContent='Salvo…';
-  try{if(F.id){await S.col.doc(F.id).update({cat:F.cat,sea:[...F.sea],name:$('#desc').value.trim(),draft:false});toast('Modifiche salvate');S.capoId=F.id;S.form=null;history.back()}
-    else{const blob=S.cur.cut||S.cur.orig;const up=await S.assets.upload(blob,{type:blob.type||'image/png'});await S.col.doc('it_'+Date.now().toString(36)).set({kind:'item',cat:F.cat,sea:[...F.sea],name:$('#desc').value.trim(),img:up.id,at:Date.now()});toast(`Salvato in ${catName(F.cat)}`);next()}}
+  try{if(F.id){const it=S.items.find(i=>i.id===F.id);const patch={cat:F.cat,sea:[...F.sea],name:$('#desc').value.trim(),draft:false};if(S.rot%360){const blob=await (await fetch(src(it.img))).blob();const nb=await rotateBlob(blob,S.rot);const up=await S.assets.upload(nb,{type:'image/png'});patch.img=up.id;S.assets.delete(it.img).catch(()=>{})}await S.col.doc(F.id).update(patch);S.rot=0;toast('Modifiche salvate');S.capoId=F.id;S.form=null;history.back()}
+    else{let blob=S.cur.cut||S.cur.orig;if(S.rot%360)blob=await rotateBlob(blob,S.rot);S.rot=0;const up=await S.assets.upload(blob,{type:blob.type||'image/png'});await S.col.doc('it_'+Date.now().toString(36)).set({kind:'item',cat:F.cat,sea:[...F.sea],name:$('#desc').value.trim(),img:up.id,at:Date.now()});toast(`Salvato in ${catName(F.cat)}`);next()}}
   catch(err){console.error(err);toast('Salvataggio non riuscito, riprova')}btn.textContent=old;drawForm()};
 
 // ---------- crea (tavola) ----------
