@@ -194,6 +194,7 @@ b,strong{font-weight:500}
 <section class="view" id="v-stile"><div class="wrap" style="max-width:720px">
   <div class="bar"><h1>Il mio stile</h1></div>
   <p class="mut" style="margin-top:-6px">La consulente usa queste informazioni per dirti cosa ti sta bene. Sono visibili solo a te.</p>
+  <div class="info hide" id="impHint"><b>La scheda è vuota.</b> Se hai il file <i>scheda-stile.json</i>, caricalo qui e si compila tutto da solo.<div style="margin-top:8px"><label class="btn pri">Carica la mia scheda<input type="file" accept=".json,application/json" class="hide" id="pImp2"></label></div></div>
   <form id="pf" style="display:grid;gap:12px">
     <div class="two" style="grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:10px"><div><label class="lbl" for="pArm">Armocromia</label><select id="pArm"></select></div><div><label class="lbl" for="pH">Altezza (cm)</label><input type="text" id="pH" inputmode="numeric"></div><div><label class="lbl" for="pT">Taglia</label><input type="text" id="pT"></div></div>
     <div><label class="lbl" for="pMis">Misure</label><input type="text" id="pMis" placeholder="es. seno, vita, fianchi in cm"></div>
@@ -458,7 +459,7 @@ $('#gOut').onclick=async e=>{const st=e.target.closest('[data-star]');if(st){con
 // ---------- stile ----------
 function renderProf(){const p=S.prof||{};$('#pArm').innerHTML=ARMO.map(a=>`<option ${a===p.armo?'selected':''} value="${esc(a)}">${a||'Non so'}</option>`).join('');$('#pH').value=p.h||'';$('#pT').value=p.t||'';$('#pMis').value=p.mis||'';
   $('#pFields').innerHTML=PF.map(([k,n,r])=>`<div><label class="lbl" for="pf_${k}">${n}</label><textarea id="pf_${k}" rows="${r}">${esc(p[k]||'')}</textarea></div>`).join('');
-  $('#meThumb').classList.toggle('hide',!S.me);if(S.me)$('#meThumb').src=src(S.me)}
+  $('#impHint').classList.toggle('hide',!!(p.armo||p.stile||p.body));$('#meThumb').classList.toggle('hide',!S.me);if(S.me)$('#meThumb').src=src(S.me)}
 $('#pf').onsubmit=async e=>{e.preventDefault();const v={kind:'profile',armo:$('#pArm').value,h:$('#pH').value.trim(),t:$('#pT').value.trim(),mis:$('#pMis').value.trim()};for(const [k] of PF)v[k]=$('#pf_'+k).value.trim();
   try{await S.col.doc('profilo').set(v);toast('Stile salvato')}catch{toast('Salvataggio non riuscito')}};
 $('#meFile').onchange=async e=>{const f=e.target.files[0];e.target.value='';if(!f)return;toast('Carico la tua foto…');
@@ -503,7 +504,7 @@ const CFG=window.GUARDAROBA||{};
     if(res.status===429)throw{code:'rate_limited'};if(!res.ok)throw{code:'upstream_error',message:await res.text()};
     const j=await res.json();const t=(j.candidates?.[0]?.content?.parts||[]).map(p=>p.text||'').join('');
     try{return JSON.parse(t)}catch{const m=t.match(/[\[{][\s\S]*[\]}]/);if(m)try{return JSON.parse(m[0])}catch{}throw{code:'invalid_json'}}}};
-  $('#pImp').onchange=async e=>{const f=e.target.files[0];e.target.value='';if(!f)return;try{const v=JSON.parse(await f.text());await S.col.doc('profilo').set({...v,kind:'profile'});renderProf();toast('Scheda importata')}catch{toast('File non valido')}};
+  $('#pImp2').onchange=e=>$('#pImp').onchange(e);$('#pImp').onchange=async e=>{const f=e.target.files[0];e.target.value='';if(!f)return;try{const v=JSON.parse(await f.text());await S.col.doc('profilo').set({...v,kind:'profile'});renderProf();toast('Scheda importata')}catch{toast('File non valido')}};
   const t=setTimeout(()=>$('#count').textContent='Non riesco ancora a raggiungere l\'archivio…',10000);
   const {data,error}=await T.select('id,data').eq('user_id',uid);clearTimeout(t);
   if(error){$('#count').textContent='Archivio non disponibile: '+error.message;return}
