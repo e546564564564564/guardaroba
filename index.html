@@ -154,7 +154,8 @@ b,strong{font-weight:500}
   <p class="mut" id="pickTip" style="margin:12px 0 0">Consiglio: appoggia il capo su un fondo semplice e in contrasto. Dalla galleria puoi sceglierne fino a 50 insieme: li salvo tutti già scontornati, senza chiederti niente.</p>
   <div id="editArea" class="hide">
     <div class="photo" id="photo"><img id="photoImg" alt="Anteprima del capo"><div class="over hide" id="over"><span id="overT">Tolgo lo sfondo…</span><div class="pbar"><i id="overB"></i></div></div></div>
-    <div class="ltools" id="rotBar" style="margin:8px 0 0"><button type="button" class="ico" id="rotL" aria-label="Ruota a sinistra di 90 gradi" title="Ruota a sinistra">↺</button><input type="range" id="rotF" min="-30" max="30" step="1" value="0" aria-label="Raddrizza (gradi)"><button type="button" class="ico" id="rotR" aria-label="Ruota a destra di 90 gradi" title="Ruota a destra">↻</button><span class="mut" id="rotV" style="min-width:3.5em">0°</span></div>
+    <div class="ltools" style="margin:8px 0 0"><span class="mut">Luce</span><input type="range" id="lightF" min="0" max="100" step="5" value="0" aria-label="Luce"><span class="mut" id="lightV" style="min-width:3em">0</span></div>
+    <div class="ltools" id="rotBar" style="margin:0"><button type="button" class="ico" id="rotL" aria-label="Ruota a sinistra di 90 gradi" title="Ruota a sinistra">↺</button><input type="range" id="rotF" min="-30" max="30" step="1" value="0" aria-label="Raddrizza (gradi)"><button type="button" class="ico" id="rotR" aria-label="Ruota a destra di 90 gradi" title="Ruota a destra">↻</button><span class="mut" id="rotV" style="min-width:3.5em">0°</span></div>
     <div class="form">
       <div><span class="lbl">Categoria</span><div class="chips" id="cMacro"></div><div id="cSubBox" class="hide" style="margin-top:12px;padding:12px;background:var(--soft);border-radius:14px"><span class="lbl" id="cSubL" style="font-weight:500">Tipo</span><div class="chips sub" id="cSub"></div></div></div>
       <div><span class="lbl">Stagione</span><div class="chips" id="cSea"></div></div>
@@ -225,6 +226,9 @@ b,strong{font-weight:500}
     <button class="pri" type="submit">Salva il mio stile</button>
   </form>
   <div class="panel"><h2>La mia foto (per "Su di me")</h2><p class="mut" style="margin-top:0">Una foto a figura intera, in piedi, su fondo semplice.</p><div class="row"><img id="meThumb" alt="" class="hide" style="width:64px;height:84px;object-fit:cover;border-radius:10px"><label class="btn">Scegli foto<input type="file" accept="image/*" class="hide" id="meFile"></label></div></div>
+  <div class="panel"><h2>Schiarisci le foto già caricate</h2><p class="mut" style="margin-top:0">Muovi il cursore e guarda l'anteprima, poi applica a tutti i capi. Le foto originali restano salvate: puoi tornare indietro.</p>
+    <div class="row" style="gap:6px" id="bPrev"></div><div class="ltools" style="justify-content:flex-start"><span class="mut">Luce</span><input type="range" id="bLight" min="0" max="100" step="5" value="35"><span class="mut" id="bLightV">35</span></div>
+    <div class="row"><button class="pri" id="bApply">Applica a tutti</button><button id="bUndo">Annulla l'ultima schiaritura</button></div><p class="mut" id="bNote" style="margin-bottom:0"></p></div>
   <div class="panel"><h2>Foto</h2><label class="row" style="gap:10px;cursor:pointer"><input type="checkbox" id="autoEnh" style="width:22px;height:22px;accent-color:var(--acc)"> Migliora automaticamente le foto (luce, colori, capi storti)</label></div>
   <div class="panel"><h2>Consulente AI (Gemini, gratuito)</h2><p class="mut" style="margin-top:0">Crea una chiave gratuita su <a href="https://aistudio.google.com/apikey" target="_blank" rel="noopener">aistudio.google.com/apikey</a> e incollala qui. Resta solo in questo dispositivo.</p>
     <input type="text" id="gKey" placeholder="Chiave API Gemini" autocomplete="off"><div class="row" style="margin-top:8px"><button class="pri" id="gSave" type="button">Salva e prova</button></div><details style="margin-top:8px"><summary class="mut">Avanzate</summary><input type="text" id="gModel" placeholder="Modello (vuoto = scelta automatica)" style="margin-top:6px"></details><p class="mut" id="gNote" style="margin-bottom:0"></p></div>
@@ -317,7 +321,7 @@ function profTxt(){const p=S.prof||{};return `PROFILO DI CHI SI VESTE\n- Armocro
 const VIEWS=['armadio','aggiungi','capo','crea','outfit','stile','look'];
 function show(v){$$('.view').forEach(e=>e.classList.toggle('on',e.id==='v-'+v));const tab={aggiungi:'armadio',capo:'armadio',look:'outfit'}[v]||v;$$('nav.tabs button').forEach(b=>b.setAttribute('aria-current',b.dataset.go===tab));scrollTo(0,0);if(v!=='armadio')exitSel()}
 function go(v){if(location.hash!=='#'+v)location.hash=v;else show(v)}
-addEventListener('hashchange',()=>{const v=location.hash.slice(1);show(VIEWS.includes(v)?v:'armadio');if(v==='capo')renderCapo();if(v==='look')renderLook();if(v==='aggiungi'&&!S.form)startAdd()});
+addEventListener('hashchange',()=>{const v=location.hash.slice(1);show(VIEWS.includes(v)?v:'armadio');if(v==='capo')renderCapo();if(v==='look')renderLook();if(v==='stile')bPreview();if(v==='aggiungi'&&!S.form)startAdd()});
 document.addEventListener('click',e=>{const b=e.target.closest('[data-go]');if(b){if(b.dataset.go==='aggiungi')startAdd();go(b.dataset.go)}if(e.target.closest('[data-back]'))history.length>1?history.back():go('armadio')});
 
 // ---------- armadio ----------
@@ -361,7 +365,7 @@ function renderCapo(){const it=S.items.find(i=>i.id===S.capoId);if(!it){$('#capo
   if($('#okDraft'))$('#okDraft').onclick=()=>S.col.doc(it.id).update({draft:false}).then(()=>toast('Scheda confermata')).catch(()=>toast('Non riuscito'));
   $('#capoToOutfit').onclick=async()=>{await ensureAsp(it);newDraft(layFor([it.id]));go('crea');renderCrea()}}
 $('#capoEdit').onclick=()=>{const it=S.items.find(i=>i.id===S.capoId);if(!it)return;S.form={id:it.id,cat:it.cat,sea:new Set(it.sea||[]),name:it.name||'',fit:it.fit||''};S.cur=null;S.queue=[];
-  S.rot=0;rotUI();$('#addTitle').textContent='Modifica capo';$('#pick').classList.add('hide');$('#pickTip').classList.add('hide');$('#editArea').classList.remove('hide');$('#photoImg').src=src(it.img);$('#over').classList.add('hide');$('#desc').value=S.form.name;$('#save').textContent='Salva modifiche';$('#addNote').innerHTML='<button class="danger" id="delOne" style="margin-top:6px">Elimina capo</button>';
+  S.rot=0;rotUI();resetLight();$('#addTitle').textContent='Modifica capo';$('#pick').classList.add('hide');$('#pickTip').classList.add('hide');$('#editArea').classList.remove('hide');$('#photoImg').src=src(it.img);$('#over').classList.add('hide');$('#desc').value=S.form.name;$('#save').textContent='Salva modifiche';$('#addNote').innerHTML='<button class="danger" id="delOne" style="margin-top:6px">Elimina capo</button>';
   $('#delOne').onclick=async()=>{if(!(await ask('Eliminare questo capo? Non si può annullare.')))return;try{await S.col.doc(it.id).delete();S.assets.delete(it.img).catch(()=>{});S.form=null;toast('Capo eliminato');go('armadio')}catch{toast('Non riuscito')}};
   drawForm();location.hash='aggiungi'};
 
@@ -404,8 +408,24 @@ async function deskew(blob){const im=await loadImg(blob);const W=im.width,H=im.h
   const rad=-dev*Math.PI/180,cs=Math.abs(Math.cos(rad)),sn=Math.abs(Math.sin(rad));const o=document.createElement('canvas');o.width=Math.ceil(W*cs+H*sn);o.height=Math.ceil(W*sn+H*cs);const ox=o.getContext('2d');ox.translate(o.width/2,o.height/2);ox.rotate(rad);ox.drawImage(c,-W/2,-H/2);
   return trim(await new Promise(r=>o.toBlob(r,'image/png')))}
 // foto → (migliorata) → scontornata → raddrizzata
+// luce: schiarisce luminanza con curva morbida (0 resta 0, 1 resta 1), mantenendo i rapporti tra i colori
+async function adjustLight(blob,g){if(!(g>1.01))return blob;const im=await loadImg(blob);const c=document.createElement('canvas');c.width=im.width;c.height=im.height;const x=c.getContext('2d');x.drawImage(im,0,0);const id=x.getImageData(0,0,c.width,c.height),d=id.data;
+  const sat=1+Math.min(.12,(g-1)*.08);
+  for(let i=0;i<d.length;i+=4){if(d[i+3]<8)continue;let r=d[i]/255,gg=d[i+1]/255,b=d[i+2]/255;const L=.2126*r+.7152*gg+.0722*b;if(L<=0)continue;const L2=L*g/(1+(g-1)*L);let k=L2/L;
+    r*=k;gg*=k;b*=k;const m=Math.max(r,gg,b);if(m>1){const t=(m-1)/(m-L2+1e-6);r=r+(L2-r)*t;gg=gg+(L2-gg)*t;b=b+(L2-b)*t}
+    r=L2+(r-L2)*sat;gg=L2+(gg-L2)*sat;b=L2+(b-L2)*sat;d[i]=r*255;d[i+1]=gg*255;d[i+2]=b*255}
+  x.putImageData(id,0,0);return new Promise(r=>c.toBlob(r,blob.type==='image/jpeg'?'image/jpeg':'image/png',.92))}
+// esposizione dedotta dallo sfondo: se il fondo chiaro è grigio, la foto è sottoesposta
+async function bgGain(sm,raw){try{const a=await loadImg(sm),b=await loadImg(raw);const W=Math.min(200,a.width),H=Math.round(W*a.height/a.width);const ca=document.createElement('canvas'),cb=document.createElement('canvas');ca.width=cb.width=W;ca.height=cb.height=H;ca.getContext('2d').drawImage(a,0,0,W,H);cb.getContext('2d').drawImage(b,0,0,W,H);
+  const da=ca.getContext('2d').getImageData(0,0,W,H).data,db=cb.getContext('2d').getImageData(0,0,W,H).data;const L=[];for(let i=0;i<da.length;i+=4)if(db[i+3]<20)L.push(.2126*da[i]+.7152*da[i+1]+.0722*da[i+2]);if(L.length<W*H*.15)return 1;L.sort((p,q)=>p-q);
+  const bright=L[Math.floor(L.length*.75)]/255;if(bright>=.8)return 1;return Math.max(1,Math.min(2.6,.88/Math.max(.2,bright)))}catch{return 1}}
 async function processPhoto(f,onp){let sm=await shrink(f);if(autoOn())sm=await enhance(sm).catch(()=>sm);let cut=null;
-  try{cut=await trim(await removeBg(sm,onp));if(autoOn())cut=await deskew(cut).catch(()=>cut)}catch(err){console.error(err)}return{orig:sm,cut}}
+  try{const raw=await removeBg(sm,onp);const g=autoOn()?await bgGain(sm,raw):1;cut=await trim(raw);if(g>1.03)cut=await adjustLight(cut,g).catch(()=>cut);if(autoOn())cut=await deskew(cut).catch(()=>cut)}catch(err){console.error(err)}return{orig:sm,cut}}
+// luce manuale nella scheda
+const lightG=v=>1+v/100*1.8;let lightBase=null,lightT=null;
+async function lightPreview(){const v=+$('#lightF').value;$('#lightV').textContent=v;S.light=v;const base=lightBase||(S.form?.id?await (await fetch(src(S.items.find(i=>i.id===S.form.id).img))).blob():(S.cur?.cut||S.cur?.orig));if(!base)return;lightBase=base;const out=v?await adjustLight(base,lightG(v)):base;$('#photoImg').src=URL.createObjectURL(out)}
+$('#lightF').oninput=()=>{clearTimeout(lightT);lightT=setTimeout(lightPreview,120)};
+function resetLight(){S.light=0;lightBase=null;$('#lightF').value=0;$('#lightV').textContent='0'}
 // rotazione manuale nella scheda
 function rotUI(){const d=S.rot||0;$('#photoImg').style.transform=`rotate(${d}deg) scale(${Math.abs(Math.sin(d*Math.PI/180))>.5?.72:1})`;const f=((d%90)+90)%90;const fine=f>45?f-90:f;$('#rotF').value=Math.round(fine);$('#rotV').textContent=`${Math.round(((d%360)+360)%360>180?((d%360)+360)%360-360:((d%360)+360)%360)}°`}
 function setRot(d){S.rot=d;rotUI()}
@@ -456,7 +476,7 @@ function bulkUI(){const B=S.bulk;const el=$('#bulkBar');if(!B){el.classList.add(
 async function startBulk(files,multi){if(S.bulk&&S.bulk.phase!=='end')return toast('Sto già elaborando delle foto');if(files.length>BULK_MAX){toast(`Ne elaboro ${BULK_MAX} alla volta: le altre caricale dopo`);files=files.slice(0,BULK_MAX)}
   S.bulk={total:files.length,done:0,fail:0,ids:[],phase:'run'};go('armadio');bulkUI();try{wake=await navigator.wakeLock?.request('screen')}catch{}
   const saveBlob=async blob=>{const up=await S.assets.upload(blob,{type:blob.type||'image/png'});const id='it_'+Date.now().toString(36)+Math.random().toString(36).slice(2,5);await S.col.doc(id).set({kind:'item',cat:'altro',sea:[],name:'',img:up.id,at:Date.now()});S.bulk.ids.push(id)};
-  for(const f of files){try{if(multi){let sm=await shrink(f,2200);if(autoOn())sm=await enhance(sm).catch(()=>sm);const cut=await removeBg(sm,()=>{});const parts=await splitItems(cut);for(let pb of parts){if(autoOn())pb=await deskew(pb).catch(()=>pb);await saveBlob(pb);S.bulk.items=(S.bulk.items||0)+1;bulkUI()}}
+  for(const f of files){try{if(multi){let sm=await shrink(f,2200);if(autoOn())sm=await enhance(sm).catch(()=>sm);const cut=await removeBg(sm,()=>{});const g=autoOn()?await bgGain(sm,cut):1;const parts=await splitItems(cut);for(let pb of parts){if(g>1.03)pb=await adjustLight(pb,g).catch(()=>pb);if(autoOn())pb=await deskew(pb).catch(()=>pb);await saveBlob(pb);S.bulk.items=(S.bulk.items||0)+1;bulkUI()}}
       else{const r=await processPhoto(f,()=>{});await saveBlob(r.cut||r.orig);S.bulk.items=(S.bulk.items||0)+1}S.bulk.done++}catch(err){console.error(err);S.bulk.fail++}bulkUI()}
   if(S.bulk.ids.length&&sampleFn?.ready()){S.bulk.phase='tag';S.bulk.tagged=true;bulkUI();for(let k=0;k<S.bulk.ids.length;k+=20)await autoTag(S.bulk.ids.slice(k,k+20)).catch(err=>console.error(err))}
   if(!sampleFn?.ready())await guessAll().catch(()=>{});
@@ -470,7 +490,7 @@ async function autoTag(ids){const its=ids.map(id=>S.items.find(i=>i.id===id)).fi
 $('#fileCam').onchange=onFiles;$('#fileGal').onchange=onFiles;
 async function next(){const f=S.queue.shift();$('#queue').textContent=S.queue.length?`altre ${S.queue.length}`:'';
   if(!f){S.cur=null;S.form=null;go('armadio');return}
-  S.rot=0;rotUI();const prev=S.form;S.form={id:null,cat:prev&&!prev.id?prev.cat:null,sea:new Set(prev&&!prev.id?prev.sea:[]),name:'',fit:''};S.cur={orig:null,cut:null};
+  S.rot=0;rotUI();resetLight();const prev=S.form;S.form={id:null,cat:prev&&!prev.id?prev.cat:null,sea:new Set(prev&&!prev.id?prev.sea:[]),name:'',fit:''};S.cur={orig:null,cut:null};
   $('#pick').classList.add('hide');$('#pickTip').classList.add('hide');$('#editArea').classList.remove('hide');$('#desc').value='';$('#addNote').textContent='';drawForm();
   $('#photoImg').src=URL.createObjectURL(f);$('#over').classList.remove('hide');$('#overT').textContent=autoOn()?'Miglioro la foto…':'Tolgo lo sfondo…';$('#overB').style.width='0';drawForm();
   const r=await processPhoto(f,(t,p)=>{$('#overT').textContent=t;$('#overB').style.width=p==null?'100%':Math.round(p*100)+'%'});S.cur.orig=r.orig;S.cur.cut=r.cut;$('#photoImg').src=URL.createObjectURL(r.cut||r.orig);
@@ -488,8 +508,8 @@ $('#cMacro').onclick=e=>{const b=e.target.closest('[data-m]');if(!b)return;const
 $('#cSub').onclick=e=>{const b=e.target.closest('[data-s]');if(!b)return;S.form.cat=b.dataset.s;drawForm()};
 $('#cSea').onclick=e=>{const b=e.target.closest('[data-k]');if(!b)return;const s=S.form.sea;s.has(b.dataset.k)?s.delete(b.dataset.k):s.add(b.dataset.k);drawForm()};
 $('#save').onclick=async()=>{const F=S.form;if(!F?.cat)return;const btn=$('#save');btn.disabled=true;const old=btn.textContent;btn.textContent='Salvo…';
-  try{if(F.id){const it=S.items.find(i=>i.id===F.id);const patch={cat:F.cat,sea:[...F.sea],name:$('#desc').value.trim(),draft:false};if(S.rot%360){const blob=await (await fetch(src(it.img))).blob();const nb=await rotateBlob(blob,S.rot);const up=await S.assets.upload(nb,{type:'image/png'});patch.img=up.id;S.assets.delete(it.img).catch(()=>{})}await S.col.doc(F.id).update(patch);S.rot=0;toast('Modifiche salvate');S.capoId=F.id;S.form=null;history.back()}
-    else{let blob=S.cur.cut||S.cur.orig;if(S.rot%360)blob=await rotateBlob(blob,S.rot);S.rot=0;const up=await S.assets.upload(blob,{type:blob.type||'image/png'});await S.col.doc('it_'+Date.now().toString(36)).set({kind:'item',cat:F.cat,sea:[...F.sea],name:$('#desc').value.trim(),img:up.id,at:Date.now()});toast(`Salvato in ${catName(F.cat)}`);next()}}
+  try{if(F.id){const it=S.items.find(i=>i.id===F.id);const patch={cat:F.cat,sea:[...F.sea],name:$('#desc').value.trim(),draft:false};if(S.rot%360||S.light){let nb=await (await fetch(src(it.img))).blob();if(S.light)nb=await adjustLight(nb,lightG(S.light));if(S.rot%360)nb=await rotateBlob(nb,S.rot);const up=await S.assets.upload(nb,{type:'image/png'});patch.img=up.id;patch.imgPrev=it.img}await S.col.doc(F.id).update(patch);S.rot=0;resetLight();toast('Modifiche salvate');S.capoId=F.id;S.form=null;history.back()}
+    else{let blob=S.cur.cut||S.cur.orig;if(S.light)blob=await adjustLight(blob,lightG(S.light));if(S.rot%360)blob=await rotateBlob(blob,S.rot);S.rot=0;const up=await S.assets.upload(blob,{type:blob.type||'image/png'});await S.col.doc('it_'+Date.now().toString(36)).set({kind:'item',cat:F.cat,sea:[...F.sea],name:$('#desc').value.trim(),img:up.id,at:Date.now()});toast(`Salvato in ${catName(F.cat)}`);next()}}
   catch(err){console.error(err);toast('Salvataggio non riuscito, riprova')}btn.textContent=old;drawForm()};
 
 // ---------- crea (tavola) ----------
@@ -660,6 +680,16 @@ function renderProf(){const p=S.prof||{};$('#pArm').innerHTML=ARMO.map(a=>`<opti
   $('#pFields').innerHTML=PF.map(([k,n,r])=>`<div><label class="lbl" for="pf_${k}">${n}</label><textarea id="pf_${k}" rows="${r}">${esc(p[k]||'')}</textarea></div>`).join('');
   $('#impHint').classList.toggle('hide',!!(p.armo||p.stile||p.body));$('#meThumb').classList.toggle('hide',!S.me);if(S.me)$('#meThumb').src=src(S.me)}
 $('#autoEnh').checked=autoOn();$('#autoEnh').onchange=e=>{try{localStorage.setItem('auto_enh',e.target.checked?'1':'0')}catch{}toast(e.target.checked?'Miglioramento attivo':'Miglioramento spento')};
+let bT=null;
+async function bPreview(){const its=S.items.slice(0,3);const v=+$('#bLight').value;$('#bLightV').textContent=v;
+  const cells=await Promise.all(its.map(async it=>{try{const b=await (await fetch(src(it.img))).blob();const o=v?await adjustLight(b,lightG(v)):b;return `<div style="display:flex;gap:2px"><img src="${src(it.img)}" alt="prima" style="width:56px;height:72px;object-fit:contain;background:var(--bg);border-radius:8px"><img src="${URL.createObjectURL(o)}" alt="dopo" style="width:56px;height:72px;object-fit:contain;background:var(--bg);border-radius:8px"></div>`}catch{return ''}}));
+  $('#bPrev').innerHTML=cells.join('')||'<span class="mut">Nessun capo ancora.</span>'}
+$('#bLight').oninput=()=>{$('#bLightV').textContent=$('#bLight').value;clearTimeout(bT);bT=setTimeout(bPreview,200)};
+$('#bApply').onclick=async()=>{const v=+$('#bLight').value;if(!v)return toast('Sposta il cursore Luce');const its=[...S.items];if(!its.length)return;if(!(await ask(`Schiarire ${its.length} foto?`)))return;$('#bApply').disabled=true;let k=0;
+  for(const it of its){try{const b=await (await fetch(src(it.img))).blob();const o=await adjustLight(b,lightG(v));const up=await S.assets.upload(o,{type:'image/png'});await S.col.doc(it.id).update({img:up.id,imgPrev:it.img});k++;$('#bNote').textContent=`Schiarite ${k} di ${its.length}…`}catch(e){console.error(e)}}
+  $('#bNote').textContent=`Fatto: ${k} foto schiarite.`;$('#bApply').disabled=false;bPreview()};
+$('#bUndo').onclick=async()=>{const its=S.items.filter(i=>i.imgPrev);if(!its.length)return toast('Niente da annullare');if(!(await ask(`Ripristinare la foto precedente di ${its.length} capi?`)))return;let k=0;
+  for(const it of its){try{const old=it.img;await S.col.doc(it.id).update({img:it.imgPrev,imgPrev:null});S.assets.delete(old).catch(()=>{});k++}catch{}}$('#bNote').textContent=`Ripristinate ${k} foto.`;bPreview()};
 $('#pf').onsubmit=async e=>{e.preventDefault();const v={kind:'profile',armo:$('#pArm').value,h:$('#pH').value.trim(),t:$('#pT').value.trim(),mis:$('#pMis').value.trim()};for(const [k] of PF)v[k]=$('#pf_'+k).value.trim();
   try{await S.col.doc('profilo').set(v);toast('Stile salvato')}catch{toast('Salvataggio non riuscito')}};
 $('#meFile').onchange=async e=>{const f=e.target.files[0];e.target.value='';if(!f)return;toast('Carico la tua foto…');
@@ -682,7 +712,7 @@ const CFG=window.GUARDAROBA||{};
   const all=new Map();
   async function signAll(){const paths=[...all.values()].flatMap(d=>d.kind==='item'?[d.img]:d.kind==='me'?[d.photo]:d.kind==='outfit'?(d.photos||[]):[]).filter(p=>p&&!URLS.has(p));
     for(let k=0;k<paths.length;k+=100){const {data}=await sb.storage.from('foto').createSignedUrls(paths.slice(k,k+100),60*60*24*7);(data||[]).forEach(x=>{if(x.signedUrl)URLS.set(x.path,x.signedUrl)})}}
-  function apply(){const arr=[...all.values()];S.items=arr.filter(d=>d.kind==='item').sort((a,b)=>b.at-a.at);S.outfits=arr.filter(d=>d.kind==='outfit').sort((a,b)=>b.at-a.at);S.me=arr.find(d=>d.kind==='me')?.photo||null;
+  let signing=false;function apply(){const arr=[...all.values()];if(!signing&&arr.some(d=>d.kind==='item'&&d.img&&!URLS.has(d.img))){signing=true;signAll().catch(()=>{}).finally(()=>{signing=false;renderAll()})}S.items=arr.filter(d=>d.kind==='item').sort((a,b)=>b.at-a.at);S.outfits=arr.filter(d=>d.kind==='outfit').sort((a,b)=>b.at-a.at);S.me=arr.find(d=>d.kind==='me')?.photo||null;
     S.prof=arr.find(d=>d.kind==='profile')||null;S.gaps=arr.find(d=>d.kind==='gaps')||null;
     const ids=new Set(S.items.map(i=>i.id));S.layers=S.layers.filter(l=>ids.has(l.item));if(S.sel>=S.layers.length)S.sel=-1;for(const id of [...S.selected])if(!ids.has(id))S.selected.delete(id);renderAll()}
   const T=sb.from('docs');
@@ -696,7 +726,8 @@ const CFG=window.GUARDAROBA||{};
   const ls=(k,v)=>{try{if(v===undefined)return localStorage.getItem(k)||'';localStorage.setItem(k,v)}catch{return ''}};
   const gk=()=>ls('gemini_key');const gm=()=>ls('gemini_model_manual')||ls('gemini_model_auto');
   const API='https://generativelanguage.googleapis.com/v1beta/';
-  async function resolveModel(){const r=await fetch(API+'models?pageSize=200',{headers:{'x-goog-api-key':gk()}});if(!r.ok){let m='';try{m=(await r.json()).error?.message||''}catch{}throw{code:'bad_key',message:m||('HTTP '+r.status)}}
+  const tfetch=(url,opt={},ms=60000)=>{const c=new AbortController();const t=setTimeout(()=>c.abort('timeout'),ms);if(opt.signal)opt.signal.addEventListener('abort',()=>c.abort('user'));return fetch(url,{...opt,signal:c.signal}).catch(e=>{throw c.signal.reason==='timeout'?{code:'timeout',message:`Google non ha risposto entro ${Math.round(ms/1000)} secondi`}:e}).finally(()=>clearTimeout(t))};
+  async function resolveModel(){const r=await tfetch(API+'models?pageSize=200',{headers:{'x-goog-api-key':gk()}},20000);if(!r.ok){let m='';try{m=(await r.json()).error?.message||''}catch{}throw{code:'bad_key',message:m||('HTTP '+r.status)}}
     const ms=((await r.json()).models||[]).filter(m=>(m.supportedGenerationMethods||[]).includes('generateContent')).map(m=>m.name.replace('models/',''));
     const ok=ms.filter(n=>/flash/.test(n)&&!/(image|tts|live|audio|transcribe|robotics|omni|thinking|exp)/.test(n));
     const ver=n=>{const m=n.match(/gemini-(\d+(?:\.\d+)?)/);return m?+m[1]:0};
@@ -704,13 +735,14 @@ const CFG=window.GUARDAROBA||{};
     const pick=stable[0]||ok.find(n=>/flash-latest/.test(n))||ok.filter(n=>!/lite/.test(n)).sort((a,b)=>ver(b)-ver(a))[0]||ok[0];if(!pick)throw{code:'no_model',message:'Nessun modello Flash disponibile per questa chiave'};ls('gemini_model_auto',pick);return pick}
   $('#gKey').value=gk();$('#gModel').value=ls('gemini_model_manual');$('#gNote').textContent=gk()?`Chiave salvata su questo dispositivo${gm()?' · modello '+gm():''}.`:'Senza chiave la consulente è spenta.';
   $('#gSave').onclick=async()=>{ls('gemini_key',$('#gKey').value.trim());ls('gemini_model_manual',$('#gModel').value.trim());ls('gemini_model_auto','');ls('gemini_model','');$('#gNote').textContent='Provo la chiave…';
-    try{if(!gm())await resolveModel();const r=await sampleFn.json('Rispondi solo con JSON: {"ok":true}');$('#gNote').textContent=r?.ok?`Funziona ✓ (modello ${gm()}). La consulente è pronta.`:'Risposta strana, ma la chiave è valida.';toast('Consulente pronta')}
+    try{if(!gm()){$('#gNote').textContent='Controllo la chiave e cerco il modello…';await resolveModel()}const r=await sampleFn.json('Rispondi solo con JSON: {"ok":true}',{timeout:45000,onStage:m=>{$('#gNote').textContent=`Provo il modello ${m}…`}});$('#gNote').textContent=r?.ok?`Funziona ✓ (modello ${gm()}). La consulente è pronta.`:'Risposta strana, ma la chiave è valida.';toast('Consulente pronta')}
     catch(e){$('#gNote').textContent='Non funziona: '+(e.message||e.code||'errore sconosciuto')}};
   const b64=b=>new Promise(r=>{const f=new FileReader();f.onload=()=>r(String(f.result).split(',')[1]);f.readAsDataURL(b)});
   sampleFn={ready:()=>!!gk(),json:async(prompt,o={})=>{const key=gk();if(!key)throw{code:'no_key'};
     const parts=[{text:prompt}];for(const im of (o.images||[]))if(im)parts.push({inline_data:{mime_type:im.type||'image/jpeg',data:await b64(im)}});
-    const call=async()=>{if(!gm())await resolveModel();return fetch(`${API}models/${encodeURIComponent(gm())}:generateContent`,{method:'POST',signal:o.signal,headers:{'Content-Type':'application/json','x-goog-api-key':key},body:JSON.stringify({contents:[{role:'user',parts}],generationConfig:{responseMimeType:'application/json',temperature:.6}})})};
-    let res;try{res=await call();if((res.status===404||res.status===400)&&!ls('gemini_model_manual')){ls('gemini_model_auto','');res=await call()}}catch(e){if(e?.code)throw e;throw{code:e?.name==='AbortError'?'cancelled':'upstream_error',message:'Connessione non riuscita'}}
+    const think=()=>ls('gemini_nothink')==='1'?{}:(/gemini-(3|4)/.test(gm())?{thinkingConfig:{thinkingLevel:'low'}}:/2\.5/.test(gm())?{thinkingConfig:{thinkingBudget:0}}:{});
+    const call=async()=>{if(!gm())await resolveModel();o.onStage?.(gm());return tfetch(`${API}models/${encodeURIComponent(gm())}:generateContent`,{method:'POST',signal:o.signal,headers:{'Content-Type':'application/json','x-goog-api-key':key},body:JSON.stringify({contents:[{role:'user',parts}],generationConfig:{responseMimeType:'application/json',temperature:.6,...think()}})},o.timeout||90000)};
+    let res;try{res=await call();if(res.status===400&&ls('gemini_nothink')!=='1'){let m='';try{m=(await res.clone().json()).error?.message||''}catch{}if(/think/i.test(m)){ls('gemini_nothink','1');res=await call()}}if((res.status===404||res.status===400)&&!ls('gemini_model_manual')){ls('gemini_model_auto','');res=await call()}}catch(e){if(e?.code)throw e;throw{code:e?.name==='AbortError'?'cancelled':'upstream_error',message:'Connessione non riuscita'}}
     if(res.status===429)throw{code:'rate_limited'};if(!res.ok){let m='';try{m=(await res.json()).error?.message||''}catch{}throw{code:'upstream_error',message:m||('HTTP '+res.status)}}
     const j=await res.json();const t=(j.candidates?.[0]?.content?.parts||[]).map(p=>p.text||'').join('');
     try{return JSON.parse(t)}catch{const m=t.match(/[\[{][\s\S]*[\]}]/);if(m)try{return JSON.parse(m[0])}catch{}throw{code:'invalid_json'}}}};
