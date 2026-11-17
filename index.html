@@ -98,9 +98,10 @@ nav.tabs button[aria-current=true]{color:var(--acc)}
 .sg b{display:block;font-size:15px}.sg span{font-size:13px;color:var(--mut)}
 .vb{display:inline-block;font-size:12px;font-weight:500;padding:2px 9px;border-radius:99px;color:#fff}
 .mini{position:relative;aspect-ratio:3/4;background:var(--soft);border-radius:14px;overflow:hidden;width:100%}
-.ocard{display:flex;flex-direction:column;gap:4px;background:none;border:0;padding:0;text-align:left;min-height:0;border-radius:14px;width:100%;font-weight:400}
+.ocard{display:flex;flex-direction:column;align-items:flex-start;justify-content:flex-start;gap:4px;background:none;border:0;padding:0;text-align:left;min-height:0;border-radius:14px;width:100%;font-weight:400}
 .ocard b{font-size:15px}
 .gap{background:var(--bg);border-radius:14px;padding:12px;border:1px solid var(--line)}.gap.done{opacity:.55}.gap h3{margin:0;font-size:16px}.gap .th{display:flex;gap:4px;flex-wrap:wrap;margin:6px 0}.gap .th img{width:40px;height:40px;object-fit:contain;background:var(--soft);border-radius:8px}.gap .q{font-size:14px;background:var(--soft);border-radius:8px;padding:4px 8px}
+.ph{position:relative;aspect-ratio:3/4;border-radius:12px;overflow:hidden;background:var(--soft)}.ph img{width:100%;height:100%;object-fit:cover;display:block}.ph button{position:absolute;top:4px;right:4px;min-height:28px;width:28px;padding:0;border-radius:50%;background:rgb(0 0 0/.5);color:#fff;border:0;font-size:13px}
 .toast{position:fixed;left:50%;bottom:calc(90px + env(safe-area-inset-bottom));transform:translateX(-50%);background:var(--ink);color:var(--bg);padding:10px 18px;border-radius:99px;font-weight:500;font-size:14px;opacity:0;transition:opacity .2s;pointer-events:none;z-index:40;max-width:90vw;text-align:center}
 .toast.on{opacity:1}
 dialog{border:0;border-radius:20px;padding:20px;max-width:min(420px,92vw);background:var(--bg);color:var(--ink)}
@@ -170,24 +171,41 @@ b,strong{font-weight:500}
 
 <!-- CREA -->
 <section class="view" id="v-crea"><div class="wrap">
-  <div class="bar"><h1 id="stTitle">Crea un outfit</h1><button class="ico" id="helpBtn" aria-label="Come funziona" title="Come funziona">?</button><button class="ico" id="newO" aria-label="Ricomincia" title="Ricomincia"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M4 12a8 8 0 1 0 2.4-5.7"/><path d="M4 4v4h4"/></svg></button></div>
-  <div class="info hide" id="help"><b>A cosa serve.</b> È il tuo specchio: scegli i capi dal cassetto qui sotto, li vedi insieme sulla tavola (o sulla tua foto, con "Su di me") e chiedi alla consulente se ti stanno bene. Se l'outfit ti piace lo salvi, e lo ritrovi in <b>Outfit</b>. Tocca un capo sulla tavola per spostarlo o ingrandirlo.</div>
-  <div class="cw"><div>
+  <div class="bar"><button class="ico hide" id="back1" aria-label="Torna alla composizione"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M15 5l-7 7 7 7"/></svg></button><h1 id="stTitle">Crea un outfit</h1><button class="ico" id="helpBtn" aria-label="Come funziona" title="Come funziona">?</button><button class="ico" id="newO" aria-label="Ricomincia" title="Ricomincia"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M4 12a8 8 0 1 0 2.4-5.7"/><path d="M4 4v4h4"/></svg></button></div>
+  <div class="info hide" id="help"><b>Due passaggi.</b> 1) <b>Componi</b>: tocca i capi nel cassetto per metterli sulla tavola, oppure premi <b>Idee</b> e l'AI ti propone abbinamenti dai tuoi capi, rispettando la tua scheda Stile. 2) <b>Valuta e salva</b>: chiedi "Mi sta bene?", dai le stelle, aggiungi le foto di quando l'hai indossato e salva.</div>
+  <div id="step1"><div class="cw"><div>
     <div class="board" id="board"></div>
     <div class="ltools" id="ltools"></div>
   </div><div>
     <div class="drawer"><div class="tabsx" id="dTabs"></div><div class="strip" id="dStrip"></div></div>
-    <div class="acts"><button class="pri" id="judge">Mi sta bene?</button><button id="sugg">Proponimi</button><button id="saveO">Salva</button></div>
-    <div class="row" style="justify-content:center"><span class="stars" id="stStars" aria-label="Il tuo voto"></span><span class="chips" id="baseSw"></span></div>
-    <div class="panel" id="ideas"><input type="text" id="occ" placeholder="Occasione (facoltativo): ufficio, cena, weekend…" maxlength="80"><p class="mut" id="suggNote" style="margin:8px 0 0"></p><button id="stopS" class="hide" style="margin-top:8px">Stop</button><div id="verdict" class="verdict hide"></div><div id="suggList" style="display:grid;gap:8px;margin-top:8px"></div></div>
-  </div></div>
+    <div class="acts"><button id="ideasBtn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"><path d="M12 3l1.8 4.6L18.5 9l-4.7 1.6L12 15l-1.8-4.4L5.5 9l4.7-1.4z"/><path d="M18.5 14.5l.8 2 2 .8-2 .8-.8 2-.8-2-2-.8 2-.8z"/></svg>Idee</button><button class="pri" id="next1" disabled>Avanti</button></div>
+    <div class="panel hide" id="ideaBox"><h2>Idee dai tuoi capi</h2><div class="row"><input type="text" id="occ1" placeholder="Occasione (facoltativo)" maxlength="80" style="flex:1"><button class="pri" id="sugg">Proponi</button></div><p class="mut" id="ideaNote" style="margin:8px 0 0">L'AI usa tutti i tuoi capi e la tua scheda Stile. Se hai già messo qualcosa sulla tavola, parte da quello.</p><button id="stopI" class="hide" style="margin-top:8px">Stop</button><div id="suggList" style="display:grid;gap:8px;margin-top:8px"></div></div>
+  </div></div></div>
+  <div id="step2" class="hide" style="max-width:640px;margin:0 auto">
+    <div class="mini" id="prev2" style="max-width:240px;margin:0 auto"></div>
+    <div class="row" style="justify-content:center;margin-top:8px"><span class="chips" id="baseSw"></span></div>
+    <div class="form" style="margin-top:14px">
+      <div><label class="lbl" for="oName">Nome</label><input type="text" id="oName" maxlength="60" placeholder="es. Ufficio con blazer bordeaux"></div>
+      <div class="panel" style="margin:0"><h2>Mi sta bene?</h2><div class="row"><input type="text" id="occ" placeholder="Occasione (facoltativo)" maxlength="80" style="flex:1"><button class="pri" id="judge">Chiedi</button></div><p class="mut" id="suggNote" style="margin:8px 0 0"></p><button id="stopS" class="hide" style="margin-top:8px">Stop</button><div id="verdict" class="verdict hide"></div><div id="varList" style="display:grid;gap:8px;margin-top:8px"></div></div>
+      <div><span class="lbl">Il tuo voto</span><span class="stars" id="stStars" aria-label="Il tuo voto"></span></div>
+      <div><span class="lbl">Foto indossato</span><div class="grid" id="photos" style="grid-template-columns:repeat(auto-fill,minmax(90px,1fr))"></div>
+        <div class="row" style="margin-top:8px"><label class="btn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 8h3l2-3h6l2 3h3v11H4z"/><circle cx="12" cy="13" r="3.4"/></svg>Scatta<input type="file" accept="image/*" capture="environment" class="hide" id="pCam"></label><label class="btn">Dalla galleria<input type="file" accept="image/*" multiple class="hide" id="pGal"></label></div></div>
+      <button class="pri full" id="saveO">Salva outfit</button>
+    </div>
+  </div>
 </div></section>
 
 <!-- OUTFIT -->
 <section class="view" id="v-outfit"><div class="wrap">
-  <div class="bar"><div style="flex:1"><h1>Outfit</h1><div class="mut" id="oCount"></div></div><button class="ico pri" data-go="crea" aria-label="Nuovo outfit"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg></button></div>
+  <div class="bar"><div style="flex:1"><h1>Outfit</h1><div class="mut" id="oCount"></div></div><label class="btn ico" title="Aggiungi un look da foto" aria-label="Aggiungi un look da foto"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 8h3l2-3h6l2 3h3v11H4z"/><circle cx="12" cy="13" r="3.4"/></svg><input type="file" accept="image/*" class="hide" id="lookNew"></label><button class="ico pri" id="newOutfit" aria-label="Nuovo outfit" title="Nuovo outfit"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg></button></div>
   <div class="filters" style="grid-template-columns:repeat(2,minmax(0,1fr))"><select id="oSea" aria-label="Stagione"></select><select id="oSort" aria-label="Mostra"></select></div>
-  <div class="grid" id="gOut" style="grid-template-columns:repeat(auto-fill,minmax(150px,1fr))"></div>
+  <div class="grid" id="gOut" style="align-items:start;grid-template-columns:repeat(auto-fill,minmax(150px,1fr))"></div>
+</div></section>
+
+<!-- LOOK -->
+<section class="view" id="v-look"><div class="wrap" style="max-width:720px">
+  <div class="bar"><button class="ico" data-back aria-label="Indietro"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M15 5l-7 7 7 7"/></svg></button><h1 id="lookTitle"></h1><button class="ico" id="lookEdit" aria-label="Modifica outfit" title="Modifica outfit"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"><path d="M4 20h4L19 9l-4-4L4 16z"/><path d="M13.5 6.5l4 4"/></svg></button></div>
+  <div id="lookBody"></div>
 </div></section>
 
 <!-- STILE -->
@@ -243,7 +261,9 @@ const SEAS=[['inverno','Inverno'],['mezza','Mezza stagione'],['estate','Estate']
 const FIT=[['si','Mi valorizza','#1f9d55'],['forse','Così così','#d9a400'],['no','Non mi convince','#d83a3a']];const FC=Object.fromEntries(FIT.map(f=>[f[0],f]));
 const ARMO=['','Primavera Chiara','Primavera Calda','Primavera Brillante','Estate Chiara','Estate Fredda','Estate Morbida','Autunno Morbido','Autunno Caldo','Autunno Profondo','Inverno Profondo','Inverno Freddo','Inverno Brillante'];
 const PF=[['body','Fisicità e vestibilità',4],['stile','Il mio stile',3],['pal','Colori: sì e no',3],['capi','Capi che cerco',6],['no','Cosa evito',5],['goal','Regola d\'oro',3]];
-const S={items:[],outfits:[],me:null,prof:null,fSea:'all',fCat:'all',fFit:'all',oSea:'all',oSort:'recent',layers:[],sel:-1,base:'board',editing:null,stars:0,queue:[],cur:null,form:null,capoId:null,selMode:false,selected:new Set(),dTab:'all',gaps:null};
+const S={items:[],outfits:[],me:null,prof:null,fSea:'all',fCat:'all',fFit:'all',oSea:'all',oSort:'recent',layers:[],sel:-1,base:'board',editing:null,stars:0,queue:[],cur:null,form:null,capoId:null,selMode:false,selected:new Set(),dTab:'all',gaps:null,step:1,photos:[],oname:'',lookId:null};
+function newDraft(layers,o){S.layers=layers||[];S.sel=-1;S.editing=o?.id||null;S.stars=o?.stars||0;S.photos=[...(o?.photos||[])];S.oname=o?.name||'';S.base=o?.base||S.base||'board';S.verdict=o?.verdict||null;S.verdictKey=o?.verdictKey;S.step=1;$('#varList').innerHTML='';$('#suggNote').textContent=''}
+const layFor=ids=>ids.map((id,i)=>{const it=S.items.find(x=>x.id===id);const p=posOf(it?.cat);return{item:id,x:p[0],y:p[1],w:p[2],r:0,z:i+1}});
 const fits=(it,f)=>f==='all'||!it?.sea?.length||it.sea.includes(f);
 const nameOf=it=>{const d=(it?.name||'').trim();return d?(d.length>34?d.slice(0,32)+'…':d):catName(it?.cat)};
 const toast=t=>{const e=$('#toast');e.textContent=t;e.classList.add('on');clearTimeout(toast.t);toast.t=setTimeout(()=>e.classList.remove('on'),2800)};
@@ -251,10 +271,10 @@ const ask=(t,input)=>new Promise(r=>{const d=$('#dlg');$('#dlgT').textContent=t;
 function profTxt(){const p=S.prof||{};return `PROFILO DI CHI SI VESTE\n- Armocromia: ${p.armo||'non nota'}\n- Altezza: ${p.h||'?'} cm, taglia ${p.t||'?'}${p.mis?'\n- Misure: '+p.mis:''}\n`+PF.map(([k,n])=>p[k]?`- ${n}: ${p[k]}`:'').filter(Boolean).join('\n')+`\nValuta sempre 4 cose: 1) vestibilità sulle sue misure reali, 2) proporzioni (lunghezze, volumi, rapporto con l'altezza), 3) colori coerenti con la sua armocromia, 4) abbinabilità con il resto del guardaroba. Non approvare qualcosa solo perché è bello o di tendenza.`}
 
 // ---------- navigazione ----------
-const VIEWS=['armadio','aggiungi','capo','crea','outfit','stile'];
-function show(v){$$('.view').forEach(e=>e.classList.toggle('on',e.id==='v-'+v));const tab={aggiungi:'armadio',capo:'armadio'}[v]||v;$$('nav.tabs button').forEach(b=>b.setAttribute('aria-current',b.dataset.go===tab));scrollTo(0,0);if(v!=='armadio')exitSel()}
+const VIEWS=['armadio','aggiungi','capo','crea','outfit','stile','look'];
+function show(v){$$('.view').forEach(e=>e.classList.toggle('on',e.id==='v-'+v));const tab={aggiungi:'armadio',capo:'armadio',look:'outfit'}[v]||v;$$('nav.tabs button').forEach(b=>b.setAttribute('aria-current',b.dataset.go===tab));scrollTo(0,0);if(v!=='armadio')exitSel()}
 function go(v){if(location.hash!=='#'+v)location.hash=v;else show(v)}
-addEventListener('hashchange',()=>{const v=location.hash.slice(1);show(VIEWS.includes(v)?v:'armadio');if(v==='capo')renderCapo();if(v==='aggiungi'&&!S.form)startAdd()});
+addEventListener('hashchange',()=>{const v=location.hash.slice(1);show(VIEWS.includes(v)?v:'armadio');if(v==='capo')renderCapo();if(v==='look')renderLook();if(v==='aggiungi'&&!S.form)startAdd()});
 document.addEventListener('click',e=>{const b=e.target.closest('[data-go]');if(b){if(b.dataset.go==='aggiungi')startAdd();go(b.dataset.go)}if(e.target.closest('[data-back]'))history.length>1?history.back():go('armadio')});
 
 // ---------- armadio ----------
@@ -282,7 +302,7 @@ function exitSel(){if(!S.selMode)return;S.selMode=false;S.selected.clear();rende
 $('#selX').onclick=exitSel;
 $('#selDel').onclick=async()=>{const n=S.selected.size;if(!n||!(await ask(`Eliminare ${n} ${n===1?'capo':'capi'}? Non si può annullare.`)))return;
   for(const id of [...S.selected]){const it=S.items.find(i=>i.id===id);try{await S.col.doc(id).delete();if(it?.img)S.assets.delete(it.img).catch(()=>{})}catch{toast('Non riuscito su un capo')}}toast(n===1?'Capo eliminato':`${n} capi eliminati`);exitSel()};
-$('#selOutfit').onclick=()=>{const ids=[...S.selected];exitSel();S.layers=ids.map((id,i)=>{const it=S.items.find(x=>x.id===id);const p=posOf(it?.cat);return{item:id,x:p[0],y:p[1],w:p[2],r:0,z:i+1}});S.editing=null;S.stars=0;S.sel=-1;$('#stTitle').textContent='Crea un outfit';go('crea');renderCrea()};
+$('#selOutfit').onclick=()=>{const ids=[...S.selected];exitSel();newDraft(layFor(ids));go('crea');renderCrea()};
 
 // ---------- scheda capo (sola lettura) ----------
 function renderCapo(){const it=S.items.find(i=>i.id===S.capoId);if(!it){$('#capoTitle').textContent='Capo non trovato';$('#capoBody').innerHTML='';return}
@@ -293,7 +313,7 @@ function renderCapo(){const it=S.items.find(i=>i.id===S.capoId);if(!it){$('#capo
   ${f?`<div class="fitbox" style="--vc:${f[2]}"><b>${f[1]}</b>${it.fitNote?`<div class="mut">${it.fitBy==='ai'?'Consulente: ':''}${esc(it.fitNote)}</div>`:''}</div>`:''}
   <p class="mut">${used?`Usato in ${used} outfit salvat${used===1?'o':'i'}.`:'Non ancora usato in un outfit.'}</p>
   <button class="full" id="capoToOutfit">Crea un outfit con questo capo</button>`;
-  $('#capoToOutfit').onclick=()=>{const p=posOf(it.cat);S.layers=[{item:it.id,x:p[0],y:p[1],w:p[2],r:0,z:1}];S.editing=null;S.stars=0;S.sel=-1;$('#stTitle').textContent='Crea un outfit';go('crea');renderCrea()}}
+  $('#capoToOutfit').onclick=()=>{newDraft(layFor([it.id]));go('crea');renderCrea()}}
 $('#capoEdit').onclick=()=>{const it=S.items.find(i=>i.id===S.capoId);if(!it)return;S.form={id:it.id,cat:it.cat,sea:new Set(it.sea||[]),name:it.name||'',fit:it.fit||''};S.cur=null;S.queue=[];
   $('#addTitle').textContent='Modifica capo';$('#pick').classList.add('hide');$('#pickTip').classList.add('hide');$('#editArea').classList.remove('hide');$('#photoImg').src=src(it.img);$('#over').classList.add('hide');$('#desc').value=S.form.name;$('#save').textContent='Salva modifiche';$('#addNote').innerHTML='<button class="danger" id="delOne" style="margin-top:6px">Elimina capo</button>';
   $('#delOne').onclick=async()=>{if(!(await ask('Eliminare questo capo? Non si può annullare.')))return;try{await S.col.doc(it.id).delete();S.assets.delete(it.img).catch(()=>{});S.form=null;toast('Capo eliminato');go('armadio')}catch{toast('Non riuscito')}};
@@ -345,7 +365,7 @@ const starsHTML=(n,id)=>[1,2,3,4,5].map(k=>`<button type="button" class="${k<=(n
 const boardKey=()=>S.layers.map(l=>l.item).sort().join(',');
 function layerHTML(l,i,sel){const it=S.items.find(x=>x.id===l.item);if(!it)return'';return `<div class="layer${sel===i?' sel':''}" data-i="${i}" style="left:${l.x}%;top:${l.y}%;width:${l.w}%;z-index:${l.z};transform:translate(-50%,-50%) rotate(${l.r||0}deg)"><img src="${src(it.img)}" alt="${esc(nameOf(it))}"></div>`}
 const baseHTML=b=>b==='me'&&S.me?`<img class="base" src="${src(S.me)}" alt="La mia foto">`:'';
-function renderBoard(){const b=$('#board');b.classList.toggle('me',S.base==='me'&&!!S.me);b.innerHTML=baseHTML(S.base)+S.layers.map((l,i)=>layerHTML(l,i,S.sel)).join('')+(S.layers.length?'':`<div class="hint">${S.items.length?'Scegli i capi dal cassetto: toccane uno per metterlo qui.':'Il tuo armadio è vuoto: aggiungi prima qualche capo.'}</div>`);renderTools();renderVerdict()}
+function renderBoard(){$('#next1').disabled=!S.layers.length;const b=$('#board');b.classList.toggle('me',S.base==='me'&&!!S.me);b.innerHTML=baseHTML(S.base)+S.layers.map((l,i)=>layerHTML(l,i,S.sel)).join('')+(S.layers.length?'':`<div class="hint">${S.items.length?'Scegli i capi dal cassetto: toccane uno per metterlo qui.':'Il tuo armadio è vuoto: aggiungi prima qualche capo.'}</div>`);renderTools();renderVerdict()}
 function renderTools(){const t=$('#ltools');const l=S.layers[S.sel];
   if(!l){t.innerHTML=S.layers.length?'<span class="mut">Tocca un capo sulla tavola per regolarlo · due dita per ingrandire</span>':'';return}
   t.innerHTML=`<input type="range" min="6" max="100" value="${l.w}" id="sz" aria-label="Dimensione"><button class="ico" id="up" title="Porta davanti" aria-label="Porta davanti">⬆</button><button class="ico" id="dn" title="Porta dietro" aria-label="Porta dietro">⬇</button><button class="ico" id="rot" aria-label="Ruota">↻</button><button class="ico danger" id="rm" aria-label="Togli">✕</button>`;
@@ -358,17 +378,28 @@ function renderDrawer(){const its=S.items.filter(i=>fits(i,S.fSea)||true);const 
   $('#dTabs').innerHTML=[['all','Tutti'],...TREE.filter(t=>used.has(t[0])).map(t=>[t[0],t[1]])].map(([k,n])=>`<button type="button" data-k="${k}" aria-pressed="${S.dTab===k}">${n}</button>`).join('');
   const on=new Set(S.layers.map(l=>l.item));const list=its.filter(i=>S.dTab==='all'||(SUB[i.cat]?.m||'altro')===S.dTab);
   $('#dStrip').innerHTML=S.items.length?list.map(i=>`<button class="card${on.has(i.id)?' on':''}" data-id="${i.id}" aria-label="${esc(nameOf(i))}"><img src="${src(i.img)}" alt="" loading="lazy">${i.fit?`<span class="dot" style="background:${FC[i.fit][2]};left:7px;right:auto"></span>`:''}</button>`).join(''):'<button class="pri" data-go="aggiungi">Aggiungi il primo capo</button>';
-  $('#stStars').innerHTML=starsHTML(S.stars);
-  $('#baseSw').innerHTML=[['board','Tavola'],['me','Su di me']].map(([k,n])=>`<button type="button" data-b="${k}" aria-pressed="${S.base===k}">${n}</button>`).join('')}
-function renderCrea(){renderBoard();renderDrawer()}
+  $('#next1').disabled=!S.layers.length}
+function renderStep2(){$('#prev2').style.background=S.base==='me'&&S.me?'#000':'';$('#prev2').innerHTML=baseHTML(S.base)+S.layers.map((l,i)=>layerHTML(l,i,-1)).join('');
+  $('#baseSw').innerHTML=[['board','Tavola'],['me','Su di me']].map(([k,n])=>`<button type="button" data-b="${k}" aria-pressed="${S.base===k}">${n}</button>`).join('');
+  $('#stStars').innerHTML=starsHTML(S.stars);if(document.activeElement!==$('#oName'))$('#oName').value=S.oname||'';
+  $('#photos').innerHTML=S.photos.map((p,k)=>`<div class="ph"><img src="${src(p)}" alt="Foto indossato"><button type="button" data-rm="${k}" aria-label="Togli foto">✕</button></div>`).join('')||'<p class="mut" style="grid-column:1/-1;margin:0">Nessuna foto: aggiungila quando lo indossi, come promemoria.</p>';renderVerdict()}
+function renderCrea(){const two=S.step===2;$('#step1').classList.toggle('hide',two);$('#step2').classList.toggle('hide',!two);$('#back1').classList.toggle('hide',!two);$('#helpBtn').classList.toggle('hide',two);$('#newO').classList.toggle('hide',two);
+  $('#stTitle').textContent=two?'Valuta e salva':(S.editing?'Modifica outfit':'Crea un outfit');if(two)renderStep2();else{renderBoard();renderDrawer()}}
+$('#next1').onclick=()=>{if(!S.layers.length)return;S.step=2;renderCrea();scrollTo(0,0)};
+$('#back1').onclick=()=>{S.oname=$('#oName').value;S.step=1;renderCrea()};
+$('#ideasBtn').onclick=()=>{$('#ideaBox').classList.toggle('hide');if(!$('#ideaBox').classList.contains('hide'))$('#ideaBox').scrollIntoView({behavior:'smooth',block:'nearest'})};
+$('#oName').oninput=e=>{S.oname=e.target.value};
+$('#photos').onclick=e=>{const b=e.target.closest('[data-rm]');if(!b)return;S.photos.splice(+b.dataset.rm,1);renderStep2()};
+async function addPhotos(files,onDone){for(const f of files){try{toast('Carico la foto…');const sm=await shrink(f,1600);const up=await S.assets.upload(sm,{type:'image/jpeg'});onDone(up.id)}catch(err){console.error(err);toast('Caricamento non riuscito')}}}
+['pCam','pGal'].forEach(k=>$('#'+k).onchange=async e=>{const fs=[...e.target.files];e.target.value='';await addPhotos(fs,id=>{S.photos.push(id);renderStep2()})});
 $('#dTabs').onclick=e=>{const b=e.target.closest('[data-k]');if(b){S.dTab=b.dataset.k;renderDrawer()}};
 $('#dStrip').onclick=e=>{const c=e.target.closest('.card[data-id]');if(!c)return;const id=c.dataset.id;const k=S.layers.findIndex(l=>l.item===id);
   if(k>=0){S.layers.splice(k,1);S.sel=-1}else{const it=S.items.find(i=>i.id===id);const p=posOf(it.cat);S.layers.push({item:id,x:p[0],y:p[1],w:p[2],r:0,z:S.layers.length+1});S.sel=S.layers.length-1}
   renderBoard();renderDrawer()};
-$('#baseSw').onclick=e=>{const b=e.target.closest('[data-b]');if(!b)return;if(b.dataset.b==='me'&&!S.me){toast('Carica prima la tua foto in Stile');return}S.base=b.dataset.b;renderBoard();renderDrawer()};
-$('#stStars').onclick=e=>{const b=e.target.closest('[data-star]');if(!b)return;const k=+b.dataset.star;S.stars=S.stars===k?0:k;renderDrawer();if(S.editing&&S.col)S.col.doc(S.editing).update({stars:S.stars}).catch(()=>{})};
+$('#baseSw').onclick=e=>{const b=e.target.closest('[data-b]');if(!b)return;if(b.dataset.b==='me'&&!S.me){toast('Carica prima la tua foto in Stile');return}S.base=b.dataset.b;renderCrea()};
+$('#stStars').onclick=e=>{const b=e.target.closest('[data-star]');if(!b)return;const k=+b.dataset.star;S.stars=S.stars===k?0:k;$('#stStars').innerHTML=starsHTML(S.stars)};
 $('#helpBtn').onclick=()=>$('#help').classList.toggle('hide');
-$('#newO').onclick=()=>{S.layers=[];S.sel=-1;S.editing=null;S.stars=0;S.verdict=null;$('#stTitle').textContent='Crea un outfit';$('#suggList').innerHTML='';$('#suggNote').textContent='';renderCrea()};
+$('#newO').onclick=()=>{newDraft([]);$('#suggList').innerHTML='';renderCrea()};
 {const b=$('#board');const pts=new Map();let st=null;
   b.addEventListener('pointerdown',e=>{const el=e.target.closest('.layer');
     if(!el){if(!pts.size&&S.sel>=0){S.sel=-1;$$('.layer.sel').forEach(x=>x.classList.remove('sel'));renderTools()}if(S.sel<0)return}
@@ -381,9 +412,8 @@ $('#newO').onclick=()=>{S.layers=[];S.sel=-1;S.editing=null;S.stars=0;S.verdict=
     const el=b.querySelector(`.layer[data-i="${S.sel}"]`);if(el){el.style.left=l.x+'%';el.style.top=l.y+'%';el.style.width=l.w+'%'}});
   const up=e=>{pts.delete(e.pointerId);const l=S.layers[S.sel];if(l){const p=[...pts.values()];st=p.length?{l:{...l},p:p.map(q=>({...q})),d:0}:null;const z=$('#sz');if(z)z.value=l.w}};
   b.addEventListener('pointerup',up);b.addEventListener('pointercancel',up)}
-$('#saveO').onclick=async()=>{if(!S.layers.length)return toast('Aggiungi almeno un capo');const ed=S.outfits.find(o=>o.id===S.editing);
-  const n=await ask('Come lo chiami?',ed?.name||'');if(n==null)return;const id=S.editing||'of_'+Date.now().toString(36);
-  try{await S.col.doc(id).set({kind:'outfit',name:n||'Senza nome',layers:S.layers.map(l=>({...l})),base:S.base,at:ed?.at||Date.now(),verdict:S.verdict&&S.verdictKey===boardKey()?S.verdict:(ed&&ed.verdictKey===boardKey()?ed.verdict:null),verdictKey:boardKey(),stars:S.stars||0});S.editing=id;$('#stTitle').textContent=n||'Senza nome';toast('Outfit salvato')}catch(err){console.error(err);toast('Salvataggio non riuscito')}};
+$('#saveO').onclick=async()=>{if(!S.layers.length&&!S.photos.length)return toast('Aggiungi almeno un capo');const ed=S.outfits.find(o=>o.id===S.editing);const n=($('#oName').value||'').trim()||'Outfit del '+new Date().toLocaleDateString('it-IT');const id=S.editing||'of_'+Date.now().toString(36);
+  try{await S.col.doc(id).set({kind:'outfit',name:n,layers:S.layers.map(l=>({...l})),base:S.base,photos:[...S.photos],at:ed?.at||Date.now(),verdict:S.verdict&&S.verdictKey===boardKey()?S.verdict:(ed&&ed.verdictKey===boardKey()?ed.verdict:null),verdictKey:boardKey(),stars:S.stars||0});toast('Outfit salvato');newDraft([]);S.lookId=id;go('look');renderLook()}catch(err){console.error(err);toast('Salvataggio non riuscito')}};
 
 // ---------- consulente ----------
 let sampleFn=null,sugCtl=null;
@@ -400,29 +430,30 @@ async function boardImage(){const c=document.createElement('canvas');c.width=600
   return new Promise(r=>c.toBlob(r,'image/jpeg',.88))}
 function renderVerdict(){const el=$('#verdict');const v=S.verdict;if(!v||S.verdictKey!==boardKey()){el.classList.add('hide');return}const g=VG[v.g]||VG.quasi;el.style.setProperty('--vc',g[1]);el.classList.remove('hide');
   el.innerHTML=`<div class="row"><b style="font-size:19px;font-weight:700">${g[0]}</b>${v.voto?`<span class="mut">${v.voto}/10</span>`:''}</div><p style="margin:4px 0">${esc(v.sintesi)}</p>${v.ok?.length?`<div class="mut">Funziona</div><ul>${v.ok.map(t=>`<li>${esc(t)}</li>`).join('')}</ul>`:''}${v.cambia?.length?`<div class="mut">Da sistemare</div><ul>${v.cambia.map(t=>`<li>${esc(t)}</li>`).join('')}</ul>`:''}`}
-function showSugg(out){S.sugg=out;$('#suggList').innerHTML=out.map((o,k)=>`<button class="sg" data-k="${k}"><div class="th">${o.ids.map(id=>{const it=S.items.find(i=>i.id===id);return it?`<img src="${src(it.img)}" alt="">`:''}).join('')}</div><div><b>${esc(o.name)}</b><span>${esc(o.why)}</span></div></button>`).join('')}
+function showSugg(out,el='#suggList'){S.sugg=out;$(el).innerHTML=out.map((o,k)=>`<button class="sg" data-k="${k}"><div class="th">${o.ids.map(id=>{const it=S.items.find(i=>i.id===id);return it?`<img src="${src(it.img)}" alt="">`:''}).join('')}</div><div><b>${esc(o.name)}</b><span>${esc(o.why)}</span></div></button>`).join('')}
 const errMsg=e=>({no_key:'Per la consulente aggiungi la chiave Gemini in Stile.',cancelled:'',rate_limited:'Troppe richieste per oggi alla versione gratuita, riprova più tardi.',invalid_json:'Risposta non leggibile, riprova.'}[e?.code]??'Non ci sono riuscita, riprova.');
-function busy(on,msg){$('#sugg').disabled=$('#judge').disabled=on;$('#stopS').classList.toggle('hide',!on);if(msg!=null)$('#suggNote').textContent=msg}
-$('#stopS').onclick=()=>sugCtl?.abort();
-$('#suggList').onclick=e=>{const b=e.target.closest('.sg');if(!b)return;const o=S.sugg[+b.dataset.k];S.layers=o.ids.map((id,i)=>{const it=S.items.find(x=>x.id===id);const p=posOf(it?.cat);return{item:id,x:p[0],y:p[1],w:p[2],r:0,z:i+1}});S.sel=-1;S.editing=null;S.stars=0;$('#stTitle').textContent=o.name;renderCrea();$('#board').scrollIntoView({behavior:'smooth',block:'start'})};
+function busy(on,msg,w){$('#sugg').disabled=$('#judge').disabled=on;$(w==='i'?'#stopI':'#stopS').classList.toggle('hide',!on);if(msg!=null)$(w==='i'?'#ideaNote':'#suggNote').textContent=msg}
+$('#stopS').onclick=$('#stopI').onclick=()=>sugCtl?.abort();
+const applySugg=(e,toStep1)=>{const b=e.target.closest('.sg');if(!b)return;const o=S.sugg[+b.dataset.k];const keep={stars:0,photos:S.photos,name:S.oname,id:S.editing,base:S.base};newDraft(layFor(o.ids),keep);if(!S.oname)S.oname=o.name;renderCrea();$('#board').scrollIntoView({behavior:'smooth',block:'start'})};
+$('#suggList').onclick=e=>applySugg(e);$('#varList').onclick=e=>applySugg(e);
 $('#judge').onclick=async()=>{if(!S.layers.length)return toast('Metti prima qualche capo sulla tavola');
   const its=S.items.filter(i=>i.fit!=='no').slice(0,50);for(const l of S.layers){const it=S.items.find(i=>i.id===l.item);if(it&&!its.includes(it))its.push(it)}
   const cur=S.layers.map(l=>its.findIndex(i=>i.id===l.item)+1).filter(n=>n>0);const occ=$('#occ').value.trim();const me=S.base==='me'&&S.me;
   const prompt=`Sei una consulente d'immagine gentile e concreta, per una persona poco esperta di moda che vuole vestirsi bene e curata senza sforzo.\n${profTxt()}\n\nARMADIO (numero. categoria – descrizione [stagioni] {giudizio già dato}):\n${itemList(its)}\n\nLa combinazione da giudicare usa i capi ${cur.join(', ')}.${occ?' Occasione: '+occ+'.':''} La prima immagine è la combinazione${me?' sopra una foto della persona (è un collage: giudica abbinamento, colori e proporzioni sul suo corpo, non la vestibilità esatta)':' composta su una tavola'}; la seconda mostra i capi numerati dell'armadio.\nValuta se le sta bene secondo i 4 criteri del profilo e la coerenza con lo stile che vuole e con quello che evita. Sii onesta ma incoraggiante, frasi brevi e pratiche, niente gergo.\nPoi proponi 2 varianti migliori usando SOLO capi dell'elenco (tutti i numeri della variante completa).\nRispondi solo con JSON: {"giudizio":"promosso|quasi|no","voto":7,"sintesi":"una frase","ok":["…"],"cambia":["…"],"varianti":[{"nome":"…","capi":[1,4,9],"perche":"una frase"}]}`;
-  sugCtl=new AbortController();busy(true,'Guardo l\'outfit…');$('#suggList').innerHTML='';
+  sugCtl=new AbortController();busy(true,'Guardo l\'outfit…');$('#varList').innerHTML='';
   try{const imgs=[await boardImage(),await contactSheet(its)];const r=await sampleFn.json(prompt,{signal:sugCtl.signal,images:imgs});
     const vars=(r?.varianti||[]).map(o=>({name:String(o.nome||'Variante'),why:String(o.perche||''),ids:(o.capi||[]).map(n=>its[Number(n)-1]?.id).filter(Boolean)})).filter(o=>o.ids.length);
     S.verdict={g:['promosso','quasi','no'].includes(r?.giudizio)?r.giudizio:'quasi',voto:Number(r?.voto)||null,sintesi:String(r?.sintesi||''),ok:(r?.ok||[]).map(String).slice(0,4),cambia:(r?.cambia||[]).map(String).slice(0,4)};S.verdictKey=boardKey();
-    renderVerdict();showSugg(vars);busy(false,vars.length?'Varianti con i tuoi capi: toccane una per provarla.':'')}
+    renderVerdict();showSugg(vars,'#varList');busy(false,vars.length?'Varianti con i tuoi capi: toccane una per tornare alla tavola e provarla.':'')}
   catch(e){busy(false,errMsg(e))}};
 $('#sugg').onclick=async()=>{const its=S.items.filter(i=>i.fit!=='no').slice(0,60);if(its.length<2)return toast('Servono almeno un paio di capi');
-  const onBoard=S.layers.map(l=>its.findIndex(i=>i.id===l.item)+1).filter(n=>n>0);const occ=$('#occ').value.trim();
+  const onBoard=S.layers.map(l=>its.findIndex(i=>i.id===l.item)+1).filter(n=>n>0);const occ=$('#occ1').value.trim();
   const prompt=`Sei una consulente d'immagine per una persona poco esperta di moda che vuole vestirsi bene e curata senza sforzo.\n${profTxt()}\n\nCapi del suo armadio; nell'immagine ogni capo ha il suo numero (tra graffe il giudizio già dato: preferisci quelli che la valorizzano).\n${itemList(its)}\n\nProponi 3 combinazioni facili, ben abbinate, fresche e non banali, adatte a lei${occ?', occasione: '+occ:''}.${onBoard.length?` Ogni combinazione deve includere i capi ${onBoard.join(', ')}.`:''} Una combinazione completa ha di solito sopra + sotto (oppure un abito) + scarpe, più eventualmente capospalla e accessori. Usa solo i numeri dell'elenco.\nRispondi solo con JSON: [{"nome":"…","capi":[1,4,9],"perche":"una frase breve"}]`;
-  sugCtl=new AbortController();busy(true,'Ci penso…');$('#suggList').innerHTML='';S.verdict=null;renderVerdict();
+  sugCtl=new AbortController();busy(true,'Ci penso…','i');$('#suggList').innerHTML='';
   try{const r=await sampleFn.json(prompt,{signal:sugCtl.signal,images:[await contactSheet(its)]});
     const out=(Array.isArray(r)?r:[]).map(o=>({name:String(o.nome||'Proposta'),why:String(o.perche||''),ids:(o.capi||[]).map(n=>its[Number(n)-1]?.id).filter(Boolean)})).filter(o=>o.ids.length);
-    showSugg(out);busy(false,out.length?'Tocca una proposta per metterla sulla tavola.':'Nessuna proposta utile, riprova.')}
-  catch(e){busy(false,errMsg(e))}};
+    showSugg(out);busy(false,out.length?'Tocca una proposta per metterla sulla tavola.':'Nessuna proposta utile, riprova.','i')}
+  catch(e){busy(false,errMsg(e),'i')}};
 // armadio: valuta e cosa manca
 function aiOpen(title,note){$('#aiBox').classList.remove('hide');$('#aiTitle').textContent=title;$('#aiNote').textContent=note;$('#aiList').innerHTML=''}
 $('#aiClose').onclick=()=>$('#aiBox').classList.add('hide');
@@ -447,14 +478,33 @@ async function runGaps(){const its=S.items.slice(0,60);if(its.length<2)return to
   catch(e){$('#aiNote').textContent=errMsg(e)}$('#gapBtn').disabled=false}
 
 // ---------- outfit salvati ----------
-function renderOut(){fillSel($('#oSea'),[['all','Stagione'],...SEAS],S.oSea);fillSel($('#oSort'),[['recent','Più recenti'],['top','Più votati'],['ok','Solo promossi']],S.oSort);
-  let outs=S.outfits.filter(o=>o.layers.every(l=>fits(S.items.find(i=>i.id===l.item),S.oSea)));if(S.oSort==='ok')outs=outs.filter(o=>o.verdict?.g==='promosso');if(S.oSort==='top')outs=[...outs].sort((a,b)=>(b.stars||0)-(a.stars||0));
+const cover=o=>o.photos?.length?`<div class="mini"><img src="${src(o.photos[0])}" alt="" style="width:100%;height:100%;object-fit:cover"></div>`:`<div class="mini" style="${o.base==='me'&&S.me?'background:#000':''}">${baseHTML(o.base)}${o.layers.map((l,i)=>layerHTML(l,i,-1)).join('')}</div>`;
+function renderOut(){fillSel($('#oSea'),[['all','Stagione'],...SEAS],S.oSea);fillSel($('#oSort'),[['recent','Più recenti'],['top','Più votati'],['ok','Solo promossi'],['foto','Con foto']],S.oSort);
+  let outs=S.outfits.filter(o=>o.layers.every(l=>fits(S.items.find(i=>i.id===l.item),S.oSea)));if(S.oSort==='ok')outs=outs.filter(o=>o.verdict?.g==='promosso');if(S.oSort==='foto')outs=outs.filter(o=>o.photos?.length);if(S.oSort==='top')outs=[...outs].sort((a,b)=>(b.stars||0)-(a.stars||0));
   $('#oCount').textContent=S.outfits.length?`${S.outfits.length} salvati`:'';
-  $('#gOut').innerHTML=S.outfits.length?(outs.length?outs.map(o=>`<div><button class="ocard" data-id="${o.id}"><div class="mini" style="${o.base==='me'&&S.me?'background:#000':''}">${baseHTML(o.base)}${o.layers.map((l,i)=>layerHTML(l,i,-1)).join('')}</div><b>${esc(o.name)}</b>${o.verdict?vBadge(o.verdict):''}</button><div class="row" style="justify-content:space-between"><span class="stars">${starsHTML(o.stars,o.id)}</span><button class="ico" data-del="${o.id}" aria-label="Elimina outfit" style="min-height:36px;width:36px;border:0">✕</button></div></div>`).join(''):'<p class="mut" style="grid-column:1/-1">Nessun outfit con questi filtri.</p>'):`<div class="empty" style="grid-column:1/-1">Ancora nessun outfit. Vai in <b>Crea</b>, scegli i capi e salvali.</div>`}
+  $('#gOut').innerHTML=S.outfits.length?(outs.length?outs.map(o=>`<button class="ocard" data-id="${o.id}">${cover(o)}<b>${esc(o.name)}</b><span class="row" style="gap:6px">${o.stars?`<span style="color:#f5a623">${'★'.repeat(o.stars)}</span>`:''}${o.verdict?vBadge(o.verdict):''}${o.photos?.length?`<span class="mut">📷 ${o.photos.length}</span>`:''}</span></button>`).join(''):'<p class="mut" style="grid-column:1/-1">Nessun outfit con questi filtri.</p>'):`<div class="empty" style="grid-column:1/-1">Ancora nessun outfit. Premi <b>+</b> per comporne uno, oppure la fotocamera per salvare un look che hai indossato.</div>`}
 $('#oSea').onchange=e=>{S.oSea=e.target.value;renderOut()};$('#oSort').onchange=e=>{S.oSort=e.target.value;renderOut()};
-$('#gOut').onclick=async e=>{const st=e.target.closest('[data-star]');if(st){const o=S.outfits.find(x=>x.id===st.dataset.oid);const k=+st.dataset.star;S.col.doc(o.id).update({stars:(o.stars||0)===k?0:k}).catch(()=>toast('Non riuscito'));return}
-  const d=e.target.closest('[data-del]');if(d){if(await ask('Eliminare questo outfit?'))S.col.doc(d.dataset.del).delete().catch(()=>toast('Non riuscito'));return}
-  const c=e.target.closest('.ocard');if(!c)return;const o=S.outfits.find(x=>x.id===c.dataset.id);S.layers=o.layers.map(l=>({...l}));S.base=o.base||'board';S.editing=o.id;S.sel=-1;S.stars=o.stars||0;S.verdict=o.verdict||null;S.verdictKey=o.verdictKey;$('#stTitle').textContent=o.name;go('crea');renderCrea()};
+$('#gOut').onclick=e=>{const c=e.target.closest('.ocard');if(!c)return;S.lookId=c.dataset.id;go('look');renderLook()};
+$('#newOutfit').onclick=()=>{newDraft([]);go('crea');renderCrea()};
+$('#lookNew').onchange=async e=>{const fs=[...e.target.files];e.target.value='';if(!fs.length)return;const n=await ask('Come chiami questo look?','');if(n==null)return;
+  await addPhotos(fs,async pid=>{const id='of_'+Date.now().toString(36);try{await S.col.doc(id).set({kind:'outfit',name:n||'Look del '+new Date().toLocaleDateString('it-IT'),layers:[],base:'board',photos:[pid],at:Date.now(),stars:0});S.lookId=id;go('look');renderLook();toast('Look salvato')}catch{toast('Salvataggio non riuscito')}})};
+// ---------- scheda outfit ----------
+function renderLook(){const o=S.outfits.find(x=>x.id===S.lookId);if(!o){$('#lookTitle').textContent='Outfit non trovato';$('#lookBody').innerHTML='';return}
+  $('#lookTitle').textContent=o.name;const capi=o.layers.map(l=>S.items.find(i=>i.id===l.item)).filter(Boolean);
+  $('#lookBody').innerHTML=`${o.layers.length?`<div class="mini" style="max-width:280px;margin:0 auto;${o.base==='me'&&S.me?'background:#000':''}">${baseHTML(o.base)}${o.layers.map((l,i)=>layerHTML(l,i,-1)).join('')}</div>`:''}
+  <div class="row" style="justify-content:center;margin:10px 0"><span class="stars" id="lookStars">${starsHTML(o.stars,o.id)}</span>${o.verdict?vBadge(o.verdict):''}</div>
+  ${o.verdict?.sintesi?`<p class="mut" style="text-align:center;margin:0 0 10px">${esc(o.verdict.sintesi)}</p>`:''}
+  ${capi.length?`<span class="lbl">Capi</span><div class="strip" style="margin-bottom:14px">${capi.map(i=>`<button class="card" data-capo="${i.id}" style="width:72px;background:var(--soft)"><img src="${src(i.img)}" alt="${esc(nameOf(i))}"></button>`).join('')}</div>`:''}
+  <span class="lbl">Foto indossato</span><div class="grid" id="lookPhotos" style="grid-template-columns:repeat(auto-fill,minmax(120px,1fr))">${(o.photos||[]).map((p,k)=>`<div class="ph"><img src="${src(p)}" alt="Foto indossato"><button type="button" data-rm="${k}" aria-label="Togli foto">✕</button></div>`).join('')||'<p class="mut" style="grid-column:1/-1;margin:0">Nessuna foto ancora.</p>'}</div>
+  <div class="row" style="margin-top:10px"><label class="btn">📷 Scatta<input type="file" accept="image/*" capture="environment" class="hide" id="lpCam"></label><label class="btn">Dalla galleria<input type="file" accept="image/*" multiple class="hide" id="lpGal"></label></div>
+  <button class="danger full" id="lookDel" style="margin-top:22px">Elimina outfit</button>`;
+  const addTo=async fs=>{const got=[];await addPhotos(fs,id=>got.push(id));if(got.length){const cur=S.outfits.find(x=>x.id===o.id);await S.col.doc(o.id).update({photos:[...(cur.photos||[]),...got]}).catch(()=>toast('Non riuscito'))}};
+  ['lpCam','lpGal'].forEach(k=>$('#'+k).onchange=e=>{const fs=[...e.target.files];e.target.value='';addTo(fs)});
+  $('#lookStars').onclick=e=>{const b=e.target.closest('[data-star]');if(!b)return;const k=+b.dataset.star;S.col.doc(o.id).update({stars:(o.stars||0)===k?0:k}).catch(()=>toast('Non riuscito'))};
+  $('#lookPhotos').onclick=async e=>{const b=e.target.closest('[data-rm]');if(!b||!(await ask('Togliere questa foto?')))return;const ph=[...(o.photos||[])];const [gone]=ph.splice(+b.dataset.rm,1);await S.col.doc(o.id).update({photos:ph}).catch(()=>{});S.assets.delete(gone).catch(()=>{})};
+  $('#lookBody').querySelectorAll('[data-capo]').forEach(b=>b.onclick=()=>{S.capoId=b.dataset.capo;go('capo');renderCapo()});
+  $('#lookDel').onclick=async()=>{if(!(await ask('Eliminare questo outfit e le sue foto?')))return;try{await S.col.doc(o.id).delete();(o.photos||[]).forEach(p=>S.assets.delete(p).catch(()=>{}));toast('Outfit eliminato');go('outfit')}catch{toast('Non riuscito')}}}
+$('#lookEdit').onclick=()=>{const o=S.outfits.find(x=>x.id===S.lookId);if(!o)return;newDraft(o.layers.map(l=>({...l})),o);go('crea');renderCrea()};
 
 // ---------- stile ----------
 function renderProf(){const p=S.prof||{};$('#pArm').innerHTML=ARMO.map(a=>`<option ${a===p.armo?'selected':''} value="${esc(a)}">${a||'Non so'}</option>`).join('');$('#pH').value=p.h||'';$('#pT').value=p.t||'';$('#pMis').value=p.mis||'';
@@ -465,7 +515,7 @@ $('#pf').onsubmit=async e=>{e.preventDefault();const v={kind:'profile',armo:$('#
 $('#meFile').onchange=async e=>{const f=e.target.files[0];e.target.value='';if(!f)return;toast('Carico la tua foto…');
   try{const sm=await shrink(f,1600);const up=await S.assets.upload(sm,{type:'image/jpeg'});const old=S.me;await S.col.doc('me').set({kind:'me',photo:up.id});if(old)S.assets.delete(old).catch(()=>{});toast('Foto salvata')}catch(err){console.error(err);toast('Caricamento non riuscito')}};
 
-function renderAll(){const active=document.activeElement;if(!active?.closest('#pf'))renderProf();renderArm();renderCrea();renderOut();if(location.hash==='#capo')renderCapo();if(!$('#aiBox').classList.contains('hide')&&$('#aiTitle').textContent==='Cosa mi manca')renderGaps()}
+function renderAll(){const active=document.activeElement;if(!active?.closest('#pf'))renderProf();renderArm();renderCrea();renderOut();if(location.hash==='#capo')renderCapo();if(location.hash==='#look')renderLook();if(!$('#aiBox').classList.contains('hide')&&$('#aiTitle').textContent==='Cosa mi manca')renderGaps()}
 
 // ---------- dati (Supabase) + consulente (Gemini) ----------
 const CFG=window.GUARDAROBA||{};
@@ -480,7 +530,7 @@ const CFG=window.GUARDAROBA||{};
     $('#lf').onsubmit=async e=>{e.preventDefault();$('#lNote').textContent='Invio…';const {error}=await sb.auth.signInWithOtp({email:$('#lEmail').value.trim(),options:{emailRedirectTo:location.origin+location.pathname,shouldCreateUser:CFG.allowSignup!==false}});$('#lNote').textContent=error?'Non riuscito: '+error.message:'Fatto! Apri la mail e tocca il link.'};return}
   const uid=session.user.id;S.uid=uid;$('#who').textContent=session.user.email;$('#logout').onclick=()=>sb.auth.signOut();
   const all=new Map();
-  async function signAll(){const paths=[...all.values()].map(d=>d.kind==='item'?d.img:d.kind==='me'?d.photo:null).filter(p=>p&&!URLS.has(p));
+  async function signAll(){const paths=[...all.values()].flatMap(d=>d.kind==='item'?[d.img]:d.kind==='me'?[d.photo]:d.kind==='outfit'?(d.photos||[]):[]).filter(p=>p&&!URLS.has(p));
     for(let k=0;k<paths.length;k+=100){const {data}=await sb.storage.from('foto').createSignedUrls(paths.slice(k,k+100),60*60*24*7);(data||[]).forEach(x=>{if(x.signedUrl)URLS.set(x.path,x.signedUrl)})}}
   function apply(){const arr=[...all.values()];S.items=arr.filter(d=>d.kind==='item').sort((a,b)=>b.at-a.at);S.outfits=arr.filter(d=>d.kind==='outfit').sort((a,b)=>b.at-a.at);S.me=arr.find(d=>d.kind==='me')?.photo||null;
     S.prof=arr.find(d=>d.kind==='profile')||null;S.gaps=arr.find(d=>d.kind==='gaps')||null;
