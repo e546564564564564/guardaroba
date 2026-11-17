@@ -136,7 +136,9 @@ b,strong{font-weight:500}
     <button class="ico pri" data-go="aggiungi" aria-label="Aggiungi un capo" title="Aggiungi un capo"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg></button>
   </div>
   <div class="panel hide" id="aiBox" style="margin:0 0 12px"><div class="row" style="justify-content:space-between"><h2 style="margin:0" id="aiTitle"></h2><button class="ico" id="aiClose" aria-label="Chiudi" style="min-height:36px;width:36px">✕</button></div><p class="mut" id="aiNote" style="margin:4px 0 8px"></p><div id="aiList" style="display:grid;gap:8px"></div></div>
+  <div class="panel hide" id="bulkBar" style="margin:0 0 12px"><div class="row" style="justify-content:space-between"><span id="bulkT"></span><button class="ico" id="bulkX" aria-label="Chiudi" style="min-height:32px;width:32px">✕</button></div><div class="pbar" style="width:100%;margin-top:8px"><i id="bulkB"></i></div></div>
   <div class="filters"><select id="fSea" aria-label="Stagione"></select><select id="fCat" aria-label="Categoria"></select><select id="fFit" aria-label="Giudizio"></select></div>
+  <button class="hide" id="draftChip" style="min-height:36px;margin-bottom:10px;background:var(--acc2);border-color:transparent"></button>
   <div class="grid" id="gArm"></div>
   <p class="mut" id="lpHint" style="text-align:center;margin-top:14px"></p>
 </div></section>
@@ -148,7 +150,7 @@ b,strong{font-weight:500}
     <label><input type="file" accept="image/*" capture="environment" id="fileCam"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M4 8h3l2-3h6l2 3h3v11H4z"/><circle cx="12" cy="13" r="3.6"/></svg>Scatta foto</label>
     <label><input type="file" accept="image/*" multiple id="fileGal"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><rect x="3.5" y="4.5" width="17" height="15" rx="2.5"/><circle cx="9" cy="10" r="1.8"/><path d="M4 17l5-4.5 4 3.5 3-2.5 4 3.5"/></svg>Dalla galleria</label>
   </div>
-  <p class="mut" id="pickTip" style="margin:12px 0 0">Consiglio: appoggia il capo su un fondo semplice e in contrasto, lo sfondo viene tolto da solo.</p>
+  <p class="mut" id="pickTip" style="margin:12px 0 0">Consiglio: appoggia il capo su un fondo semplice e in contrasto. Dalla galleria puoi sceglierne fino a 50 insieme: li elaboro da sola e la consulente compila le schede.</p>
   <div id="editArea" class="hide">
     <div class="photo" id="photo"><img id="photoImg" alt="Anteprima del capo"><div class="over hide" id="over"><span id="overT">Tolgo lo sfondo…</span><div class="pbar"><i id="overB"></i></div></div></div>
     <div class="form">
@@ -220,6 +222,7 @@ b,strong{font-weight:500}
     <button class="pri" type="submit">Salva il mio stile</button>
   </form>
   <div class="panel"><h2>La mia foto (per "Su di me")</h2><p class="mut" style="margin-top:0">Una foto a figura intera, in piedi, su fondo semplice.</p><div class="row"><img id="meThumb" alt="" class="hide" style="width:64px;height:84px;object-fit:cover;border-radius:10px"><label class="btn">Scegli foto<input type="file" accept="image/*" class="hide" id="meFile"></label></div></div>
+  <div class="panel"><h2>Foto</h2><label class="row" style="gap:10px;cursor:pointer"><input type="checkbox" id="autoEnh" style="width:22px;height:22px;accent-color:var(--acc)"> Migliora automaticamente le foto (luce, colori, capi storti)</label></div>
   <div class="panel"><h2>Consulente AI (Gemini, gratuito)</h2><p class="mut" style="margin-top:0">Crea una chiave gratuita su <a href="https://aistudio.google.com/apikey" target="_blank" rel="noopener">aistudio.google.com/apikey</a> e incollala qui. Resta solo in questo dispositivo.</p>
     <input type="text" id="gKey" placeholder="Chiave API Gemini" autocomplete="off"><div class="row" style="margin-top:8px"><input type="text" id="gModel" placeholder="modello" style="flex:1"><button id="gSave" type="button">Salva</button></div><p class="mut" id="gNote" style="margin-bottom:0"></p></div>
   <div class="panel"><h2>Importa una scheda</h2><label class="btn">Scegli file .json<input type="file" accept=".json,application/json" class="hide" id="pImp"></label></div>
@@ -283,10 +286,12 @@ function renderArm(){$('#count').textContent=S.items.length?`${S.items.length} c
   fillSel($('#fSea'),[['all','Stagione'],...SEAS],S.fSea);
   const used=new Set(S.items.map(i=>SUB[i.cat]?.m||'altro'));fillSel($('#fCat'),[['all','Categoria'],...TREE.filter(t=>used.has(t[0])).map(t=>[t[0],t[1]])],S.fCat);
   fillSel($('#fFit'),[['all','Giudizio'],...FIT.map(f=>[f[0],f[1]]),['none','Da valutare']],S.fFit);
-  const its=S.items.filter(i=>(S.fCat==='all'||(SUB[i.cat]?.m||'altro')===S.fCat)&&fits(i,S.fSea)&&(S.fFit==='all'||(S.fFit==='none'?!i.fit:i.fit===S.fFit)));
+  const drafts=S.items.filter(i=>i.draft).length;const dc=$('#draftChip');dc.classList.toggle('hide',!drafts&&!S.fDraft);dc.textContent=S.fDraft?'Mostra tutti i capi':`${drafts} da controllare`;if(!drafts)S.fDraft=false;
+  const its=S.items.filter(i=>(!S.fDraft||i.draft)&&(S.fCat==='all'||(SUB[i.cat]?.m||'altro')===S.fCat)&&fits(i,S.fSea)&&(S.fFit==='all'||(S.fFit==='none'?!i.fit:i.fit===S.fFit)));
   $('#gArm').classList.toggle('selmode',S.selMode);
-  $('#gArm').innerHTML=S.items.length?(its.length?its.map(i=>`<button class="card${S.selected.has(i.id)?' sel':''}" data-id="${i.id}" aria-label="${esc(nameOf(i))}"><img src="${src(i.img)}" alt="" loading="lazy">${i.fit?`<span class="dot" style="background:${FC[i.fit][2]}"></span>`:''}<span class="chk">✓</span></button>`).join(''):'<p class="mut" style="grid-column:1/-1">Nessun capo con questi filtri.</p>'):`<div class="empty" style="grid-column:1/-1">Fotografa il primo capo: lo sfondo viene tolto da solo.<br><br><button class="pri" data-go="aggiungi">Aggiungi un capo</button></div>`;
+  $('#gArm').innerHTML=S.items.length?(its.length?its.map(i=>`<button class="card${S.selected.has(i.id)?' sel':''}" data-id="${i.id}" aria-label="${esc(nameOf(i))}"><img src="${src(i.img)}" alt="" loading="lazy">${i.fit?`<span class="dot" style="background:${FC[i.fit][2]}"></span>`:''}${i.draft?'<span class="dot" style="background:var(--acc);left:7px;right:auto;width:auto;height:auto;border-radius:99px;color:#fff;font-size:10px;padding:1px 6px;border:0">da controllare</span>':''}<span class="chk">✓</span></button>`).join(''):'<p class="mut" style="grid-column:1/-1">Nessun capo con questi filtri.</p>'):`<div class="empty" style="grid-column:1/-1">Fotografa il primo capo: lo sfondo viene tolto da solo.<br><br><button class="pri" data-go="aggiungi">Aggiungi un capo</button></div>`;
   $('#lpHint').textContent=S.items.length>1&&!S.selMode?'Tieni premuto un capo per selezionarne più di uno.':''}
+$('#draftChip').onclick=()=>{S.fDraft=!S.fDraft;renderArm()};$('#bulkX').onclick=()=>{S.bulk=null;bulkUI()};
 ['fSea','fCat','fFit'].forEach(k=>$('#'+k).onchange=e=>{S[k]=e.target.value;renderArm()});
 // tocco = apri scheda, pressione lunga = selezione
 {const g=$('#gArm');let t=null,sx=0,sy=0,long=false;
@@ -308,11 +313,12 @@ $('#selOutfit').onclick=()=>{const ids=[...S.selected];exitSel();newDraft(layFor
 function renderCapo(){const it=S.items.find(i=>i.id===S.capoId);if(!it){$('#capoTitle').textContent='Capo non trovato';$('#capoBody').innerHTML='';return}
   $('#capoTitle').textContent=catName(it.cat);$('#capoImg').src=src(it.img);
   const used=S.outfits.filter(o=>o.layers.some(l=>l.item===it.id)).length;const f=it.fit&&FC[it.fit];
-  $('#capoBody').innerHTML=`<div class="tags"><span class="tag">${esc(MAC[SUB[it.cat]?.m||'altro'].n)} · ${esc(catName(it.cat))}</span>${(it.sea||[]).map(s=>`<span class="tag">${esc(SEAS.find(x=>x[0]===s)?.[1]||s)}</span>`).join('')||'<span class="tag">Tutte le stagioni</span>'}</div>
+  $('#capoBody').innerHTML=`${it.draft?'<div class="info" style="margin-top:12px">Scheda compilata in automatico. Controllala con la matita e salva; se va già bene premi <button id="okDraft" style="min-height:34px;margin-left:4px">Confermo</button></div>':''}<div class="tags"><span class="tag">${esc(MAC[SUB[it.cat]?.m||'altro'].n)} · ${esc(catName(it.cat))}</span>${(it.sea||[]).map(s=>`<span class="tag">${esc(SEAS.find(x=>x[0]===s)?.[1]||s)}</span>`).join('')||'<span class="tag">Tutte le stagioni</span>'}</div>
   ${it.name?`<p style="margin:6px 0 10px;white-space:pre-wrap">${esc(it.name)}</p>`:'<p class="mut">Nessuna descrizione: tocca la matita per aggiungerla.</p>'}
   ${f?`<div class="fitbox" style="--vc:${f[2]}"><b>${f[1]}</b>${it.fitNote?`<div class="mut">${it.fitBy==='ai'?'Consulente: ':''}${esc(it.fitNote)}</div>`:''}</div>`:''}
   <p class="mut">${used?`Usato in ${used} outfit salvat${used===1?'o':'i'}.`:'Non ancora usato in un outfit.'}</p>
   <button class="full" id="capoToOutfit">Crea un outfit con questo capo</button>`;
+  if($('#okDraft'))$('#okDraft').onclick=()=>S.col.doc(it.id).update({draft:false}).then(()=>toast('Scheda confermata')).catch(()=>toast('Non riuscito'));
   $('#capoToOutfit').onclick=()=>{newDraft(layFor([it.id]));go('crea');renderCrea()}}
 $('#capoEdit').onclick=()=>{const it=S.items.find(i=>i.id===S.capoId);if(!it)return;S.form={id:it.id,cat:it.cat,sea:new Set(it.sea||[]),name:it.name||'',fit:it.fit||''};S.cur=null;S.queue=[];
   $('#addTitle').textContent='Modifica capo';$('#pick').classList.add('hide');$('#pickTip').classList.add('hide');$('#editArea').classList.remove('hide');$('#photoImg').src=src(it.img);$('#over').classList.add('hide');$('#desc').value=S.form.name;$('#save').textContent='Salva modifiche';$('#addNote').innerHTML='<button class="danger" id="delOne" style="margin-top:6px">Elimina capo</button>';
@@ -336,16 +342,57 @@ async function trim(blob){const im=await loadImg(blob);const c=document.createEl
   for(let y=0;y<H;y++)for(let X=0;X<W;X++)if(!ok[(y/s|0)*w+(X/s|0)])d[(y*W+X)*4+3]=0;x.putImageData(id,0,0);
   const p=8;a=Math.max(0,a*s-p);b=Math.max(0,b*s-p);r=Math.min(W,(r+1)*s+p);t=Math.min(H,(t+1)*s+p);
   const o=document.createElement('canvas');o.width=r-a;o.height=t-b;o.getContext('2d').drawImage(c,a,b,r-a,t-b,0,0,r-a,t-b);return new Promise(z=>o.toBlob(z,'image/png'))}
+// miglioramento automatico: livelli, bilanciamento del bianco, luminosità, un po' di colore
+const autoOn=()=>{try{return localStorage.getItem('auto_enh')!=='0'}catch{return true}};
+async function enhance(blob){const im=await loadImg(blob);const c=document.createElement('canvas');const W=c.width=im.width,H=c.height=im.height;const x=c.getContext('2d');x.drawImage(im,0,0);const id=x.getImageData(0,0,W,H),d=id.data,n=W*H;
+  const hist=new Uint32Array(256);let sr=0,sg=0,sb=0,cnt=0;
+  for(let i=0;i<d.length;i+=16){const l=(d[i]*.299+d[i+1]*.587+d[i+2]*.114)|0;hist[l]++;const mx=Math.max(d[i],d[i+1],d[i+2]),mn=Math.min(d[i],d[i+1],d[i+2]);if(l>60&&l<245&&mx-mn<45){sr+=d[i];sg+=d[i+1];sb+=d[i+2];cnt++}}
+  const tot=hist.reduce((a,b)=>a+b,0);let acc=0,lo=0,hi=255;for(let v=0;v<256;v++){acc+=hist[v];if(acc>tot*.005){lo=v;break}}acc=0;for(let v=255;v>=0;v--){acc+=hist[v];if(acc>tot*.005){hi=v;break}}
+  lo=Math.min(lo,22);hi=Math.max(hi,232);const span=Math.max(1,hi-lo);
+  if(cnt<n/400)cnt=0;const m=cnt?(sr+sg+sb)/(3*cnt):128;const cl=v=>Math.max(.88,Math.min(1.12,v));const kr=cnt?1+(cl(m/(sr/cnt))-1)*.6:1,kg=cnt?1+(cl(m/(sg/cnt))-1)*.6:1,kb=cnt?1+(cl(m/(sb/cnt))-1)*.6:1;
+  let mean=0;for(let v=0;v<256;v++)mean+=hist[v]*Math.min(1,Math.max(0,(v-lo)/span));mean/=Math.max(1,tot);
+  const g=mean<.42?Math.max(.65,Math.log(.48)/Math.log(Math.max(.05,mean))):1;
+  const lut=new Uint8ClampedArray(256);for(let v=0;v<256;v++)lut[v]=255*Math.pow(Math.min(1,Math.max(0,(v-lo)/span)),g);
+  for(let i=0;i<d.length;i+=4){let r=lut[Math.min(255,d[i]*kr|0)],gg=lut[Math.min(255,d[i+1]*kg|0)],b=lut[Math.min(255,d[i+2]*kb|0)];const l=r*.299+gg*.587+b*.114;r=l+(r-l)*1.06;gg=l+(gg-l)*1.06;b=l+(b-l)*1.06;d[i]=r;d[i+1]=gg;d[i+2]=b}
+  x.putImageData(id,0,0);return new Promise(r=>c.toBlob(r,'image/jpeg',.92))}
+// raddrizza un capo scontornato leggermente storto (asse principale quasi verticale o orizzontale)
+async function deskew(blob){const im=await loadImg(blob);const W=im.width,H=im.height;const c=document.createElement('canvas');c.width=W;c.height=H;const x=c.getContext('2d');x.drawImage(im,0,0);const d=x.getImageData(0,0,W,H).data;
+  let n=0,sx=0,sy=0;for(let y=0;y<H;y+=2)for(let X=0;X<W;X+=2)if(d[(y*W+X)*4+3]>128){n++;sx+=X;sy+=y}if(n<200)return blob;const cx=sx/n,cy=sy/n;let a=0,b=0,cc=0;
+  for(let y=0;y<H;y+=2)for(let X=0;X<W;X+=2)if(d[(y*W+X)*4+3]>128){const dx=X-cx,dy=y-cy;a+=dx*dx;b+=dx*dy;cc+=dy*dy}
+  const th=.5*Math.atan2(2*b,a-cc)*180/Math.PI;const l1=(a+cc)/2+Math.sqrt(((a-cc)/2)**2+b*b),l2=(a+cc)/2-Math.sqrt(((a-cc)/2)**2+b*b);if(l1/Math.max(1,l2)<1.25)return blob;
+  let dev=th;if(dev>45)dev-=90;if(dev<-45)dev+=90;if(Math.abs(dev)<2||Math.abs(dev)>15)return blob;
+  const rad=-dev*Math.PI/180,cs=Math.abs(Math.cos(rad)),sn=Math.abs(Math.sin(rad));const o=document.createElement('canvas');o.width=Math.ceil(W*cs+H*sn);o.height=Math.ceil(W*sn+H*cs);const ox=o.getContext('2d');ox.translate(o.width/2,o.height/2);ox.rotate(rad);ox.drawImage(c,-W/2,-H/2);
+  return trim(await new Promise(r=>o.toBlob(r,'image/png')))}
+// foto → (migliorata) → scontornata → raddrizzata
+async function processPhoto(f,onp){let sm=await shrink(f);if(autoOn())sm=await enhance(sm).catch(()=>sm);let cut=null;
+  try{cut=await trim(await removeBg(sm,onp));if(autoOn())cut=await deskew(cut).catch(()=>cut)}catch(err){console.error(err)}return{orig:sm,cut}}
 function startAdd(){S.form=null;S.cur=null;$('#addTitle').textContent='Nuovo capo';$('#pick').classList.remove('hide');$('#pickTip').classList.remove('hide');$('#editArea').classList.add('hide');$('#save').textContent="Salva nell'armadio";$('#addNote').textContent='';$('#queue').textContent=''}
-function onFiles(e){S.queue.push(...e.target.files);e.target.value='';if(!S.cur)next()}
+function onFiles(e){const fs=[...e.target.files];e.target.value='';if(fs.length>1){startBulk(fs);return}S.queue.push(...fs);if(!S.cur)next()}
+// ---------- caricamento massivo ----------
+addEventListener('beforeunload',e=>{if(S.bulk&&S.bulk.phase!=='end'){e.preventDefault();e.returnValue=''}});
+const BULK_MAX=50;let wake=null;
+function bulkUI(){const B=S.bulk;const el=$('#bulkBar');if(!B){el.classList.add('hide');return}el.classList.remove('hide');
+  const pct=Math.round((B.done+B.fail)/B.total*100);$('#bulkT').textContent=B.phase==='tag'?'La consulente compila le schede…':B.phase==='end'?`Fatto: ${B.done} capi aggiunti${B.fail?`, ${B.fail} non riusciti`:''}. Controlla le schede "da controllare".`:`Elaboro ${B.done+B.fail+1} di ${B.total}… tieni l'app aperta`;
+  $('#bulkB').style.width=(B.phase==='end'?100:pct)+'%';$('#bulkX').classList.toggle('hide',B.phase!=='end')}
+async function startBulk(files){if(S.bulk&&S.bulk.phase!=='end')return toast('Sto già elaborando delle foto');if(files.length>BULK_MAX){toast(`Ne elaboro ${BULK_MAX} alla volta: le altre caricale dopo`);files=files.slice(0,BULK_MAX)}
+  S.bulk={total:files.length,done:0,fail:0,ids:[],phase:'run'};go('armadio');bulkUI();try{wake=await navigator.wakeLock?.request('screen')}catch{}
+  for(const f of files){try{const r=await processPhoto(f,()=>{});const blob=r.cut||r.orig;const up=await S.assets.upload(blob,{type:blob.type||'image/png'});const id='it_'+Date.now().toString(36)+Math.random().toString(36).slice(2,5);
+      await S.col.doc(id).set({kind:'item',cat:'altro',sea:[],name:'',img:up.id,at:Date.now(),draft:true});S.bulk.ids.push(id);S.bulk.done++}catch(err){console.error(err);S.bulk.fail++}bulkUI()}
+  if(S.bulk.ids.length&&sampleFn?.ready()){S.bulk.phase='tag';bulkUI();for(let k=0;k<S.bulk.ids.length;k+=20)await autoTag(S.bulk.ids.slice(k,k+20)).catch(err=>console.error(err))}
+  S.bulk.phase='end';bulkUI();try{await wake?.release()}catch{}wake=null;S.fDraft=true;renderArm()}
+async function autoTag(ids){const its=ids.map(id=>S.items.find(i=>i.id===id)).filter(Boolean);if(!its.length)return;
+  const cats=TREE.map(t=>`${t[1]}: `+t[3].map(([k,n])=>`${k} (${n})`).join(', ')).join('\n');
+  const prompt=`Nell'immagine ci sono ${its.length} capi d'abbigliamento numerati. Per ognuno indica:\n- "cat": UNO degli id seguenti\n${cats}\n- "sea": stagioni adatte tra "inverno","mezza","estate" (lista)\n- "desc": descrizione breve e concreta in italiano (colore, tessuto apparente, taglio, lunghezza, dettagli), max 20 parole\nRispondi solo con JSON: [{"n":1,"cat":"maglione","sea":["inverno"],"desc":"…"}]`;
+  const r=await sampleFn.json(prompt,{images:[await contactSheet(its)]});
+  for(const o of (Array.isArray(r)?r:[])){const it=its[Number(o.n)-1];if(!it)continue;const cat=SUB[o.cat]?o.cat:'altro';const sea=(o.sea||[]).filter(x=>SEAS.some(z=>z[0]===x));await S.col.doc(it.id).update({cat,sea,name:String(o.desc||'').slice(0,300)})}}
 $('#fileCam').onchange=onFiles;$('#fileGal').onchange=onFiles;
 async function next(){const f=S.queue.shift();$('#queue').textContent=S.queue.length?`altre ${S.queue.length}`:'';
   if(!f){S.cur=null;S.form=null;go('armadio');return}
   const prev=S.form;S.form={id:null,cat:prev&&!prev.id?prev.cat:null,sea:new Set(prev&&!prev.id?prev.sea:[]),name:'',fit:''};S.cur={orig:null,cut:null};
   $('#pick').classList.add('hide');$('#pickTip').classList.add('hide');$('#editArea').classList.remove('hide');$('#desc').value='';$('#addNote').textContent='';drawForm();
-  const sm=await shrink(f);S.cur.orig=sm;$('#photoImg').src=URL.createObjectURL(sm);$('#over').classList.remove('hide');$('#overT').textContent='Tolgo lo sfondo…';$('#overB').style.width='0';drawForm();
-  try{const out=await removeBg(sm,(t,p)=>{$('#overT').textContent=t;$('#overB').style.width=p==null?'100%':Math.round(p*100)+'%'});S.cur.cut=await trim(out);$('#photoImg').src=URL.createObjectURL(S.cur.cut)}
-  catch(err){console.error(err);$('#addNote').textContent='Non sono riuscita a togliere lo sfondo: salvo la foto così com\'è.'}
+  $('#photoImg').src=URL.createObjectURL(f);$('#over').classList.remove('hide');$('#overT').textContent=autoOn()?'Miglioro la foto…':'Tolgo lo sfondo…';$('#overB').style.width='0';drawForm();
+  const r=await processPhoto(f,(t,p)=>{$('#overT').textContent=t;$('#overB').style.width=p==null?'100%':Math.round(p*100)+'%'});S.cur.orig=r.orig;S.cur.cut=r.cut;$('#photoImg').src=URL.createObjectURL(r.cut||r.orig);
+  if(!r.cut)$('#addNote').textContent='Non sono riuscita a togliere lo sfondo: salvo la foto così com\'è.';
   $('#over').classList.add('hide');drawForm()}
 function drawForm(){const F=S.form;if(!F)return;const m=F.cat?SUB[F.cat]?.m:F.macro;
   $('#cMacro').innerHTML=TREE.map(t=>`<button type="button" data-m="${t[0]}" aria-pressed="${m===t[0]}">${t[1]}</button>`).join('');
@@ -356,7 +403,7 @@ $('#cMacro').onclick=e=>{const b=e.target.closest('[data-m]');if(!b)return;const
 $('#cSub').onclick=e=>{const b=e.target.closest('[data-s]');if(!b)return;S.form.cat=b.dataset.s;drawForm()};
 $('#cSea').onclick=e=>{const b=e.target.closest('[data-k]');if(!b)return;const s=S.form.sea;s.has(b.dataset.k)?s.delete(b.dataset.k):s.add(b.dataset.k);drawForm()};
 $('#save').onclick=async()=>{const F=S.form;if(!F?.cat)return;const btn=$('#save');btn.disabled=true;const old=btn.textContent;btn.textContent='Salvo…';
-  try{if(F.id){await S.col.doc(F.id).update({cat:F.cat,sea:[...F.sea],name:$('#desc').value.trim()});toast('Modifiche salvate');S.capoId=F.id;S.form=null;history.back()}
+  try{if(F.id){await S.col.doc(F.id).update({cat:F.cat,sea:[...F.sea],name:$('#desc').value.trim(),draft:false});toast('Modifiche salvate');S.capoId=F.id;S.form=null;history.back()}
     else{const blob=S.cur.cut||S.cur.orig;const up=await S.assets.upload(blob,{type:blob.type||'image/png'});await S.col.doc('it_'+Date.now().toString(36)).set({kind:'item',cat:F.cat,sea:[...F.sea],name:$('#desc').value.trim(),img:up.id,at:Date.now()});toast(`Salvato in ${catName(F.cat)}`);next()}}
   catch(err){console.error(err);toast('Salvataggio non riuscito, riprova')}btn.textContent=old;drawForm()};
 
@@ -390,7 +437,7 @@ $('#back1').onclick=()=>{S.oname=$('#oName').value;S.step=1;renderCrea()};
 $('#ideasBtn').onclick=()=>{$('#ideaBox').classList.toggle('hide');if(!$('#ideaBox').classList.contains('hide'))$('#ideaBox').scrollIntoView({behavior:'smooth',block:'nearest'})};
 $('#oName').oninput=e=>{S.oname=e.target.value};
 $('#photos').onclick=e=>{const b=e.target.closest('[data-rm]');if(!b)return;S.photos.splice(+b.dataset.rm,1);renderStep2()};
-async function addPhotos(files,onDone){for(const f of files){try{toast('Carico la foto…');const sm=await shrink(f,1600);const up=await S.assets.upload(sm,{type:'image/jpeg'});onDone(up.id)}catch(err){console.error(err);toast('Caricamento non riuscito')}}}
+async function addPhotos(files,onDone){for(const f of files){try{toast('Carico la foto…');let sm=await shrink(f,1600);if(autoOn())sm=await enhance(sm).catch(()=>sm);const up=await S.assets.upload(sm,{type:'image/jpeg'});onDone(up.id)}catch(err){console.error(err);toast('Caricamento non riuscito')}}}
 ['pCam','pGal'].forEach(k=>$('#'+k).onchange=async e=>{const fs=[...e.target.files];e.target.value='';await addPhotos(fs,id=>{S.photos.push(id);renderStep2()})});
 $('#dTabs').onclick=e=>{const b=e.target.closest('[data-k]');if(b){S.dTab=b.dataset.k;renderDrawer()}};
 $('#dStrip').onclick=e=>{const c=e.target.closest('.card[data-id]');if(!c)return;const id=c.dataset.id;const k=S.layers.findIndex(l=>l.item===id);
@@ -510,6 +557,7 @@ $('#lookEdit').onclick=()=>{const o=S.outfits.find(x=>x.id===S.lookId);if(!o)ret
 function renderProf(){const p=S.prof||{};$('#pArm').innerHTML=ARMO.map(a=>`<option ${a===p.armo?'selected':''} value="${esc(a)}">${a||'Non so'}</option>`).join('');$('#pH').value=p.h||'';$('#pT').value=p.t||'';$('#pMis').value=p.mis||'';
   $('#pFields').innerHTML=PF.map(([k,n,r])=>`<div><label class="lbl" for="pf_${k}">${n}</label><textarea id="pf_${k}" rows="${r}">${esc(p[k]||'')}</textarea></div>`).join('');
   $('#impHint').classList.toggle('hide',!!(p.armo||p.stile||p.body));$('#meThumb').classList.toggle('hide',!S.me);if(S.me)$('#meThumb').src=src(S.me)}
+$('#autoEnh').checked=autoOn();$('#autoEnh').onchange=e=>{try{localStorage.setItem('auto_enh',e.target.checked?'1':'0')}catch{}toast(e.target.checked?'Miglioramento attivo':'Miglioramento spento')};
 $('#pf').onsubmit=async e=>{e.preventDefault();const v={kind:'profile',armo:$('#pArm').value,h:$('#pH').value.trim(),t:$('#pT').value.trim(),mis:$('#pMis').value.trim()};for(const [k] of PF)v[k]=$('#pf_'+k).value.trim();
   try{await S.col.doc('profilo').set(v);toast('Stile salvato')}catch{toast('Salvataggio non riuscito')}};
 $('#meFile').onchange=async e=>{const f=e.target.files[0];e.target.value='';if(!f)return;toast('Carico la tua foto…');
@@ -547,7 +595,7 @@ const CFG=window.GUARDAROBA||{};
   $('#gKey').value=gk();$('#gModel').value=gm();$('#gNote').textContent=gk()?'Chiave salvata su questo dispositivo.':'Senza chiave la consulente è spenta.';
   $('#gSave').onclick=()=>{try{localStorage.setItem('gemini_key',$('#gKey').value.trim());localStorage.setItem('gemini_model',$('#gModel').value.trim()||'gemini-2.5-flash')}catch{}$('#gNote').textContent='Salvato.';toast('Consulente pronta')};
   const b64=b=>new Promise(r=>{const f=new FileReader();f.onload=()=>r(String(f.result).split(',')[1]);f.readAsDataURL(b)});
-  sampleFn={json:async(prompt,o={})=>{const key=gk();if(!key)throw{code:'no_key'};
+  sampleFn={ready:()=>!!gk(),json:async(prompt,o={})=>{const key=gk();if(!key)throw{code:'no_key'};
     const parts=[{text:prompt}];for(const im of (o.images||[]))if(im)parts.push({inline_data:{mime_type:im.type||'image/jpeg',data:await b64(im)}});
     let res;try{res=await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${encodeURIComponent(gm())}:generateContent`,{method:'POST',signal:o.signal,headers:{'Content-Type':'application/json','x-goog-api-key':key},body:JSON.stringify({contents:[{role:'user',parts}],generationConfig:{responseMimeType:'application/json',temperature:.6}})})}
     catch(e){throw{code:e?.name==='AbortError'?'cancelled':'upstream_error'}}
