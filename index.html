@@ -149,6 +149,7 @@ b,strong{font-weight:500}
   <div class="pick" id="pick">
     <label><input type="file" accept="image/*" capture="environment" id="fileCam"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M4 8h3l2-3h6l2 3h3v11H4z"/><circle cx="12" cy="13" r="3.6"/></svg>Scatta foto</label>
     <label><input type="file" accept="image/*" multiple id="fileGal"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><rect x="3.5" y="4.5" width="17" height="15" rx="2.5"/><circle cx="9" cy="10" r="1.8"/><path d="M4 17l5-4.5 4 3.5 3-2.5 4 3.5"/></svg>Dalla galleria</label>
+    <label style="grid-column:1/-1;aspect-ratio:auto;flex-direction:row;padding:16px;border-style:solid;border-color:var(--acc);background:var(--bg)"><input type="file" accept="image/*" multiple id="fileMulti"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" style="width:36px;height:36px"><rect x="3" y="4" width="7.5" height="7" rx="1.5"/><rect x="13.5" y="4" width="7.5" height="7" rx="1.5"/><rect x="3" y="13.5" width="7.5" height="7" rx="1.5"/><rect x="13.5" y="13.5" width="7.5" height="7" rx="1.5"/></svg><span style="text-align:left">Più capi in una foto<br><span class="mut" style="font-weight:400;font-size:14px">Stendili distanziati su un fondo uniforme: li separo io</span></span></label>
   </div>
   <p class="mut" id="pickTip" style="margin:12px 0 0">Consiglio: appoggia il capo su un fondo semplice e in contrasto. Dalla galleria puoi sceglierne fino a 50 insieme: li salvo tutti già scontornati, senza chiederti niente.</p>
   <div id="editArea" class="hide">
@@ -258,8 +259,24 @@ const TREE=[
  ['gioielli','Gioielli',[50,20,18],[['collana','Collane'],['orecchini','Orecchini'],['bracciali','Bracciali'],['anello','Anelli']]],
  ['altro','Altro',[50,50,30],[['altro','Altro']]]];
 const SUB={},MAC={};for(const[m,n,pos,subs]of TREE){MAC[m]={n,pos};for(const[s,sn]of subs)SUB[s]={n:sn,m}}
-const SPOS={sciarpa:[50,24,34],orecchini:[50,9,14],bracciali:[24,52,14],anello:[26,56,8],cappello:[50,6,30],cintura:[50,47,34]};
-const posOf=c=>SPOS[c]||MAC[SUB[c]?.m||'altro'].pos;
+// zone del corpo sulla sagoma (in % della tavola 3:4): [centro x, y di riferimento, larghezza max, altezza max, ancoraggio t=alto b=basso c=centro, livello]
+const ZONE={tshirt:[50,18.6,56,30,'t',3],top:[50,18.6,44,30,'t',3],camicia:[50,18.6,62,36,'t',3],blusa:[50,18.6,60,34,'t',3],maglione:[50,18.6,66,35,'t',4],felpa:[50,18.6,66,35,'t',4],gilet:[50,19.5,38,30,'t',5],
+ pantaloni:[50,36.5,40,59,'t',2],jeans:[50,36.5,40,59,'t',2],gonna:[50,36.5,42,32,'t',2],shorts:[50,36.5,40,20,'t',2],
+ abito:[50,18.6,52,58,'t',3],tuta:[50,18.6,56,77,'t',3],
+ blazer:[50,18.2,68,38,'t',6],giacca:[50,18.2,68,35,'t',6],cappotto:[50,18.2,70,48,'t',6],
+ sneakers:[50,99,36,9,'b',1],maryjane:[50,99,34,8,'b',1],stivaletti:[50,99,36,16,'b',1],decollete:[50,99,34,9,'b',1],sandali:[50,99,34,8,'b',1],scarpe:[50,99,36,10,'b',1],
+ borsa:[79,47,26,22,'t',9],cintura:[50,37.4,32,6,'c',7],sciarpa:[50,15,40,30,'t',8],cappello:[50,9.5,34,12,'b',10],
+ collana:[50,17.2,22,16,'t',8],orecchini:[50,11.5,17,6,'c',10],bracciali:[28.5,50.5,9,6,'c',10],anello:[28.5,54.5,4,3,'c',10],altro:[50,50,30,30,'c',5]};
+const ASP=new Map();// rapporto altezza/larghezza delle foto
+function aspOf(it){if(ASP.has(it.img))return ASP.get(it.img);const im=new Image();im.onload=()=>ASP.set(it.img,im.naturalHeight/im.naturalWidth);im.src=src(it.img);return ({scarpe:.45,borse:1,gioielli:1,sotto:1.6,abiti:1.5}[SUB[it.cat]?.m])||1.15}
+const ensureAsp=it=>new Promise(r=>{if(!it||ASP.has(it.img))return r();const im=new Image();im.onload=()=>{ASP.set(it.img,im.naturalHeight/im.naturalWidth);r()};im.onerror=()=>r();im.src=src(it.img)});
+function place(it){const [cx,ry,bw,bh,an,z]=ZONE[it?.cat]||ZONE.altro;const ar=aspOf(it);const w=Math.max(3,Math.min(bw,bh/(ar*.75)));const hp=w*ar*.75;const y=an==='t'?ry+hp/2:an==='b'?ry-hp/2:ry;return{item:it.id,x:cx,y:+y.toFixed(2),w:+w.toFixed(2),r:0,z}}
+// sagoma: 160 cm, seno 110, vita 95, fianchi 113 (scala circa 2,36 unità per cm)
+const MANNEQUIN=(()=>{const P=(pts)=>{let d=`M${pts[0][0]},${pts[0][1]}`;for(let i=1;i<pts.length-1;i++){const [x1,y1]=pts[i],[x2,y2]=pts[i+1];d+=` Q${x1},${y1} ${(x1+x2)/2},${(y1+y2)/2}`}const l=pts[pts.length-1];return d+` L${l[0]},${l[1]}Z`};
+  const half=[[9,70],[30,76],[47,82],[46,100],[44,113],[40,128],[36,150],[41,172],[45,192],[43,215],[37,252],[30,290],[27,322],[21,366],[24,382],[16,391],[6,391],[8,368],[10,330],[11,290],[9,252],[4,214],[0,207]];
+  const body=[...half.map(([x,y])=>[150+x,y]),...half.slice().reverse().map(([x,y])=>[150-x,y])];
+  const arm=s=>[[47,84],[56,100],[60,140],[62,172],[66,199],[68,212],[61,222],[55,210],[52,198],[50,170],[48,140],[45,108]].map(([x,y])=>[150+s*x,y]);
+  const f='#e8e3dd',st='#d4ccc3';return `<svg class="base" viewBox="0 0 300 400" preserveAspectRatio="xMidYMid meet" aria-hidden="true"><g fill="${f}" stroke="${st}" stroke-width="1.5" stroke-linejoin="round"><path d="${P(arm(1))}"/><path d="${P(arm(-1))}"/><path d="${P(body)}"/><rect x="141" y="54" width="18" height="20" rx="6" stroke="none"/><ellipse cx="150" cy="36" rx="19" ry="23"/></g></svg>`})();
 const catName=c=>SUB[c]?.n||'Altro';
 const SEAS=[['inverno','Inverno'],['mezza','Mezza stagione'],['estate','Estate']];
 const FIT=[['si','Mi valorizza','#1f9d55'],['forse','Così così','#d9a400'],['no','Non mi convince','#d83a3a']];const FC=Object.fromEntries(FIT.map(f=>[f[0],f]));
@@ -267,7 +284,7 @@ const ARMO=['','Primavera Chiara','Primavera Calda','Primavera Brillante','Estat
 const PF=[['body','Fisicità e vestibilità',4],['stile','Il mio stile',3],['pal','Colori: sì e no',3],['capi','Capi che cerco',6],['no','Cosa evito',5],['goal','Regola d\'oro',3]];
 const S={items:[],outfits:[],me:null,prof:null,fSea:'all',fCat:'all',fFit:'all',oSea:'all',oSort:'recent',layers:[],sel:-1,base:'board',editing:null,stars:0,queue:[],cur:null,form:null,capoId:null,selMode:false,selected:new Set(),dTab:'all',gaps:null,step:1,photos:[],oname:'',lookId:null};
 function newDraft(layers,o){S.layers=layers||[];S.sel=-1;S.editing=o?.id||null;S.stars=o?.stars||0;S.photos=[...(o?.photos||[])];S.oname=o?.name||'';S.base=o?.base||S.base||'board';S.verdict=o?.verdict||null;S.verdictKey=o?.verdictKey;S.step=1;$('#varList').innerHTML='';$('#suggNote').textContent=''}
-const layFor=ids=>ids.map((id,i)=>{const it=S.items.find(x=>x.id===id);const p=posOf(it?.cat);return{item:id,x:p[0],y:p[1],w:p[2],r:0,z:i+1}});
+const layFor=ids=>ids.map(id=>S.items.find(x=>x.id===id)).filter(Boolean).map(place);
 const fits=(it,f)=>f==='all'||!it?.sea?.length||it.sea.includes(f);
 const nameOf=it=>{const d=(it?.name||'').trim();return d?(d.length>34?d.slice(0,32)+'…':d):catName(it?.cat)};
 const toast=t=>{const e=$('#toast');e.textContent=t;e.classList.add('on');clearTimeout(toast.t);toast.t=setTimeout(()=>e.classList.remove('on'),2800)};
@@ -308,7 +325,7 @@ function exitSel(){if(!S.selMode)return;S.selMode=false;S.selected.clear();rende
 $('#selX').onclick=exitSel;
 $('#selDel').onclick=async()=>{const n=S.selected.size;if(!n||!(await ask(`Eliminare ${n} ${n===1?'capo':'capi'}? Non si può annullare.`)))return;
   for(const id of [...S.selected]){const it=S.items.find(i=>i.id===id);try{await S.col.doc(id).delete();if(it?.img)S.assets.delete(it.img).catch(()=>{})}catch{toast('Non riuscito su un capo')}}toast(n===1?'Capo eliminato':`${n} capi eliminati`);exitSel()};
-$('#selOutfit').onclick=()=>{const ids=[...S.selected];exitSel();newDraft(layFor(ids));go('crea');renderCrea()};
+$('#selOutfit').onclick=async()=>{const ids=[...S.selected];exitSel();await Promise.all(ids.map(id=>ensureAsp(S.items.find(x=>x.id===id))));newDraft(layFor(ids));go('crea');renderCrea()};
 
 // ---------- scheda capo (sola lettura) ----------
 function renderCapo(){const it=S.items.find(i=>i.id===S.capoId);if(!it){$('#capoTitle').textContent='Capo non trovato';$('#capoBody').innerHTML='';return}
@@ -320,7 +337,7 @@ function renderCapo(){const it=S.items.find(i=>i.id===S.capoId);if(!it){$('#capo
   <p class="mut">${used?`Usato in ${used} outfit salvat${used===1?'o':'i'}.`:'Non ancora usato in un outfit.'}</p>
   <button class="full" id="capoToOutfit">Crea un outfit con questo capo</button>`;
   if($('#okDraft'))$('#okDraft').onclick=()=>S.col.doc(it.id).update({draft:false}).then(()=>toast('Scheda confermata')).catch(()=>toast('Non riuscito'));
-  $('#capoToOutfit').onclick=()=>{newDraft(layFor([it.id]));go('crea');renderCrea()}}
+  $('#capoToOutfit').onclick=async()=>{await ensureAsp(it);newDraft(layFor([it.id]));go('crea');renderCrea()}}
 $('#capoEdit').onclick=()=>{const it=S.items.find(i=>i.id===S.capoId);if(!it)return;S.form={id:it.id,cat:it.cat,sea:new Set(it.sea||[]),name:it.name||'',fit:it.fit||''};S.cur=null;S.queue=[];
   S.rot=0;rotUI();$('#addTitle').textContent='Modifica capo';$('#pick').classList.add('hide');$('#pickTip').classList.add('hide');$('#editArea').classList.remove('hide');$('#photoImg').src=src(it.img);$('#over').classList.add('hide');$('#desc').value=S.form.name;$('#save').textContent='Salva modifiche';$('#addNote').innerHTML='<button class="danger" id="delOne" style="margin-top:6px">Elimina capo</button>';
   $('#delOne').onclick=async()=>{if(!(await ask('Eliminare questo capo? Non si può annullare.')))return;try{await S.col.doc(it.id).delete();S.assets.delete(it.img).catch(()=>{});S.form=null;toast('Capo eliminato');go('armadio')}catch{toast('Non riuscito')}};
@@ -374,25 +391,43 @@ $('#rotL').onclick=()=>setRot((S.rot||0)-90);$('#rotR').onclick=()=>setRot((S.ro
 $('#rotF').oninput=e=>{const base=Math.round((S.rot||0)/90)*90;setRot(base+ +e.target.value)};
 async function rotateBlob(blob,deg){const im=await loadImg(blob);const W=im.width,H=im.height,rad=deg*Math.PI/180,cs=Math.abs(Math.cos(rad)),sn=Math.abs(Math.sin(rad));const o=document.createElement('canvas');o.width=Math.round(W*cs+H*sn);o.height=Math.round(W*sn+H*cs);const x=o.getContext('2d');x.translate(o.width/2,o.height/2);x.rotate(rad);x.drawImage(im,-W/2,-H/2);
   const out=await new Promise(r=>o.toBlob(r,'image/png'));return deg%90?trim(out):out}
+async function classifyBlob(blob){const c=document.createElement('canvas');const im=await loadImg(blob);const k=Math.min(1,500/Math.max(im.width,im.height));c.width=im.width*k;c.height=im.height*k;const x=c.getContext('2d');x.fillStyle='#fff';x.fillRect(0,0,c.width,c.height);x.drawImage(im,0,0,c.width,c.height);
+  const jb=await new Promise(r=>c.toBlob(r,'image/jpeg',.85));const r=await sampleFn.json(tagPrompt(1).replace('ci sono 1 capi d\'abbigliamento o accessori numerati','c\'è un capo d\'abbigliamento o accessorio (è il numero 1)'),{images:[jb]});return Array.isArray(r)?r[0]:r}
 function startAdd(){S.form=null;S.cur=null;$('#addTitle').textContent='Nuovo capo';$('#pick').classList.remove('hide');$('#pickTip').classList.remove('hide');$('#editArea').classList.add('hide');$('#save').textContent="Salva nell'armadio";$('#addNote').textContent='';$('#queue').textContent=''}
+// separa più capi fotografati insieme (componenti staccate dopo lo scontorno)
+async function splitItems(blob){const im=await loadImg(blob);const W=im.width,H=im.height;const c=document.createElement('canvas');c.width=W;c.height=H;const x=c.getContext('2d');x.drawImage(im,0,0);const id=x.getImageData(0,0,W,H),d=id.data;
+  for(let i=3;i<d.length;i+=4){const v=d[i];d[i]=v<70?0:v>200?255:Math.round((v-70)/130*255)}
+  const s=4,w=Math.ceil(W/s),h=Math.ceil(H/s),m=new Uint8Array(w*h);for(let y=0;y<H;y+=s)for(let X=0;X<W;X+=s)if(d[(y*W+X)*4+3]>128)m[(y/s|0)*w+(X/s|0)]=1;
+  const R=Math.max(2,Math.round(Math.max(w,h)*.02));const dm=new Uint8Array(w*h);// unisce pezzi vicini (es. due scarpe)
+  for(let yy=0;yy<h;yy++)for(let xx=0;xx<w;xx++)if(m[yy*w+xx])for(let dy=-R;dy<=R;dy+=2)for(let dx=-R;dx<=R;dx+=2){const nx=xx+dx,ny=yy+dy;if(nx>=0&&ny>=0&&nx<w&&ny<h)dm[ny*w+nx]=1}
+  const lab=new Int32Array(w*h).fill(-1),sizes=[];for(let k=0;k<w*h;k++){if(!dm[k]||lab[k]>=0)continue;const L=sizes.length;const st=[k];lab[k]=L;while(st.length){const q=st.pop();const qx=q%w,qy=q/w|0;for(const[dx,dy]of[[1,0],[-1,0],[0,1],[0,-1]]){const nx=qx+dx,ny=qy+dy;if(nx<0||ny<0||nx>=w||ny>=h)continue;const nk=ny*w+nx;if(dm[nk]&&lab[nk]<0){lab[nk]=L;st.push(nk)}}}sizes.push(0)}
+  for(let k=0;k<w*h;k++)if(m[k])sizes[lab[k]]++;const big=Math.max(0,...sizes);const keep=sizes.map((n,i)=>n>=Math.max(60,big*.04)?i:-1).filter(i=>i>=0);
+  const out=[];for(const L of keep){let a=w,b=h,r=0,t=0;for(let k=0;k<w*h;k++)if(m[k]&&lab[k]===L){const kx=k%w,ky=k/w|0;if(kx<a)a=kx;if(kx>r)r=kx;if(ky<b)b=ky;if(ky>t)t=ky}
+    const p=3;a=Math.max(0,(a-p)*s);b=Math.max(0,(b-p)*s);r=Math.min(W,(r+1+p)*s);t=Math.min(H,(t+1+p)*s);const o=document.createElement('canvas');o.width=r-a;o.height=t-b;const ox=o.getContext('2d');const oi=ox.createImageData(r-a,t-b);
+    for(let y=b;y<t;y++)for(let X=a;X<r;X++){const cell=(y/s|0)*w+(X/s|0);if(lab[cell]!==L)continue;const si=(y*W+X)*4,di=((y-b)*(r-a)+(X-a))*4;oi.data[di]=d[si];oi.data[di+1]=d[si+1];oi.data[di+2]=d[si+2];oi.data[di+3]=d[si+3]}
+    ox.putImageData(oi,0,0);out.push({blob:await new Promise(z=>o.toBlob(z,'image/png')),y:b,x:a})}
+  out.sort((p,q)=>Math.abs(p.y-q.y)>H*.15?p.y-q.y:p.x-q.x);return out.map(o=>o.blob)}
+$('#fileMulti').onchange=e=>{const fs=[...e.target.files];e.target.value='';if(fs.length)startBulk(fs,true)};
 function onFiles(e){const fs=[...e.target.files];e.target.value='';if(fs.length>1){startBulk(fs);return}S.queue.push(...fs);if(!S.cur)next()}
 // ---------- caricamento massivo ----------
 addEventListener('beforeunload',e=>{if(S.bulk&&S.bulk.phase!=='end'){e.preventDefault();e.returnValue=''}});
 const BULK_MAX=50;let wake=null;
 function bulkUI(){const B=S.bulk;const el=$('#bulkBar');if(!B){el.classList.add('hide');return}el.classList.remove('hide');
-  const pct=Math.round((B.done+B.fail)/B.total*100);$('#bulkT').textContent=B.phase==='tag'?'La consulente compila le schede…':B.phase==='end'?`Fatto: ${B.done} capi salvati nell'armadio${B.fail?` (${B.fail} foto non riuscite)`:''}.${B.tagged?' Categorie e descrizioni le ha compilate la consulente: se vuoi, correggile con la matita.':''}`:`Scontorno e salvo ${Math.min(B.total,B.done+B.fail+1)} di ${B.total}… tieni l'app aperta`;
+  const pct=Math.round((B.done+B.fail)/B.total*100);$('#bulkT').textContent=B.phase==='tag'?'La consulente compila le schede…':B.phase==='end'?`Fatto: ${B.items||0} capi salvati nell'armadio${B.fail?` (${B.fail} foto non riuscite)`:''}.${B.tagged?' Categorie e descrizioni le ha compilate la consulente: se vuoi, correggile con la matita.':''}`:`Foto ${Math.min(B.total,B.done+B.fail+1)} di ${B.total}${B.items?` · ${B.items} capi salvati`:''}… tieni l'app aperta`;
   $('#bulkB').style.width=(B.phase==='end'?100:pct)+'%';$('#bulkX').classList.toggle('hide',B.phase!=='end')}
-async function startBulk(files){if(S.bulk&&S.bulk.phase!=='end')return toast('Sto già elaborando delle foto');if(files.length>BULK_MAX){toast(`Ne elaboro ${BULK_MAX} alla volta: le altre caricale dopo`);files=files.slice(0,BULK_MAX)}
+async function startBulk(files,multi){if(S.bulk&&S.bulk.phase!=='end')return toast('Sto già elaborando delle foto');if(files.length>BULK_MAX){toast(`Ne elaboro ${BULK_MAX} alla volta: le altre caricale dopo`);files=files.slice(0,BULK_MAX)}
   S.bulk={total:files.length,done:0,fail:0,ids:[],phase:'run'};go('armadio');bulkUI();try{wake=await navigator.wakeLock?.request('screen')}catch{}
-  for(const f of files){try{const r=await processPhoto(f,()=>{});const blob=r.cut||r.orig;const up=await S.assets.upload(blob,{type:blob.type||'image/png'});const id='it_'+Date.now().toString(36)+Math.random().toString(36).slice(2,5);
-      await S.col.doc(id).set({kind:'item',cat:'altro',sea:[],name:'',img:up.id,at:Date.now(),draft:true});S.bulk.ids.push(id);S.bulk.done++}catch(err){console.error(err);S.bulk.fail++}bulkUI()}
+  const saveBlob=async blob=>{const up=await S.assets.upload(blob,{type:blob.type||'image/png'});const id='it_'+Date.now().toString(36)+Math.random().toString(36).slice(2,5);await S.col.doc(id).set({kind:'item',cat:'altro',sea:[],name:'',img:up.id,at:Date.now()});S.bulk.ids.push(id)};
+  for(const f of files){try{if(multi){let sm=await shrink(f,2200);if(autoOn())sm=await enhance(sm).catch(()=>sm);const cut=await removeBg(sm,()=>{});const parts=await splitItems(cut);for(let pb of parts){if(autoOn())pb=await deskew(pb).catch(()=>pb);await saveBlob(pb);S.bulk.items=(S.bulk.items||0)+1;bulkUI()}}
+      else{const r=await processPhoto(f,()=>{});await saveBlob(r.cut||r.orig);S.bulk.items=(S.bulk.items||0)+1}S.bulk.done++}catch(err){console.error(err);S.bulk.fail++}bulkUI()}
   if(S.bulk.ids.length&&sampleFn?.ready()){S.bulk.phase='tag';S.bulk.tagged=true;bulkUI();for(let k=0;k<S.bulk.ids.length;k+=20)await autoTag(S.bulk.ids.slice(k,k+20)).catch(err=>console.error(err))}
   S.bulk.phase='end';bulkUI();try{await wake?.release()}catch{}wake=null;renderArm()}
+const tagPrompt=n=>{const cats=TREE.map(t=>`${t[1]}: `+t[3].map(([k,nn])=>`${k} (${nn})`).join(', ')).join('\n');return `Nell'immagine ci sono ${n} capi d'abbigliamento o accessori numerati. Per ognuno indica:\n- "cat": UNO degli id seguenti\n${cats}\n- "sea": stagioni adatte tra "inverno","mezza","estate" (lista)\n- "desc": descrizione breve e concreta in italiano (colore, tessuto apparente, taglio, lunghezza, dettagli), max 20 parole\nRispondi solo con JSON: [{"n":1,"cat":"maglione","sea":["inverno"],"desc":"…"}]`};
 async function autoTag(ids){const its=ids.map(id=>S.items.find(i=>i.id===id)).filter(Boolean);if(!its.length)return;
   const cats=TREE.map(t=>`${t[1]}: `+t[3].map(([k,n])=>`${k} (${n})`).join(', ')).join('\n');
   const prompt=`Nell'immagine ci sono ${its.length} capi d'abbigliamento numerati. Per ognuno indica:\n- "cat": UNO degli id seguenti\n${cats}\n- "sea": stagioni adatte tra "inverno","mezza","estate" (lista)\n- "desc": descrizione breve e concreta in italiano (colore, tessuto apparente, taglio, lunghezza, dettagli), max 20 parole\nRispondi solo con JSON: [{"n":1,"cat":"maglione","sea":["inverno"],"desc":"…"}]`;
   const r=await sampleFn.json(prompt,{images:[await contactSheet(its)]});
-  for(const o of (Array.isArray(r)?r:[])){const it=its[Number(o.n)-1];if(!it)continue;const cat=SUB[o.cat]?o.cat:'altro';const sea=(o.sea||[]).filter(x=>SEAS.some(z=>z[0]===x));await S.col.doc(it.id).update({cat,sea,name:String(o.desc||'').slice(0,300)})}}
+  for(const o of (Array.isArray(r)?r:[])){const it=its[Number(o.n)-1];if(!it)continue;const cat=SUB[o.cat]?o.cat:'altro';const sea=(o.sea||[]).filter(x=>SEAS.some(z=>z[0]===x));await S.col.doc(it.id).update({cat,sea,name:it.name||String(o.desc||'').slice(0,300),tagged:true})}}
 $('#fileCam').onchange=onFiles;$('#fileGal').onchange=onFiles;
 async function next(){const f=S.queue.shift();$('#queue').textContent=S.queue.length?`altre ${S.queue.length}`:'';
   if(!f){S.cur=null;S.form=null;go('armadio');return}
@@ -401,6 +436,8 @@ async function next(){const f=S.queue.shift();$('#queue').textContent=S.queue.le
   $('#photoImg').src=URL.createObjectURL(f);$('#over').classList.remove('hide');$('#overT').textContent=autoOn()?'Miglioro la foto…':'Tolgo lo sfondo…';$('#overB').style.width='0';drawForm();
   const r=await processPhoto(f,(t,p)=>{$('#overT').textContent=t;$('#overB').style.width=p==null?'100%':Math.round(p*100)+'%'});S.cur.orig=r.orig;S.cur.cut=r.cut;$('#photoImg').src=URL.createObjectURL(r.cut||r.orig);
   if(!r.cut)$('#addNote').textContent='Non sono riuscita a togliere lo sfondo: salvo la foto così com\'è.';
+  $('#over').classList.add('hide');drawForm();
+  if(sampleFn?.ready()){const F=S.form;$('#addNote').textContent='La consulente sta compilando la scheda…';$('#save').disabled=true;try{const o=await classifyBlob(r.cut||r.orig);if(S.form===F&&o){if(SUB[o.cat])F.cat=o.cat;(o.sea||[]).forEach(x=>{if(SEAS.some(z=>z[0]===x))F.sea.add(x)});if(!$('#desc').value.trim()&&o.desc)$('#desc').value=String(o.desc).slice(0,300);$('#addNote').textContent='Scheda compilata in automatico: se va bene premi Salva.'}}catch(e){console.error(e);if(S.form===F)$('#addNote').textContent=''}drawForm()}
   $('#over').classList.add('hide');drawForm()}
 function drawForm(){const F=S.form;if(!F)return;const m=F.cat?SUB[F.cat]?.m:F.macro;
   $('#cMacro').innerHTML=TREE.map(t=>`<button type="button" data-m="${t[0]}" aria-pressed="${m===t[0]}">${t[1]}</button>`).join('');
@@ -419,7 +456,7 @@ $('#save').onclick=async()=>{const F=S.form;if(!F?.cat)return;const btn=$('#save
 const starsHTML=(n,id)=>[1,2,3,4,5].map(k=>`<button type="button" class="${k<=(n||0)?'on':''}" data-star="${k}" ${id?`data-oid="${id}"`:''} aria-label="${k} stelle">★</button>`).join('');
 const boardKey=()=>S.layers.map(l=>l.item).sort().join(',');
 function layerHTML(l,i,sel){const it=S.items.find(x=>x.id===l.item);if(!it)return'';return `<div class="layer${sel===i?' sel':''}" data-i="${i}" style="left:${l.x}%;top:${l.y}%;width:${l.w}%;z-index:${l.z};transform:translate(-50%,-50%) rotate(${l.r||0}deg)"><img src="${src(it.img)}" alt="${esc(nameOf(it))}"></div>`}
-const baseHTML=b=>b==='me'&&S.me?`<img class="base" src="${src(S.me)}" alt="La mia foto">`:'';
+const baseHTML=b=>b==='me'&&S.me?`<img class="base" src="${src(S.me)}" alt="La mia foto">`:b==='plain'?'':MANNEQUIN;
 function renderBoard(){$('#next1').disabled=!S.layers.length;const b=$('#board');b.classList.toggle('me',S.base==='me'&&!!S.me);b.innerHTML=baseHTML(S.base)+S.layers.map((l,i)=>layerHTML(l,i,S.sel)).join('')+(S.layers.length?'':`<div class="hint">${S.items.length?'Scegli i capi dal cassetto: toccane uno per metterlo qui.':'Il tuo armadio è vuoto: aggiungi prima qualche capo.'}</div>`);renderTools();renderVerdict()}
 function renderTools(){const t=$('#ltools');const l=S.layers[S.sel];
   if(!l){t.innerHTML=S.layers.length?'<span class="mut">Tocca un capo sulla tavola per regolarlo · due dita per ingrandire</span>':'';return}
@@ -435,7 +472,7 @@ function renderDrawer(){const its=S.items.filter(i=>fits(i,S.fSea)||true);const 
   $('#dStrip').innerHTML=S.items.length?list.map(i=>`<button class="card${on.has(i.id)?' on':''}" data-id="${i.id}" aria-label="${esc(nameOf(i))}"><img src="${src(i.img)}" alt="" loading="lazy">${i.fit?`<span class="dot" style="background:${FC[i.fit][2]};left:7px;right:auto"></span>`:''}</button>`).join(''):'<button class="pri" data-go="aggiungi">Aggiungi il primo capo</button>';
   $('#next1').disabled=!S.layers.length}
 function renderStep2(){$('#prev2').style.background=S.base==='me'&&S.me?'#000':'';$('#prev2').innerHTML=baseHTML(S.base)+S.layers.map((l,i)=>layerHTML(l,i,-1)).join('');
-  $('#baseSw').innerHTML=[['board','Tavola'],['me','Su di me']].map(([k,n])=>`<button type="button" data-b="${k}" aria-pressed="${S.base===k}">${n}</button>`).join('');
+  $('#baseSw').innerHTML=[['board','Sagoma'],['me','Su di me']].map(([k,n])=>`<button type="button" data-b="${k}" aria-pressed="${S.base===k}">${n}</button>`).join('');
   $('#stStars').innerHTML=starsHTML(S.stars);if(document.activeElement!==$('#oName'))$('#oName').value=S.oname||'';
   $('#photos').innerHTML=S.photos.map((p,k)=>`<div class="ph"><img src="${src(p)}" alt="Foto indossato"><button type="button" data-rm="${k}" aria-label="Togli foto">✕</button></div>`).join('')||'<p class="mut" style="grid-column:1/-1;margin:0">Nessuna foto: aggiungila quando lo indossi, come promemoria.</p>';renderVerdict()}
 function renderCrea(){const two=S.step===2;$('#step1').classList.toggle('hide',two);$('#step2').classList.toggle('hide',!two);$('#back1').classList.toggle('hide',!two);$('#helpBtn').classList.toggle('hide',two);$('#newO').classList.toggle('hide',two);
@@ -448,8 +485,8 @@ $('#photos').onclick=e=>{const b=e.target.closest('[data-rm]');if(!b)return;S.ph
 async function addPhotos(files,onDone){for(const f of files){try{toast('Carico la foto…');let sm=await shrink(f,1600);if(autoOn())sm=await enhance(sm).catch(()=>sm);const up=await S.assets.upload(sm,{type:'image/jpeg'});onDone(up.id)}catch(err){console.error(err);toast('Caricamento non riuscito')}}}
 ['pCam','pGal'].forEach(k=>$('#'+k).onchange=async e=>{const fs=[...e.target.files];e.target.value='';await addPhotos(fs,id=>{S.photos.push(id);renderStep2()})});
 $('#dTabs').onclick=e=>{const b=e.target.closest('[data-k]');if(b){S.dTab=b.dataset.k;renderDrawer()}};
-$('#dStrip').onclick=e=>{const c=e.target.closest('.card[data-id]');if(!c)return;const id=c.dataset.id;const k=S.layers.findIndex(l=>l.item===id);
-  if(k>=0){S.layers.splice(k,1);S.sel=-1}else{const it=S.items.find(i=>i.id===id);const p=posOf(it.cat);S.layers.push({item:id,x:p[0],y:p[1],w:p[2],r:0,z:S.layers.length+1});S.sel=S.layers.length-1}
+$('#dStrip').onclick=async e=>{const c=e.target.closest('.card[data-id]');if(!c)return;const id=c.dataset.id;const k=S.layers.findIndex(l=>l.item===id);
+  if(k>=0){S.layers.splice(k,1);S.sel=-1}else{const it=S.items.find(i=>i.id===id);await ensureAsp(it);S.layers.push(place(it));S.sel=-1}
   renderBoard();renderDrawer()};
 $('#baseSw').onclick=e=>{const b=e.target.closest('[data-b]');if(!b)return;if(b.dataset.b==='me'&&!S.me){toast('Carica prima la tua foto in Stile');return}S.base=b.dataset.b;renderCrea()};
 $('#stStars').onclick=e=>{const b=e.target.closest('[data-star]');if(!b)return;const k=+b.dataset.star;S.stars=S.stars===k?0:k;$('#stStars').innerHTML=starsHTML(S.stars)};
@@ -479,7 +516,7 @@ const loadX=u=>new Promise(r=>{const im=new Image();im.crossOrigin='anonymous';i
 async function contactSheet(its){const n=its.length,cols=Math.ceil(Math.sqrt(n*.75)),rows=Math.ceil(n/cols),cw=200,ch=240;const c=document.createElement('canvas');c.width=cols*cw;c.height=rows*ch;const x=c.getContext('2d');x.fillStyle='#fff';x.fillRect(0,0,c.width,c.height);x.font='bold 26px sans-serif';
   const ims=await Promise.all(its.map(it=>loadX(src(it.img))));ims.forEach((im,i)=>{const cx=(i%cols)*cw,cy=(i/cols|0)*ch;x.fillStyle='#e8336d';x.fillText(String(i+1),cx+8,cy+30);if(!im)return;const k=Math.min((cw-20)/im.width,(ch-50)/im.height);x.drawImage(im,cx+(cw-im.width*k)/2,cy+40,im.width*k,im.height*k)});
   return new Promise(r=>c.toBlob(r,'image/jpeg',.85))}
-async function boardImage(){const c=document.createElement('canvas');c.width=600;c.height=800;const x=c.getContext('2d');const useMe=S.base==='me'&&S.me;x.fillStyle=useMe?'#000':'#f3f2f0';x.fillRect(0,0,600,800);
+async function boardImage(){const c=document.createElement('canvas');c.width=600;c.height=800;const x=c.getContext('2d');const useMe=S.base==='me'&&S.me;x.fillStyle=useMe?'#000':'#f3f2f0';x.fillRect(0,0,600,800);if(!useMe){const mi=await loadX('data:image/svg+xml;charset=utf-8,'+encodeURIComponent(MANNEQUIN.replace('<svg ','<svg xmlns="http://www.w3.org/2000/svg" width="600" height="800" ')));if(mi)x.drawImage(mi,0,0,600,800)}
   if(useMe){const im=await loadX(src(S.me));if(im){const k=Math.min(600/im.width,800/im.height);x.drawImage(im,(600-im.width*k)/2,(800-im.height*k)/2,im.width*k,im.height*k)}}
   for(const l of [...S.layers].sort((a,b)=>a.z-b.z)){const it=S.items.find(i=>i.id===l.item);if(!it)continue;const im=await loadX(src(it.img));if(!im)continue;const w=l.w/100*600,h=w*im.height/im.width;x.save();x.translate(l.x/100*600,l.y/100*800);x.rotate((l.r||0)*Math.PI/180);x.drawImage(im,-w/2,-h/2,w,h);x.restore()}
   return new Promise(r=>c.toBlob(r,'image/jpeg',.88))}
@@ -489,12 +526,12 @@ function showSugg(out,el='#suggList'){S.sugg=out;$(el).innerHTML=out.map((o,k)=>
 const errMsg=e=>({no_key:'Per la consulente aggiungi la chiave Gemini in Stile.',cancelled:'',rate_limited:'Troppe richieste per oggi alla versione gratuita, riprova più tardi.',invalid_json:'Risposta non leggibile, riprova.'}[e?.code]??'Non ci sono riuscita, riprova.');
 function busy(on,msg,w){$('#sugg').disabled=$('#judge').disabled=on;$(w==='i'?'#stopI':'#stopS').classList.toggle('hide',!on);if(msg!=null)$(w==='i'?'#ideaNote':'#suggNote').textContent=msg}
 $('#stopS').onclick=$('#stopI').onclick=()=>sugCtl?.abort();
-const applySugg=(e,toStep1)=>{const b=e.target.closest('.sg');if(!b)return;const o=S.sugg[+b.dataset.k];const keep={stars:0,photos:S.photos,name:S.oname,id:S.editing,base:S.base};newDraft(layFor(o.ids),keep);if(!S.oname)S.oname=o.name;renderCrea();$('#board').scrollIntoView({behavior:'smooth',block:'start'})};
+const applySugg=async(e,toStep1)=>{const b=e.target.closest('.sg');if(!b)return;const o=S.sugg[+b.dataset.k];await Promise.all(o.ids.map(id=>ensureAsp(S.items.find(x=>x.id===id))));const keep={stars:0,photos:S.photos,name:S.oname,id:S.editing,base:S.base};newDraft(layFor(o.ids),keep);if(!S.oname)S.oname=o.name;renderCrea();$('#board').scrollIntoView({behavior:'smooth',block:'start'})};
 $('#suggList').onclick=e=>applySugg(e);$('#varList').onclick=e=>applySugg(e);
 $('#judge').onclick=async()=>{if(!S.layers.length)return toast('Metti prima qualche capo sulla tavola');
   const its=S.items.filter(i=>i.fit!=='no').slice(0,50);for(const l of S.layers){const it=S.items.find(i=>i.id===l.item);if(it&&!its.includes(it))its.push(it)}
   const cur=S.layers.map(l=>its.findIndex(i=>i.id===l.item)+1).filter(n=>n>0);const occ=$('#occ').value.trim();const me=S.base==='me'&&S.me;
-  const prompt=`Sei una consulente d'immagine gentile e concreta, per una persona poco esperta di moda che vuole vestirsi bene e curata senza sforzo.\n${profTxt()}\n\nARMADIO (numero. categoria – descrizione [stagioni] {giudizio già dato}):\n${itemList(its)}\n\nLa combinazione da giudicare usa i capi ${cur.join(', ')}.${occ?' Occasione: '+occ+'.':''} La prima immagine è la combinazione${me?' sopra una foto della persona (è un collage: giudica abbinamento, colori e proporzioni sul suo corpo, non la vestibilità esatta)':' composta su una tavola'}; la seconda mostra i capi numerati dell'armadio.\nValuta se le sta bene secondo i 4 criteri del profilo e la coerenza con lo stile che vuole e con quello che evita. Sii onesta ma incoraggiante, frasi brevi e pratiche, niente gergo.\nPoi proponi 2 varianti migliori usando SOLO capi dell'elenco (tutti i numeri della variante completa).\nRispondi solo con JSON: {"giudizio":"promosso|quasi|no","voto":7,"sintesi":"una frase","ok":["…"],"cambia":["…"],"varianti":[{"nome":"…","capi":[1,4,9],"perche":"una frase"}]}`;
+  const prompt=`Sei una consulente d'immagine gentile e concreta, per una persona poco esperta di moda che vuole vestirsi bene e curata senza sforzo.\n${profTxt()}\n\nARMADIO (numero. categoria – descrizione [stagioni] {giudizio già dato}):\n${itemList(its)}\n\nLa combinazione da giudicare usa i capi ${cur.join(', ')}.${occ?' Occasione: '+occ+'.':''} La prima immagine è la combinazione${me?' sopra una foto della persona (è un collage: giudica abbinamento, colori e proporzioni sul suo corpo, non la vestibilità esatta)':' composta su una sagoma stilizzata delle sue proporzioni'}; la seconda mostra i capi numerati dell'armadio.\nValuta se le sta bene secondo i 4 criteri del profilo e la coerenza con lo stile che vuole e con quello che evita. Sii onesta ma incoraggiante, frasi brevi e pratiche, niente gergo.\nPoi proponi 2 varianti migliori usando SOLO capi dell'elenco (tutti i numeri della variante completa).\nRispondi solo con JSON: {"giudizio":"promosso|quasi|no","voto":7,"sintesi":"una frase","ok":["…"],"cambia":["…"],"varianti":[{"nome":"…","capi":[1,4,9],"perche":"una frase"}]}`;
   sugCtl=new AbortController();busy(true,'Guardo l\'outfit…');$('#varList').innerHTML='';
   try{const imgs=[await boardImage(),await contactSheet(its)];const r=await sampleFn.json(prompt,{signal:sugCtl.signal,images:imgs});
     const vars=(r?.varianti||[]).map(o=>({name:String(o.nome||'Variante'),why:String(o.perche||''),ids:(o.capi||[]).map(n=>its[Number(n)-1]?.id).filter(Boolean)})).filter(o=>o.ids.length);
@@ -614,7 +651,8 @@ const CFG=window.GUARDAROBA||{};
   const t=setTimeout(()=>$('#count').textContent='Non riesco ancora a raggiungere l\'archivio…',10000);
   const {data,error}=await T.select('id,data').eq('user_id',uid);clearTimeout(t);
   if(error){$('#count').textContent='Archivio non disponibile: '+error.message;return}
-  (data||[]).forEach(r=>all.set(r.id,{id:r.id,...r.data}));await signAll().catch(()=>{});apply();
+  (data||[]).forEach(r=>all.set(r.id,{id:r.id,...r.data}));await signAll().catch(()=>{});apply();S.items.forEach(it=>ensureAsp(it));
+  setTimeout(async()=>{if(!sampleFn.ready())return;const todo=S.items.filter(i=>(i.cat==='altro'||!i.name)&&!i.tagged).map(i=>i.id);for(let k=0;k<todo.length;k+=20)await autoTag(todo.slice(k,k+20)).catch(e=>console.error(e))},1500);
   if(location.hash==='#aggiungi')startAdd();
 })();
 }
