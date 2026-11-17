@@ -259,18 +259,19 @@ const TREE=[
  ['gioielli','Gioielli',[50,20,18],[['collana','Collane'],['orecchini','Orecchini'],['bracciali','Bracciali'],['anello','Anelli']]],
  ['altro','Altro',[50,50,30],[['altro','Altro']]]];
 const SUB={},MAC={};for(const[m,n,pos,subs]of TREE){MAC[m]={n,pos};for(const[s,sn]of subs)SUB[s]={n:sn,m}}
-// zone del corpo sulla sagoma (in % della tavola 3:4): [centro x, y di riferimento, larghezza max, altezza max, ancoraggio t=alto b=basso c=centro, livello]
-const ZONE={tshirt:[50,18.6,56,30,'t',3],top:[50,18.6,44,30,'t',3],camicia:[50,18.6,62,36,'t',3],blusa:[50,18.6,60,34,'t',3],maglione:[50,18.6,66,35,'t',4],felpa:[50,18.6,66,35,'t',4],gilet:[50,19.5,38,30,'t',5],
- pantaloni:[50,36.5,40,59,'t',2],jeans:[50,36.5,40,59,'t',2],gonna:[50,36.5,42,32,'t',2],shorts:[50,36.5,40,20,'t',2],
- abito:[50,18.6,52,58,'t',3],tuta:[50,18.6,56,77,'t',3],
- blazer:[50,18.2,68,38,'t',6],giacca:[50,18.2,68,35,'t',6],cappotto:[50,18.2,70,48,'t',6],
- sneakers:[50,99,36,9,'b',1],maryjane:[50,99,34,8,'b',1],stivaletti:[50,99,36,16,'b',1],decollete:[50,99,34,9,'b',1],sandali:[50,99,34,8,'b',1],scarpe:[50,99,36,10,'b',1],
- borsa:[79,47,26,22,'t',9],cintura:[50,37.4,32,6,'c',7],sciarpa:[50,15,40,30,'t',8],cappello:[50,9.5,34,12,'b',10],
- collana:[50,17.2,22,16,'t',8],orecchini:[50,11.5,17,6,'c',10],bracciali:[28.5,50.5,9,6,'c',10],anello:[28.5,54.5,4,3,'c',10],altro:[50,50,30,30,'c',5]};
+// posizionamento sulla sagoma, in scala reale: la sagoma è alta 160 cm (1 cm = 0,59% dell'altezza, 0,787% della larghezza della tavola)
+// [centro x %, y di riferimento %, misura: h=lunghezza del capo / w=larghezza, cm, ancoraggio t=alto b=basso c=centro, livello]
+const ZONE={tshirt:[50,18,'h',63,'t',3],top:[50,18,'h',58,'t',3],camicia:[50,17.5,'h',72,'t',3],blusa:[50,18,'h',64,'t',3],maglione:[50,17.5,'h',64,'t',4],felpa:[50,17.5,'h',66,'t',4],gilet:[50,19,'h',58,'t',5],
+ pantaloni:[50,36.5,'h',98,'t',2],jeans:[50,36.5,'h',98,'t',2],gonna:[50,36.5,'h',58,'t',2],shorts:[50,36.5,'h',32,'t',2],
+ abito:[50,17.5,'h',100,'t',3],tuta:[50,17.5,'h',138,'t',3],
+ blazer:[50,17.5,'h',68,'t',6],giacca:[50,17.5,'h',60,'t',6],cappotto:[50,17.5,'h',88,'t',6],
+ sneakers:[50,99.2,'w',27,'b',1],maryjane:[50,99.2,'w',25,'b',1],stivaletti:[50,99.2,'w',27,'b',1],decollete:[50,99.2,'w',25,'b',1],sandali:[50,99.2,'w',25,'b',1],scarpe:[50,99.2,'w',27,'b',1],
+ borsa:[80,46,'w',30,'t',9],cintura:[50,37.4,'w',40,'c',7],sciarpa:[50,15.5,'h',55,'t',8],cappello:[50,10,'w',36,'b',10],
+ collana:[50,17,'w',22,'t',8],orecchini:[50,11.5,'w',15,'c',10],bracciali:[28.5,50.5,'w',8,'c',10],anello:[28.5,54.5,'w',2.5,'c',10],altro:[50,45,'w',35,'c',5]};
 const ASP=new Map();// rapporto altezza/larghezza delle foto
 function aspOf(it){if(ASP.has(it.img))return ASP.get(it.img);const im=new Image();im.onload=()=>ASP.set(it.img,im.naturalHeight/im.naturalWidth);im.src=src(it.img);return ({scarpe:.45,borse:1,gioielli:1,sotto:1.6,abiti:1.5}[SUB[it.cat]?.m])||1.15}
 const ensureAsp=it=>new Promise(r=>{if(!it||ASP.has(it.img))return r();const im=new Image();im.onload=()=>{ASP.set(it.img,im.naturalHeight/im.naturalWidth);r()};im.onerror=()=>r();im.src=src(it.img)});
-function place(it){const [cx,ry,bw,bh,an,z]=ZONE[it?.cat]||ZONE.altro;const ar=aspOf(it);const w=Math.max(3,Math.min(bw,bh/(ar*.75)));const hp=w*ar*.75;const y=an==='t'?ry+hp/2:an==='b'?ry-hp/2:ry;return{item:it.id,x:cx,y:+y.toFixed(2),w:+w.toFixed(2),r:0,z}}
+function place(it){const [cx,ry,md,cm,an,z]=ZONE[it?.cat]||ZONE.altro;const ar=aspOf(it);let w,hp;if(md==='h'){hp=cm*.59;w=hp/(ar*.75)}else{w=cm*.787;hp=w*ar*.75}if(w>92){w=92;hp=w*ar*.75}w=Math.max(2,w);const y=an==='t'?ry+hp/2:an==='b'?ry-hp/2:ry;return{item:it.id,x:cx,y:+y.toFixed(2),w:+w.toFixed(2),r:0,z}}
 // sagoma: 160 cm, seno 110, vita 95, fianchi 113 (scala circa 2,36 unità per cm)
 const MANNEQUIN=(()=>{const P=(pts)=>{let d=`M${pts[0][0]},${pts[0][1]}`;for(let i=1;i<pts.length-1;i++){const [x1,y1]=pts[i],[x2,y2]=pts[i+1];d+=` Q${x1},${y1} ${(x1+x2)/2},${(y1+y2)/2}`}const l=pts[pts.length-1];return d+` L${l[0]},${l[1]}Z`};
   const half=[[9,70],[30,76],[47,82],[46,100],[44,113],[40,128],[36,150],[41,172],[45,192],[43,215],[37,252],[30,290],[27,322],[21,366],[24,382],[16,391],[6,391],[8,368],[10,330],[11,290],[9,252],[4,214],[0,207]];
