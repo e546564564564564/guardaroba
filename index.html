@@ -271,8 +271,28 @@ const ZONE={tshirt:[50,18,'h',63,'t',3],top:[50,18,'h',58,'t',3],camicia:[50,17.
  collana:[50,17,'w',22,'t',8],orecchini:[50,11.5,'w',15,'c',10],bracciali:[28.5,50.5,'w',8,'c',10],anello:[28.5,54.5,'w',2.5,'c',10],altro:[50,45,'w',35,'c',5]};
 const ASP=new Map();// rapporto altezza/larghezza delle foto
 function aspOf(it){if(ASP.has(it.img))return ASP.get(it.img);const im=new Image();im.onload=()=>ASP.set(it.img,im.naturalHeight/im.naturalWidth);im.src=src(it.img);return ({scarpe:.45,borse:1,gioielli:1,sotto:1.6,abiti:1.5}[SUB[it.cat]?.m])||1.15}
-const ensureAsp=it=>new Promise(r=>{if(!it||ASP.has(it.img))return r();const im=new Image();im.onload=()=>{ASP.set(it.img,im.naturalHeight/im.naturalWidth);r()};im.onerror=()=>r();im.src=src(it.img)});
-function place(it){const [cx,ry,md,cm,an,z]=ZONE[it?.cat]||ZONE.altro;const ar=aspOf(it);let w,hp;if(md==='h'){hp=cm*.59;w=hp/(ar*.75)}else{w=cm*.787;hp=w*ar*.75}if(w>92){w=92;hp=w*ar*.75}w=Math.max(2,w);const y=an==='t'?ry+hp/2:an==='b'?ry-hp/2:ry;return{item:it.id,x:cx,y:+y.toFixed(2),w:+w.toFixed(2),r:0,z}}
+// misura il capo nella foto: riga delle spalle (top, giacche, abiti) o della cintura (pantaloni, gonne), in frazioni dell'immagine
+const MEAS=new Map();
+function measureImg(im){const W=160,H=Math.max(16,Math.round(160*im.naturalHeight/im.naturalWidth));const c=document.createElement('canvas');c.width=W;c.height=H;const x=c.getContext('2d');x.drawImage(im,0,0,W,H);let d;try{d=x.getImageData(0,0,W,H).data}catch{return null}
+  const on=(X,y)=>d[(y*W+X)*4+3]>110;const rw=[];let top=-1,bot=-1,maxW=0,sx=0,n=0;
+  for(let y=0;y<H;y++){let c0=0;for(let X=0;X<W;X++)if(on(X,y)){c0++;sx+=X;n++}rw.push(c0);if(c0){if(top<0)top=y;bot=y}if(c0>maxW)maxW=c0}if(top<0)return null;const mcx=sx/n;
+  // estensione piena di una riga (unisce lo scollo e piccoli vuoti)
+  const ext=y=>{let a=-1,b=-1;for(let X=0;X<W;X++)if(on(X,y)){if(a<0)a=X;b=X}return a<0?null:{a,b,w:b-a+1,cx:(a+b)/2}};
+  const gTop=(f)=>{for(let y=top;y<=bot;y++)if(rw[y]>=maxW*f)return y;return top};
+  const t0=gTop(.15),gh=bot-t0;const shy=Math.min(bot,t0+Math.round(gh*.06));const shr=ext(shy);const sh={y:t0,r:shr};
+  const w0=gTop(.5);const war=ext(Math.min(bot,w0+Math.round((bot-w0)*.02)));const wa={y:w0,r:war};
+  return{ar:im.naturalHeight/im.naturalWidth,top:top/H,bot:(bot+1)/H,
+    sh:sh.r&&{y:sh.y/H,cx:sh.r.cx/W,w:sh.r.w/W},wa:wa.r&&{y:wa.y/H,cx:wa.r.cx/W,w:wa.r.w/W}}}
+const ensureAsp=it=>new Promise(r=>{if(!it||MEAS.has(it.img))return r();const im=new Image();im.crossOrigin='anonymous';im.onload=()=>{ASP.set(it.img,im.naturalHeight/im.naturalWidth);MEAS.set(it.img,measureImg(im)||{ar:im.naturalHeight/im.naturalWidth});r()};im.onerror=()=>r();im.src=src(it.img)});
+// punti della sagoma (in % della tavola): spalle y 20, larghezza spalle 32,7; vita y 37,5; caviglia y 93
+const BODY={shY:19.5,shW:31.5,waY:37.2,waW:24,ankY:92.5};
+const TOPS=['tshirt','top','camicia','blusa','maglione','felpa','gilet','blazer','giacca','cappotto','abito','tuta'],BOTS=['pantaloni','jeans','shorts','gonna'];
+const LAYER={tshirt:3,top:3,camicia:3,blusa:3,maglione:4,felpa:4,gilet:5,blazer:6,giacca:6,cappotto:6,abito:3,tuta:3,pantaloni:2,jeans:2,shorts:2,gonna:2};
+function place(it){const m=MEAS.get(it?.img);const cat=it?.cat;
+  if(m&&TOPS.includes(cat)&&m.sh&&m.sh.w>.05){const flat={gilet:1.05,blazer:1.22,giacca:1.2,cappotto:1.25}[cat]||1.12;const w=Math.min(95,BODY.shW*flat/m.sh.w);const h=w*m.ar*.75;const topY=BODY.shY-m.sh.y*h;return{item:it.id,x:+(50-(m.sh.cx-.5)*w).toFixed(2),y:+(topY+h/2).toFixed(2),w:+w.toFixed(2),r:0,z:LAYER[cat]}}
+  if(m&&BOTS.includes(cat)&&m.wa&&m.wa.w>.05){let w;if(cat==='pantaloni'||cat==='jeans'){const span=m.bot-m.wa.y;w=(BODY.ankY-BODY.waY)/(span*m.ar*.75);w=Math.min(w,BODY.waW*2.2/m.wa.w)}else w=BODY.waW*1.5/m.wa.w;w=Math.min(95,w);const h=w*m.ar*.75;const topY=BODY.waY-m.wa.y*h;return{item:it.id,x:+(50-(m.wa.cx-.5)*w).toFixed(2),y:+(topY+h/2).toFixed(2),w:+w.toFixed(2),r:0,z:LAYER[cat]}}
+  return placeZone(it)}
+function placeZone(it){const [cx,ry,md,cm,an,z]=ZONE[it?.cat]||ZONE.altro;const ar=aspOf(it);let w,hp;if(md==='h'){hp=cm*.59;w=hp/(ar*.75)}else{w=cm*.787;hp=w*ar*.75}if(w>92){w=92;hp=w*ar*.75}w=Math.max(2,w);const y=an==='t'?ry+hp/2:an==='b'?ry-hp/2:ry;return{item:it.id,x:cx,y:+y.toFixed(2),w:+w.toFixed(2),r:0,z}}
 // sagoma: 160 cm, seno 110, vita 95, fianchi 113 (scala circa 2,36 unità per cm)
 const MANNEQUIN=(()=>{const P=(pts)=>{let d=`M${pts[0][0]},${pts[0][1]}`;for(let i=1;i<pts.length-1;i++){const [x1,y1]=pts[i],[x2,y2]=pts[i+1];d+=` Q${x1},${y1} ${(x1+x2)/2},${(y1+y2)/2}`}const l=pts[pts.length-1];return d+` L${l[0]},${l[1]}Z`};
   const half=[[9,70],[30,76],[47,82],[46,100],[44,113],[40,128],[36,150],[41,172],[45,192],[43,215],[37,252],[30,290],[27,322],[21,366],[24,382],[16,391],[6,391],[8,368],[10,330],[11,290],[9,252],[4,214],[0,207]];
