@@ -194,6 +194,7 @@ b,strong{font-weight:500}
       <div><span class="lbl">Il tuo voto</span><span class="stars" id="stStars" aria-label="Il tuo voto"></span></div>
       <div><span class="lbl">Foto indossato</span><div class="grid" id="photos" style="grid-template-columns:repeat(auto-fill,minmax(90px,1fr))"></div>
         <div class="row" style="margin-top:8px"><label class="btn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 8h3l2-3h6l2 3h3v11H4z"/><circle cx="12" cy="13" r="3.4"/></svg>Scatta<input type="file" accept="image/*" capture="environment" class="hide" id="pCam"></label><label class="btn">Dalla galleria<input type="file" accept="image/*" multiple class="hide" id="pGal"></label></div></div>
+      <div class="panel" style="margin:0"><h2>Vedilo addosso a te</h2><p class="mut" style="margin:0 0 8px">Preparo un'immagine con la tua foto e questi capi, più le istruzioni: la mandi all'app Gemini (gratuita) e lei crea la foto di te vestita così.</p><button class="full" id="tryOn">Prova su di me con Gemini</button><p class="mut" id="tryNote" style="margin:6px 0 0"></p></div>
       <button class="pri full" id="saveO">Salva outfit</button>
     </div>
   </div>
@@ -226,7 +227,7 @@ b,strong{font-weight:500}
   <div class="panel"><h2>La mia foto (per "Su di me")</h2><p class="mut" style="margin-top:0">Una foto a figura intera, in piedi, su fondo semplice.</p><div class="row"><img id="meThumb" alt="" class="hide" style="width:64px;height:84px;object-fit:cover;border-radius:10px"><label class="btn">Scegli foto<input type="file" accept="image/*" class="hide" id="meFile"></label></div></div>
   <div class="panel"><h2>Foto</h2><label class="row" style="gap:10px;cursor:pointer"><input type="checkbox" id="autoEnh" style="width:22px;height:22px;accent-color:var(--acc)"> Migliora automaticamente le foto (luce, colori, capi storti)</label></div>
   <div class="panel"><h2>Consulente AI (Gemini, gratuito)</h2><p class="mut" style="margin-top:0">Crea una chiave gratuita su <a href="https://aistudio.google.com/apikey" target="_blank" rel="noopener">aistudio.google.com/apikey</a> e incollala qui. Resta solo in questo dispositivo.</p>
-    <input type="text" id="gKey" placeholder="Chiave API Gemini" autocomplete="off"><div class="row" style="margin-top:8px"><input type="text" id="gModel" placeholder="modello" style="flex:1"><button id="gSave" type="button">Salva</button></div><p class="mut" id="gNote" style="margin-bottom:0"></p></div>
+    <input type="text" id="gKey" placeholder="Chiave API Gemini" autocomplete="off"><div class="row" style="margin-top:8px"><button class="pri" id="gSave" type="button">Salva e prova</button></div><details style="margin-top:8px"><summary class="mut">Avanzate</summary><input type="text" id="gModel" placeholder="Modello (vuoto = scelta automatica)" style="margin-top:6px"></details><p class="mut" id="gNote" style="margin-bottom:0"></p></div>
   <div class="panel"><h2>Importa una scheda</h2><label class="btn">Scegli file .json<input type="file" accept=".json,application/json" class="hide" id="pImp"></label></div>
   <div class="row" style="margin-top:18px"><button id="logout" type="button">Esci</button><span class="mut" id="who"></span></div>
 </div></section>
@@ -526,6 +527,21 @@ $('#newO').onclick=()=>{newDraft([]);$('#suggList').innerHTML='';renderCrea()};
 $('#saveO').onclick=async()=>{if(!S.layers.length&&!S.photos.length)return toast('Aggiungi almeno un capo');const ed=S.outfits.find(o=>o.id===S.editing);const n=($('#oName').value||'').trim()||'Outfit del '+new Date().toLocaleDateString('it-IT');const id=S.editing||'of_'+Date.now().toString(36);
   try{await S.col.doc(id).set({kind:'outfit',name:n,layers:S.layers.map(l=>({...l})),base:S.base,photos:[...S.photos],at:ed?.at||Date.now(),verdict:S.verdict&&S.verdictKey===boardKey()?S.verdict:(ed&&ed.verdictKey===boardKey()?ed.verdict:null),verdictKey:boardKey(),stars:S.stars||0});toast('Outfit salvato');newDraft([]);S.lookId=id;go('look');renderLook()}catch(err){console.error(err);toast('Salvataggio non riuscito')}};
 
+// ---------- prova su di me (via app Gemini, gratuita) ----------
+async function tryOn(layers,noteEl){if(!S.me){toast('Carica prima una tua foto a figura intera in Stile');go('stile');return}
+  const its=layers.map(l=>S.items.find(i=>i.id===l.item)).filter(Boolean);if(!its.length)return toast('Nessun capo da provare');noteEl.textContent='Preparo l\'immagine…';
+  const me=await loadX(src(S.me));const ims=await Promise.all(its.map(it=>loadX(src(it.img))));if(!me){noteEl.textContent='Non riesco a leggere la tua foto';return}
+  const H=1400,mw=Math.round(me.width*H/me.height);const cols=its.length>4?2:1,rows=Math.ceil(its.length/cols),cw=420,ch=Math.floor(H/rows);
+  const c=document.createElement('canvas');c.width=mw+cols*cw+30;c.height=H;const x=c.getContext('2d');x.fillStyle='#fff';x.fillRect(0,0,c.width,c.height);x.drawImage(me,0,0,mw,H);
+  x.font='bold 30px sans-serif';ims.forEach((im,i)=>{const cx=mw+30+(i%cols)*cw,cy=(i/cols|0)*ch;x.fillStyle='#e8336d';x.fillText(String(i+1),cx+8,cy+38);if(!im)return;const k=Math.min((cw-30)/im.width,(ch-50)/im.height);x.drawImage(im,cx+(cw-im.width*k)/2,cy+45,im.width*k,im.height*k)});
+  const blob=await new Promise(r=>c.toBlob(r,'image/jpeg',.9));const p=S.prof||{};
+  const prompt=`Nell'immagine a sinistra c'è una mia foto, a destra ${its.length} capi numerati. Crea una foto realistica di ME che indosso insieme questi capi: ${its.map((it,i)=>`${i+1}) ${catName(it.cat)}${it.name?': '+it.name:''}`).join('; ')}. Mantieni identici il mio viso, i capelli, la carnagione, la mia corporatura e le mie proporzioni reali${p.h?` (sono alta ${p.h} cm${p.mis?', '+p.mis:''})`:''}: non snellirmi e non cambiare il mio corpo. Mantieni colori, tessuti, lunghezze e vestibilità dei capi come nelle foto. Posa in piedi, figura intera, sfondo neutro chiaro.`;
+  const file=new File([blob],'prova-outfit.jpg',{type:'image/jpeg'});
+  try{await navigator.clipboard.writeText(prompt)}catch{}
+  if(navigator.canShare?.({files:[file]})){try{await navigator.share({files:[file],text:prompt});noteEl.textContent='Scegli l\'app Gemini. Se il testo non compare, incollalo: l\'ho copiato.';return}catch(e){if(e?.name==='AbortError'){noteEl.textContent='';return}}}
+  const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='prova-outfit.jpg';document.body.appendChild(a);a.click();a.remove();
+  noteEl.innerHTML='Immagine scaricata e istruzioni copiate. Apri <a href="https://gemini.google.com/app" target="_blank" rel="noopener">Gemini</a>, allega l\'immagine e incolla il testo.'}
+$('#tryOn').onclick=()=>tryOn(S.layers,$('#tryNote'));
 // ---------- consulente ----------
 let sampleFn=null,sugCtl=null;
 const VG={promosso:['Promosso','#1f9d55'],quasi:['Quasi','#d9a400'],no:['Da rivedere','#d83a3a']};
@@ -542,7 +558,7 @@ async function boardImage(){const c=document.createElement('canvas');c.width=600
 function renderVerdict(){const el=$('#verdict');const v=S.verdict;if(!v||S.verdictKey!==boardKey()){el.classList.add('hide');return}const g=VG[v.g]||VG.quasi;el.style.setProperty('--vc',g[1]);el.classList.remove('hide');
   el.innerHTML=`<div class="row"><b style="font-size:19px;font-weight:700">${g[0]}</b>${v.voto?`<span class="mut">${v.voto}/10</span>`:''}</div><p style="margin:4px 0">${esc(v.sintesi)}</p>${v.ok?.length?`<div class="mut">Funziona</div><ul>${v.ok.map(t=>`<li>${esc(t)}</li>`).join('')}</ul>`:''}${v.cambia?.length?`<div class="mut">Da sistemare</div><ul>${v.cambia.map(t=>`<li>${esc(t)}</li>`).join('')}</ul>`:''}`}
 function showSugg(out,el='#suggList'){S.sugg=out;$(el).innerHTML=out.map((o,k)=>`<button class="sg" data-k="${k}"><div class="th">${o.ids.map(id=>{const it=S.items.find(i=>i.id===id);return it?`<img src="${src(it.img)}" alt="">`:''}).join('')}</div><div><b>${esc(o.name)}</b><span>${esc(o.why)}</span></div></button>`).join('')}
-const errMsg=e=>({no_key:'Per la consulente aggiungi la chiave Gemini in Stile.',cancelled:'',rate_limited:'Troppe richieste per oggi alla versione gratuita, riprova più tardi.',invalid_json:'Risposta non leggibile, riprova.'}[e?.code]??'Non ci sono riuscita, riprova.');
+const errMsg=e=>e?.message&&!['cancelled','rate_limited'].includes(e.code)?'Errore della consulente: '+String(e.message).slice(0,160):({no_key:'Per la consulente aggiungi la chiave Gemini in Stile.',cancelled:'',rate_limited:'Troppe richieste per oggi alla versione gratuita, riprova più tardi.',invalid_json:'Risposta non leggibile, riprova.'}[e?.code]??'Non ci sono riuscita, riprova.');
 function busy(on,msg,w){$('#sugg').disabled=$('#judge').disabled=on;$(w==='i'?'#stopI':'#stopS').classList.toggle('hide',!on);if(msg!=null)$(w==='i'?'#ideaNote':'#suggNote').textContent=msg}
 $('#stopS').onclick=$('#stopI').onclick=()=>sugCtl?.abort();
 const applySugg=async(e,toStep1)=>{const b=e.target.closest('.sg');if(!b)return;const o=S.sugg[+b.dataset.k];await Promise.all(o.ids.map(id=>ensureAsp(S.items.find(x=>x.id===id))));const keep={stars:0,photos:S.photos,name:S.oname,id:S.editing,base:S.base};newDraft(layFor(o.ids),keep);if(!S.oname)S.oname=o.name;renderCrea();$('#board').scrollIntoView({behavior:'smooth',block:'start'})};
@@ -606,6 +622,7 @@ function renderLook(){const o=S.outfits.find(x=>x.id===S.lookId);if(!o){$('#look
   <div class="row" style="justify-content:center;margin:10px 0"><span class="stars" id="lookStars">${starsHTML(o.stars,o.id)}</span>${o.verdict?vBadge(o.verdict):''}</div>
   ${o.verdict?.sintesi?`<p class="mut" style="text-align:center;margin:0 0 10px">${esc(o.verdict.sintesi)}</p>`:''}
   ${capi.length?`<span class="lbl">Capi</span><div class="strip" style="margin-bottom:14px">${capi.map(i=>`<button class="card" data-capo="${i.id}" style="width:72px;background:var(--soft)"><img src="${src(i.img)}" alt="${esc(nameOf(i))}"></button>`).join('')}</div>`:''}
+  ${o.layers.length?'<button class="full" id="lookTry" style="margin-bottom:6px">Prova su di me con Gemini</button><p class="mut" id="lookTryN" style="margin:0 0 12px"></p>':''}
   <span class="lbl">Foto indossato</span><div class="grid" id="lookPhotos" style="grid-template-columns:repeat(auto-fill,minmax(120px,1fr))">${(o.photos||[]).map((p,k)=>`<div class="ph"><img src="${src(p)}" alt="Foto indossato"><button type="button" data-rm="${k}" aria-label="Togli foto">✕</button></div>`).join('')||'<p class="mut" style="grid-column:1/-1;margin:0">Nessuna foto ancora.</p>'}</div>
   <div class="row" style="margin-top:10px"><label class="btn">📷 Scatta<input type="file" accept="image/*" capture="environment" class="hide" id="lpCam"></label><label class="btn">Dalla galleria<input type="file" accept="image/*" multiple class="hide" id="lpGal"></label></div>
   <button class="danger full" id="lookDel" style="margin-top:22px">Elimina outfit</button>`;
@@ -613,6 +630,7 @@ function renderLook(){const o=S.outfits.find(x=>x.id===S.lookId);if(!o){$('#look
   ['lpCam','lpGal'].forEach(k=>$('#'+k).onchange=e=>{const fs=[...e.target.files];e.target.value='';addTo(fs)});
   $('#lookStars').onclick=e=>{const b=e.target.closest('[data-star]');if(!b)return;const k=+b.dataset.star;S.col.doc(o.id).update({stars:(o.stars||0)===k?0:k}).catch(()=>toast('Non riuscito'))};
   $('#lookPhotos').onclick=async e=>{const b=e.target.closest('[data-rm]');if(!b||!(await ask('Togliere questa foto?')))return;const ph=[...(o.photos||[])];const [gone]=ph.splice(+b.dataset.rm,1);await S.col.doc(o.id).update({photos:ph}).catch(()=>{});S.assets.delete(gone).catch(()=>{})};
+  if($('#lookTry'))$('#lookTry').onclick=()=>tryOn(o.layers,$('#lookTryN'));
   $('#lookBody').querySelectorAll('[data-capo]').forEach(b=>b.onclick=()=>{S.capoId=b.dataset.capo;go('capo');renderCapo()});
   $('#lookDel').onclick=async()=>{if(!(await ask('Eliminare questo outfit e le sue foto?')))return;try{await S.col.doc(o.id).delete();(o.photos||[]).forEach(p=>S.assets.delete(p).catch(()=>{}));toast('Outfit eliminato');go('outfit')}catch{toast('Non riuscito')}}}
 $('#lookEdit').onclick=()=>{const o=S.outfits.find(x=>x.id===S.lookId);if(!o)return;newDraft(o.layers.map(l=>({...l})),o);go('crea');renderCrea()};
@@ -655,15 +673,25 @@ const CFG=window.GUARDAROBA||{};
   S.assets={upload:async(blob,o)=>{const ext=(o?.type||blob.type)==='image/png'?'png':'jpg';const path=`${uid}/${Date.now().toString(36)}${Math.random().toString(36).slice(2,6)}.${ext}`;
       const {error}=await sb.storage.from('foto').upload(path,blob,{contentType:o?.type||blob.type,cacheControl:'31536000'});if(error)throw error;URLS.set(path,URL.createObjectURL(blob));return{id:path}},
     delete:async p=>{await sb.storage.from('foto').remove([p]);return{deleted:true}}};
-  const gk=()=>{try{return localStorage.getItem('gemini_key')||''}catch{return ''}},gm=()=>{try{return localStorage.getItem('gemini_model')||'gemini-2.5-flash'}catch{return 'gemini-2.5-flash'}};
-  $('#gKey').value=gk();$('#gModel').value=gm();$('#gNote').textContent=gk()?'Chiave salvata su questo dispositivo.':'Senza chiave la consulente è spenta.';
-  $('#gSave').onclick=()=>{try{localStorage.setItem('gemini_key',$('#gKey').value.trim());localStorage.setItem('gemini_model',$('#gModel').value.trim()||'gemini-2.5-flash')}catch{}$('#gNote').textContent='Salvato.';toast('Consulente pronta')};
+  const ls=(k,v)=>{try{if(v===undefined)return localStorage.getItem(k)||'';localStorage.setItem(k,v)}catch{return ''}};
+  const gk=()=>ls('gemini_key');const gm=()=>ls('gemini_model_manual')||ls('gemini_model_auto');
+  const API='https://generativelanguage.googleapis.com/v1beta/';
+  async function resolveModel(){const r=await fetch(API+'models?pageSize=200',{headers:{'x-goog-api-key':gk()}});if(!r.ok){let m='';try{m=(await r.json()).error?.message||''}catch{}throw{code:'bad_key',message:m||('HTTP '+r.status)}}
+    const ms=((await r.json()).models||[]).filter(m=>(m.supportedGenerationMethods||[]).includes('generateContent')).map(m=>m.name.replace('models/',''));
+    const ok=ms.filter(n=>/flash/.test(n)&&!/(image|tts|live|audio|transcribe|robotics|omni|thinking|exp)/.test(n));
+    const ver=n=>{const m=n.match(/gemini-(\d+(?:\.\d+)?)/);return m?+m[1]:0};
+    const stable=ok.filter(n=>/^gemini-\d+(\.\d+)?-flash$/.test(n)).sort((a,b)=>ver(b)-ver(a));
+    const pick=stable[0]||ok.find(n=>/flash-latest/.test(n))||ok.filter(n=>!/lite/.test(n)).sort((a,b)=>ver(b)-ver(a))[0]||ok[0];if(!pick)throw{code:'no_model',message:'Nessun modello Flash disponibile per questa chiave'};ls('gemini_model_auto',pick);return pick}
+  $('#gKey').value=gk();$('#gModel').value=ls('gemini_model_manual');$('#gNote').textContent=gk()?`Chiave salvata su questo dispositivo${gm()?' · modello '+gm():''}.`:'Senza chiave la consulente è spenta.';
+  $('#gSave').onclick=async()=>{ls('gemini_key',$('#gKey').value.trim());ls('gemini_model_manual',$('#gModel').value.trim());ls('gemini_model_auto','');ls('gemini_model','');$('#gNote').textContent='Provo la chiave…';
+    try{if(!gm())await resolveModel();const r=await sampleFn.json('Rispondi solo con JSON: {"ok":true}');$('#gNote').textContent=r?.ok?`Funziona ✓ (modello ${gm()}). La consulente è pronta.`:'Risposta strana, ma la chiave è valida.';toast('Consulente pronta')}
+    catch(e){$('#gNote').textContent='Non funziona: '+(e.message||e.code||'errore sconosciuto')}};
   const b64=b=>new Promise(r=>{const f=new FileReader();f.onload=()=>r(String(f.result).split(',')[1]);f.readAsDataURL(b)});
   sampleFn={ready:()=>!!gk(),json:async(prompt,o={})=>{const key=gk();if(!key)throw{code:'no_key'};
     const parts=[{text:prompt}];for(const im of (o.images||[]))if(im)parts.push({inline_data:{mime_type:im.type||'image/jpeg',data:await b64(im)}});
-    let res;try{res=await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${encodeURIComponent(gm())}:generateContent`,{method:'POST',signal:o.signal,headers:{'Content-Type':'application/json','x-goog-api-key':key},body:JSON.stringify({contents:[{role:'user',parts}],generationConfig:{responseMimeType:'application/json',temperature:.6}})})}
-    catch(e){throw{code:e?.name==='AbortError'?'cancelled':'upstream_error'}}
-    if(res.status===429)throw{code:'rate_limited'};if(!res.ok)throw{code:'upstream_error',message:await res.text()};
+    const call=async()=>{if(!gm())await resolveModel();return fetch(`${API}models/${encodeURIComponent(gm())}:generateContent`,{method:'POST',signal:o.signal,headers:{'Content-Type':'application/json','x-goog-api-key':key},body:JSON.stringify({contents:[{role:'user',parts}],generationConfig:{responseMimeType:'application/json',temperature:.6}})})};
+    let res;try{res=await call();if((res.status===404||res.status===400)&&!ls('gemini_model_manual')){ls('gemini_model_auto','');res=await call()}}catch(e){if(e?.code)throw e;throw{code:e?.name==='AbortError'?'cancelled':'upstream_error',message:'Connessione non riuscita'}}
+    if(res.status===429)throw{code:'rate_limited'};if(!res.ok){let m='';try{m=(await res.json()).error?.message||''}catch{}throw{code:'upstream_error',message:m||('HTTP '+res.status)}}
     const j=await res.json();const t=(j.candidates?.[0]?.content?.parts||[]).map(p=>p.text||'').join('');
     try{return JSON.parse(t)}catch{const m=t.match(/[\[{][\s\S]*[\]}]/);if(m)try{return JSON.parse(m[0])}catch{}throw{code:'invalid_json'}}}};
   $('#pImp2').onchange=e=>$('#pImp').onchange(e);$('#pImp').onchange=async e=>{const f=e.target.files[0];e.target.value='';if(!f)return;try{const v=JSON.parse(await f.text());await S.col.doc('profilo').set({...v,kind:'profile'});renderProf();toast('Scheda importata')}catch{toast('File non valido')}};
