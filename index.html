@@ -394,6 +394,22 @@ async function rotateBlob(blob,deg){const im=await loadImg(blob);const W=im.widt
   const out=await new Promise(r=>o.toBlob(r,'image/png'));return deg%90?trim(out):out}
 async function classifyBlob(blob){const c=document.createElement('canvas');const im=await loadImg(blob);const k=Math.min(1,500/Math.max(im.width,im.height));c.width=im.width*k;c.height=im.height*k;const x=c.getContext('2d');x.fillStyle='#fff';x.fillRect(0,0,c.width,c.height);x.drawImage(im,0,0,c.width,c.height);
   const jb=await new Promise(r=>c.toBlob(r,'image/jpeg',.85));const r=await sampleFn.json(tagPrompt(1).replace('ci sono 1 capi d\'abbigliamento o accessori numerati','c\'è un capo d\'abbigliamento o accessorio (è il numero 1)'),{images:[jb]});return Array.isArray(r)?r[0]:r}
+// riconoscimento di base dalla forma (senza AI): pantaloni (due gambe), jeans (blu denim), scarpe, cinture, top
+async function guessCat(src0){const im=await new Promise(r=>{const i=new Image();i.crossOrigin='anonymous';i.onload=()=>r(i);i.onerror=()=>r(null);i.src=src0});if(!im)return null;
+  const W=80,H=Math.max(8,Math.round(80*im.naturalHeight/im.naturalWidth));const c=document.createElement('canvas');c.width=W;c.height=H;const x=c.getContext('2d');x.drawImage(im,0,0,W,H);let d;try{d=x.getImageData(0,0,W,H).data}catch{return null}
+  const on=(X,y)=>d[(y*W+X)*4+3]>128;let n=0,r=0,g=0,b=0,minx=W,maxx=0,miny=H,maxy=0;
+  for(let y=0;y<H;y++)for(let X=0;X<W;X++)if(on(X,y)){n++;const i=(y*W+X)*4;r+=d[i];g+=d[i+1];b+=d[i+2];if(X<minx)minx=X;if(X>maxx)maxx=X;if(y<miny)miny=y;if(y>maxy)maxy=y}
+  if(n<30)return null;r/=n;g/=n;b/=n;const bw=maxx-minx+1,bh=maxy-miny+1,ar=bh/bw,fill=n/(bw*bh);
+  // gambe: nella parte bassa c'è un vuoto al centro con pieno ai lati
+  let legs=0,rows=0;const cx0=minx+Math.floor(bw*.47),cx1=minx+Math.ceil(bw*.53);
+  for(let y=miny+Math.floor(bh*.55);y<=miny+Math.floor(bh*.95);y++){rows++;let mid=false,L=false,R=false;for(let X=cx0;X<=cx1;X++)if(on(X,y))mid=true;for(let X=minx;X<cx0;X++)if(on(X,y))L=true;for(let X=cx1+1;X<=maxx;X++)if(on(X,y))R=true;if(!mid&&L&&R)legs++}
+  const denim=b>r+12&&b>=g;
+  if(ar>1.15&&rows&&legs/rows>.45)return denim?'jeans':'pantaloni';
+  if(ar<.8){let gap=0;for(let X=minx+Math.floor(bw*.3);X<=minx+Math.floor(bw*.7);X++){let col=false;for(let y=miny;y<=maxy;y++)if(on(X,y)){col=true;break}if(!col)gap++}if(gap>0)return 'scarpe';if(ar<.22)return 'cintura';if(fill<.55)return 'scarpe'}
+  if(ar>1.15&&ar<2.2&&denim&&fill>.6)return 'jeans';
+  if(ar>=.7&&ar<=1.7)return 'top';
+  return null}
+async function guessAll(){for(const it of S.items.filter(i=>i.cat==='altro'&&!i.guessed)){const c=await guessCat(src(it.img));try{await S.col.doc(it.id).update({cat:c||'altro',guessed:true})}catch{}}}
 function startAdd(){S.form=null;S.cur=null;$('#addTitle').textContent='Nuovo capo';$('#pick').classList.remove('hide');$('#pickTip').classList.remove('hide');$('#editArea').classList.add('hide');$('#save').textContent="Salva nell'armadio";$('#addNote').textContent='';$('#queue').textContent=''}
 // separa più capi fotografati insieme (componenti staccate dopo lo scontorno)
 async function splitItems(blob){const im=await loadImg(blob);const W=im.width,H=im.height;const c=document.createElement('canvas');c.width=W;c.height=H;const x=c.getContext('2d');x.drawImage(im,0,0);const id=x.getImageData(0,0,W,H),d=id.data;
@@ -422,6 +438,7 @@ async function startBulk(files,multi){if(S.bulk&&S.bulk.phase!=='end')return toa
   for(const f of files){try{if(multi){let sm=await shrink(f,2200);if(autoOn())sm=await enhance(sm).catch(()=>sm);const cut=await removeBg(sm,()=>{});const parts=await splitItems(cut);for(let pb of parts){if(autoOn())pb=await deskew(pb).catch(()=>pb);await saveBlob(pb);S.bulk.items=(S.bulk.items||0)+1;bulkUI()}}
       else{const r=await processPhoto(f,()=>{});await saveBlob(r.cut||r.orig);S.bulk.items=(S.bulk.items||0)+1}S.bulk.done++}catch(err){console.error(err);S.bulk.fail++}bulkUI()}
   if(S.bulk.ids.length&&sampleFn?.ready()){S.bulk.phase='tag';S.bulk.tagged=true;bulkUI();for(let k=0;k<S.bulk.ids.length;k+=20)await autoTag(S.bulk.ids.slice(k,k+20)).catch(err=>console.error(err))}
+  if(!sampleFn?.ready())await guessAll().catch(()=>{});
   S.bulk.phase='end';bulkUI();try{await wake?.release()}catch{}wake=null;renderArm()}
 const tagPrompt=n=>{const cats=TREE.map(t=>`${t[1]}: `+t[3].map(([k,nn])=>`${k} (${nn})`).join(', ')).join('\n');return `Nell'immagine ci sono ${n} capi d'abbigliamento o accessori numerati. Per ognuno indica:\n- "cat": UNO degli id seguenti\n${cats}\n- "sea": stagioni adatte tra "inverno","mezza","estate" (lista)\n- "desc": descrizione breve e concreta in italiano (colore, tessuto apparente, taglio, lunghezza, dettagli), max 20 parole\nRispondi solo con JSON: [{"n":1,"cat":"maglione","sea":["inverno"],"desc":"…"}]`};
 async function autoTag(ids){const its=ids.map(id=>S.items.find(i=>i.id===id)).filter(Boolean);if(!its.length)return;
@@ -438,6 +455,7 @@ async function next(){const f=S.queue.shift();$('#queue').textContent=S.queue.le
   const r=await processPhoto(f,(t,p)=>{$('#overT').textContent=t;$('#overB').style.width=p==null?'100%':Math.round(p*100)+'%'});S.cur.orig=r.orig;S.cur.cut=r.cut;$('#photoImg').src=URL.createObjectURL(r.cut||r.orig);
   if(!r.cut)$('#addNote').textContent='Non sono riuscita a togliere lo sfondo: salvo la foto così com\'è.';
   $('#over').classList.add('hide');drawForm();
+  if(!sampleFn?.ready()&&!S.form.cat){const g=await guessCat(URL.createObjectURL(r.cut||r.orig));if(g){S.form.cat=g;$('#addNote').textContent='Categoria riconosciuta dalla forma: controllala e premi Salva.'}drawForm()}
   if(sampleFn?.ready()){const F=S.form;$('#addNote').textContent='La consulente sta compilando la scheda…';$('#save').disabled=true;try{const o=await classifyBlob(r.cut||r.orig);if(S.form===F&&o){if(SUB[o.cat])F.cat=o.cat;(o.sea||[]).forEach(x=>{if(SEAS.some(z=>z[0]===x))F.sea.add(x)});if(!$('#desc').value.trim()&&o.desc)$('#desc').value=String(o.desc).slice(0,300);$('#addNote').textContent='Scheda compilata in automatico: se va bene premi Salva.'}}catch(e){console.error(e);if(S.form===F)$('#addNote').textContent=''}drawForm()}
   $('#over').classList.add('hide');drawForm()}
 function drawForm(){const F=S.form;if(!F)return;const m=F.cat?SUB[F.cat]?.m:F.macro;
@@ -653,7 +671,7 @@ const CFG=window.GUARDAROBA||{};
   const {data,error}=await T.select('id,data').eq('user_id',uid);clearTimeout(t);
   if(error){$('#count').textContent='Archivio non disponibile: '+error.message;return}
   (data||[]).forEach(r=>all.set(r.id,{id:r.id,...r.data}));await signAll().catch(()=>{});apply();S.items.forEach(it=>ensureAsp(it));
-  setTimeout(async()=>{if(!sampleFn.ready())return;const todo=S.items.filter(i=>(i.cat==='altro'||!i.name)&&!i.tagged).map(i=>i.id);for(let k=0;k<todo.length;k+=20)await autoTag(todo.slice(k,k+20)).catch(e=>console.error(e))},1500);
+  setTimeout(async()=>{await guessAll().catch(e=>console.error(e));if(!sampleFn.ready())return;const todo=S.items.filter(i=>(i.cat==='altro'||!i.name)&&!i.tagged).map(i=>i.id);for(let k=0;k<todo.length;k+=20)await autoTag(todo.slice(k,k+20)).catch(e=>console.error(e))},1500);
   if(location.hash==='#aggiungi')startAdd();
 })();
 }
