@@ -2,264 +2,311 @@
 <html lang="it">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#ffffff">
+<meta name="apple-mobile-web-app-capable" content="yes">
 <title>Il mio guardaroba</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Figtree:wght@400;500;700;800&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,700&display=swap" rel="stylesheet">
 <style>
-/* VOICE: un atelier personale, diretto e leggero
-   IDEA: l'appendiabiti + il manichino dello stilista
-   PICTURE: la tavola dell'outfit, grande, su cui si trascinano i capi
-   COLOUR and TYPE: bianco, inchiostro, accento fucsia; Figtree
-   LAYOUT: barra di navigazione in basso (mobile), contenuto in colonna */
-:root{color-scheme:light dark;--bg:light-dark(#ffffff,#121214);--soft:light-dark(#f3f2f0,#1d1d21);--line:light-dark(#e2e0dc,#2e2e34);--ink:light-dark(#141416,#f2f1ef);--mut:light-dark(#6b6a70,#a2a1a8);--acc:#e8336d;--acc2:light-dark(#fde7ee,#3a1a25)}
-:root[data-theme=light]{color-scheme:light}:root[data-theme=dark]{color-scheme:dark}
-*{box-sizing:border-box;min-width:0}
-body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.5 Figtree,system-ui,sans-serif;overflow-x:clip;padding-bottom:84px}
-h1{font-size:30px;line-height:1.05;margin:0;font-weight:800;letter-spacing:-.02em}
-h2{font-size:20px;margin:0 0 10px;font-weight:700}
-.wrap{max-width:1100px;margin:0 auto;padding:18px max(4vw,14px)}
-.top{display:flex;align-items:end;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-bottom:14px}
+:root{color-scheme:light;--bg:#ffffff;--soft:#f3f2f0;--line:#e4e2de;--ink:#141416;--mut:#6b6a70;--acc:#e8336d;--acc2:#fde7ee;--ok:#1f9d55;--mid:#d9a400;--ko:#d83a3a}
+*{box-sizing:border-box;min-width:0;-webkit-tap-highlight-color:transparent}
+body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.5 "DM Sans",system-ui,sans-serif;overflow-x:clip;padding-bottom:calc(76px + env(safe-area-inset-bottom))}
+h1{font-size:26px;line-height:1.1;margin:0;font-weight:700;letter-spacing:-.02em}
+h2{font-size:17px;margin:0 0 8px;font-weight:500}
+.wrap{max-width:1100px;margin:0 auto;padding:max(14px,env(safe-area-inset-top)) max(4vw,14px) 18px}
+.bar{display:flex;align-items:center;gap:8px;margin-bottom:12px;min-height:44px}
+.bar h1{flex:1}
 .mut{color:var(--mut);font-size:14px}
-button,.btn{font:inherit;font-weight:600;min-height:44px;padding:0 16px;border-radius:999px;border:1px solid var(--line);background:var(--bg);color:var(--ink);cursor:pointer;display:inline-flex;align-items:center;justify-content:center;gap:6px}
-button:focus-visible,.btn:focus-within,input:focus-visible{outline:3px solid var(--acc);outline-offset:2px}
-.pri{background:var(--acc);border-color:var(--acc);color:#fff}
+button,.btn{font:inherit;font-weight:500;min-height:44px;padding:0 16px;border-radius:999px;border:1px solid var(--line);background:var(--bg);color:var(--ink);cursor:pointer;display:inline-flex;align-items:center;justify-content:center;gap:8px;text-decoration:none}
+button:focus-visible,.btn:focus-within,input:focus-visible,select:focus-visible,textarea:focus-visible{outline:3px solid var(--acc);outline-offset:2px}
 button:disabled{opacity:.45;cursor:default}
-input[type=text]{font:inherit;font-size:16px;min-height:44px;padding:0 14px;border-radius:12px;border:1px solid var(--line);background:var(--bg);color:var(--ink);width:100%}
-.chips{display:flex;gap:8px;overflow-x:auto;padding:2px 2px 8px;scrollbar-width:none}
-.chips button{flex:none;min-height:38px;padding:0 14px;font-weight:500}
+.pri{background:var(--acc);border-color:var(--acc);color:#fff}
+.ico{width:44px;padding:0;border-radius:50%;flex:none}
+.ico svg{width:22px;height:22px}
+.ico.pri svg{width:24px;height:24px}
+.full{width:100%}
+.danger{color:var(--ko);border-color:color-mix(in srgb,var(--ko) 40%,var(--line))}
+textarea,input[type=text],input[type=email],select{font:inherit;font-size:16px;width:100%;border-radius:12px;border:1px solid var(--line);background:var(--bg);color:var(--ink);padding:10px 12px}
+select{appearance:none;background-image:linear-gradient(45deg,transparent 50%,var(--mut) 50%),linear-gradient(135deg,var(--mut) 50%,transparent 50%);background-position:calc(100% - 16px) 50%,calc(100% - 11px) 50%;background-size:5px 5px;background-repeat:no-repeat;padding-right:28px}
+textarea{resize:vertical;min-height:96px;line-height:1.45}
+.chips{display:flex;gap:6px;flex-wrap:wrap}
+.chips button{min-height:38px;padding:0 13px;font-weight:500;font-size:15px}
 .chips button[aria-pressed=true]{background:var(--ink);color:var(--bg);border-color:var(--ink)}
-.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(130px,1fr));gap:10px}
-.card{position:relative;background:var(--soft);border-radius:16px;aspect-ratio:3/4;display:grid;place-items:center;overflow:hidden;border:2px solid transparent;padding:0;min-height:0}
-.card img{max-width:84%;max-height:80%;object-fit:contain;filter:drop-shadow(0 6px 8px rgb(0 0 0/.12))}
-.card .lb{position:absolute;left:8px;bottom:6px;right:8px;font-size:13px;color:var(--mut);text-align:left;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.card.sel{border-color:var(--acc)}
-.empty{border:2px dashed var(--line);border-radius:20px;padding:36px 20px;text-align:center;color:var(--mut)}
-nav.tabs{position:fixed;left:0;right:0;bottom:0;background:color-mix(in srgb,var(--bg) 92%,transparent);backdrop-filter:blur(10px);border-top:1px solid var(--line);display:grid;grid-template-columns:repeat(4,1fr);padding:6px max(2vw,6px) calc(6px + env(safe-area-inset-bottom));z-index:20}
-nav.tabs button{border:0;border-radius:14px;flex-direction:column;gap:0;font-size:12px;font-weight:600;min-height:56px;color:var(--mut);background:none}
-nav.tabs button svg{width:24px;height:24px}
+.chips.sub button[aria-pressed=true]{background:var(--acc);border-color:var(--acc);color:#fff}
+.row{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.filters{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:6px;margin-bottom:12px}
+.filters select{min-height:38px;padding:6px 26px 6px 10px;font-size:14px;border-radius:99px;background-color:var(--soft);border-color:transparent}
+.filters select.on{background-color:var(--ink);color:var(--bg)}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(104px,1fr));gap:8px}
+.card{position:relative;background:var(--soft);border-radius:14px;aspect-ratio:3/4;display:grid;place-items:center;overflow:hidden;border:2px solid transparent;padding:0;min-height:0;user-select:none;-webkit-user-select:none;-webkit-touch-callout:none}
+.card img{max-width:86%;max-height:82%;object-fit:contain;pointer-events:none;filter:drop-shadow(0 6px 8px rgb(0 0 0/.12))}
+.card .dot{position:absolute;top:7px;right:7px;width:11px;height:11px;border-radius:50%;border:2px solid var(--soft)}
+.card .chk{position:absolute;top:7px;left:7px;width:24px;height:24px;border-radius:50%;border:2px solid #fff;background:rgb(0 0 0/.25);display:none;place-items:center;color:#fff;font-size:15px;font-weight:500}
+.selmode .card .chk{display:grid}
+.card.sel{border-color:var(--acc)}.card.sel .chk{background:var(--acc);border-color:var(--acc)}
+.empty{border:2px dashed var(--line);border-radius:18px;padding:30px 18px;text-align:center;color:var(--mut)}
+nav.tabs{position:fixed;left:0;right:0;bottom:0;background:color-mix(in srgb,var(--bg) 94%,transparent);backdrop-filter:blur(10px);border-top:1px solid var(--line);display:grid;grid-template-columns:repeat(4,1fr);padding:4px 6px calc(4px + env(safe-area-inset-bottom));z-index:20}
+nav.tabs button{border:0;border-radius:14px;flex-direction:column;gap:0;font-size:12px;font-weight:500;min-height:54px;color:var(--mut);background:none}
+nav.tabs svg{width:24px;height:24px}
 nav.tabs button[aria-current=true]{color:var(--acc)}
-nav.tabs .add{background:var(--acc);color:#fff}
 .view{display:none}.view.on{display:block}
-/* Studio */
-.studio{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,360px);gap:18px;align-items:start}
-.board{position:relative;aspect-ratio:3/4;width:100%;max-height:78vh;margin:0 auto;background:var(--soft);border-radius:22px;overflow:hidden;touch-action:none;user-select:none}
+.selbar{position:fixed;left:0;right:0;top:0;z-index:30;background:var(--ink);color:var(--bg);display:flex;align-items:center;gap:8px;padding:calc(8px + env(safe-area-inset-top)) 12px 8px}
+.selbar b{flex:1}.selbar button{background:transparent;color:var(--bg);border-color:color-mix(in srgb,var(--bg) 35%,transparent);min-height:40px}
+.selbar .pri{background:var(--acc);border-color:var(--acc);color:#fff}
+/* aggiungi + scheda */
+.photo{background:conic-gradient(var(--soft) 25%,var(--bg) 0 50%,var(--soft) 0 75%,var(--bg) 0) 0 0/22px 22px;border-radius:20px;aspect-ratio:4/5;max-height:46vh;width:100%;display:grid;place-items:center;overflow:hidden;position:relative;border:1px solid var(--line)}
+.photo img{max-width:92%;max-height:92%;object-fit:contain}
+.photo .over{position:absolute;inset:0;display:grid;place-items:center;align-content:center;gap:10px;background:color-mix(in srgb,var(--bg) 72%,transparent);font-weight:500}
+.pbar{height:6px;background:var(--line);border-radius:9px;overflow:hidden;width:60%}.pbar i{display:block;height:100%;background:var(--acc);width:0;transition:width .2s}
+.pick{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.pick label{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;aspect-ratio:1;border-radius:20px;border:2px dashed var(--acc);background:var(--acc2);font-weight:500;font-size:17px;cursor:pointer;text-align:center;padding:12px}
+.pick label:nth-child(2){border-color:var(--line);background:var(--soft)}
+.pick svg{width:46px;height:46px;color:var(--acc)}
+.pick input{position:absolute;opacity:0;width:1px;height:1px}
+.form{display:grid;gap:16px;margin-top:16px}
+.lbl{font-weight:500;font-size:15px;margin-bottom:6px;display:block}
+.two{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:18px;align-items:start}
+.detail .tags{display:flex;gap:6px;flex-wrap:wrap;margin:14px 0 10px}
+.tag{font-size:13px;font-weight:500;background:var(--soft);border-radius:99px;padding:4px 11px}
+.fitbox{border-radius:14px;padding:10px 14px;background:var(--soft);border-left:5px solid var(--vc,var(--line));margin:10px 0}
+/* crea */
+.board{position:relative;aspect-ratio:3/4;width:min(100%,calc(44vh*.75));margin:0 auto;background:var(--soft);border-radius:20px;overflow:hidden;touch-action:none;user-select:none;-webkit-user-select:none}
 .board.me{background:#000}
 .board .base{position:absolute;inset:0;width:100%;height:100%;object-fit:contain;pointer-events:none}
-.layer{position:absolute;transform:translate(-50%,-50%);cursor:grab;touch-action:none}
+.board .hint{position:absolute;inset:0;display:grid;place-items:center;color:var(--mut);padding:30px;text-align:center;font-size:15px}
+.layer{position:absolute;transform:translate(-50%,-50%);touch-action:none}
 .layer img{width:100%;display:block;pointer-events:none;filter:drop-shadow(0 8px 10px rgb(0 0 0/.18))}
 .layer.sel{outline:2px dashed var(--acc);outline-offset:4px;border-radius:6px}
-.boardwrap{max-width:560px;width:100%;margin:0 auto}
-.tools{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin-top:10px;min-height:44px}
-.tools input[type=range]{flex:1 1 140px;accent-color:var(--acc)}
-.panel{background:var(--soft);border-radius:20px;padding:14px}
-.panel .grid{grid-template-columns:repeat(auto-fill,minmax(86px,1fr));max-height:44vh;overflow:auto;gap:8px}
-.panel .card{background:var(--bg)}
-/* Mini outfit */
-.mini{position:relative;aspect-ratio:3/4;background:var(--soft);border-radius:16px;overflow:hidden}
-.mini .layer{cursor:default}
-.sg{display:grid;grid-template-columns:auto minmax(0,1fr);gap:10px;align-items:center;text-align:left;background:var(--bg);border-radius:14px;padding:8px;border:1px solid var(--line);min-height:0;font-weight:400;border-radius:14px}
+.ltools{display:flex;gap:6px;align-items:center;justify-content:center;flex-wrap:wrap;min-height:48px;margin:8px 0}
+.ltools input[type=range]{flex:1 1 120px;max-width:220px;accent-color:var(--acc)}
+.drawer{background:var(--soft);border-radius:18px;padding:10px;margin-top:6px}
+.tabsx{display:flex;gap:6px;overflow-x:auto;scrollbar-width:none;padding-bottom:8px}
+.tabsx button{flex:none;min-height:36px;padding:0 12px;font-size:14px;font-weight:500;background:var(--bg)}
+.tabsx button[aria-pressed=true]{background:var(--ink);color:var(--bg);border-color:var(--ink)}
+.strip{display:flex;gap:8px;overflow-x:auto;scroll-snap-type:x proximity;padding-bottom:4px}
+.strip .card{flex:none;width:86px;background:var(--bg);scroll-snap-align:start}
+.strip .card.on{border-color:var(--acc)}
+.strip .card.on::after{content:"✓";position:absolute;top:5px;right:6px;background:var(--acc);color:#fff;border-radius:50%;width:20px;height:20px;display:grid;place-items:center;font-size:12px;font-weight:500}
+.acts{display:flex;gap:8px;flex-wrap:wrap;justify-content:center;margin:12px 0}
+.stars{display:inline-flex}.stars button{min-height:40px;min-width:34px;padding:0;border:0;background:none;font-size:24px;line-height:1;color:var(--line)}.stars button.on{color:#f5a623}
+.panel{background:var(--soft);border-radius:18px;padding:14px;margin-top:12px}
+.verdict{background:var(--bg);border-radius:14px;padding:12px 14px;margin-top:10px;border-left:5px solid var(--vc,var(--acc))}
+.verdict ul{margin:6px 0;padding-left:18px}
+.sg{display:grid;grid-template-columns:auto minmax(0,1fr);gap:10px;align-items:center;text-align:left;background:var(--bg);border-radius:14px;padding:8px;border:1px solid var(--line);min-height:0;font-weight:400;width:100%}
 .sg .th{display:flex;gap:2px;width:96px;flex-wrap:wrap}.sg .th img{width:30px;height:30px;object-fit:contain}
 .sg b{display:block;font-size:15px}.sg span{font-size:13px;color:var(--mut)}
-.verdict{background:var(--bg);border-radius:14px;padding:12px 14px;margin-top:10px;border-left:5px solid var(--vc,var(--acc))}
-.verdict .vh{display:flex;align-items:baseline;gap:10px;flex-wrap:wrap}.verdict .vh b{font-size:20px}.verdict ul{margin:6px 0;padding-left:18px}.verdict li{margin:3px 0}
-.badge{position:absolute;top:8px;right:8px;width:14px;height:14px;border-radius:50%;border:2px solid var(--bg)}
-.vb{display:inline-block;font-size:12px;font-weight:700;padding:2px 9px;border-radius:99px;color:#fff}
-.form label{display:block;font-weight:600;margin:12px 0 4px}.form textarea,.form select{font:inherit;font-size:16px;width:100%;border-radius:12px;border:1px solid var(--line);background:var(--bg);color:var(--ink);padding:10px 12px}
-.form .two{display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:10px}
-.stars{display:inline-flex;gap:0}.stars button{min-height:40px;min-width:36px;padding:0;border:0;background:none;font-size:24px;line-height:1;color:var(--line)}.stars button.on{color:#f5a623}
-.mini{width:100%}.gap{background:var(--bg);border-radius:14px;padding:12px;border:1px solid var(--line)}.gap.done{opacity:.55}.gap h3{margin:0;font-size:17px}.gap .th{display:flex;gap:4px;flex-wrap:wrap;margin:6px 0}.gap .th img{width:40px;height:40px;object-fit:contain;background:var(--soft);border-radius:8px}.gap .q{font-size:14px;background:var(--soft);border-radius:8px;padding:4px 8px;display:inline-block}
-.ocard{width:100%;display:flex;flex-direction:column;gap:6px;background:none;border:0;padding:0;text-align:left;min-height:0;border-radius:16px}
+.vb{display:inline-block;font-size:12px;font-weight:500;padding:2px 9px;border-radius:99px;color:#fff}
+.mini{position:relative;aspect-ratio:3/4;background:var(--soft);border-radius:14px;overflow:hidden;width:100%}
+.ocard{display:flex;flex-direction:column;gap:4px;background:none;border:0;padding:0;text-align:left;min-height:0;border-radius:14px;width:100%;font-weight:400}
 .ocard b{font-size:15px}
-/* Add */
-.addbox{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:18px;align-items:start}
-.preview{background:conic-gradient(var(--soft) 25%,var(--bg) 0 50%,var(--soft) 0 75%,var(--bg) 0) 0 0/22px 22px;border-radius:22px;aspect-ratio:3/4;display:grid;place-items:center;overflow:hidden;position:relative;border:1px solid var(--line)}
-.preview img{max-width:90%;max-height:90%;object-fit:contain}
-.bar{height:6px;background:var(--line);border-radius:9px;overflow:hidden;width:70%}.bar i{display:block;height:100%;background:var(--acc);width:0;transition:width .2s}
-.big{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;width:100%;aspect-ratio:3/4;border-radius:22px;border:2px dashed var(--acc);background:var(--acc2);color:var(--ink);font-weight:700;font-size:18px;cursor:pointer;text-align:center;padding:20px}
-.big svg{width:56px;height:56px;color:var(--acc)}
-.queue{display:flex;gap:6px;flex-wrap:wrap;margin-top:10px}.queue span{font-size:13px;background:var(--soft);border-radius:99px;padding:3px 10px}
-.toast{position:fixed;left:50%;bottom:96px;transform:translateX(-50%);background:var(--ink);color:var(--bg);padding:10px 18px;border-radius:99px;font-weight:600;font-size:14px;opacity:0;transition:opacity .2s;pointer-events:none;z-index:40;max-width:90vw}
+.gap{background:var(--bg);border-radius:14px;padding:12px;border:1px solid var(--line)}.gap.done{opacity:.55}.gap h3{margin:0;font-size:16px}.gap .th{display:flex;gap:4px;flex-wrap:wrap;margin:6px 0}.gap .th img{width:40px;height:40px;object-fit:contain;background:var(--soft);border-radius:8px}.gap .q{font-size:14px;background:var(--soft);border-radius:8px;padding:4px 8px}
+.toast{position:fixed;left:50%;bottom:calc(90px + env(safe-area-inset-bottom));transform:translateX(-50%);background:var(--ink);color:var(--bg);padding:10px 18px;border-radius:99px;font-weight:500;font-size:14px;opacity:0;transition:opacity .2s;pointer-events:none;z-index:40;max-width:90vw;text-align:center}
 .toast.on{opacity:1}
 dialog{border:0;border-radius:20px;padding:20px;max-width:min(420px,92vw);background:var(--bg);color:var(--ink)}
 dialog::backdrop{background:rgb(0 0 0/.4)}
-.row{display:flex;gap:8px;flex-wrap:wrap;justify-content:flex-end;margin-top:14px}
+.drow{display:flex;gap:8px;justify-content:flex-end;margin-top:16px}
 .hide{display:none!important}
-@media(max-width:760px){.board{width:min(100%,calc(58vh*.75))}.studio,.addbox{grid-template-columns:minmax(0,1fr)}h1{font-size:26px}.panel .grid{max-height:none;grid-auto-flow:column;grid-auto-columns:92px;grid-template-columns:none;overflow-x:auto}}
+.info{background:var(--acc2);border-radius:14px;padding:12px 14px;font-size:15px;margin-bottom:12px}
+#login{position:fixed;inset:0;z-index:50;background:var(--bg);display:grid;place-items:center;padding:24px}
+@media(min-width:820px){.cw{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,400px);gap:24px;align-items:start}.grid{grid-template-columns:repeat(auto-fill,minmax(140px,1fr))}}
+@media(max-width:600px){.two{grid-template-columns:minmax(0,1fr)}}
 @media(prefers-reduced-motion:reduce){*{transition:none!important}}
+b,strong{font-weight:500}
 </style>
 </head>
 <body>
-<div id="login" class="hide" style="position:fixed;inset:0;z-index:50;background:var(--bg);display:grid;place-items:center;padding:24px">
+<div id="login" class="hide">
   <form id="lf" style="width:min(380px,100%);display:grid;gap:12px">
     <h1>Il mio guardaroba</h1><p class="mut" style="margin:0">Inserisci la tua email: ti mando un link per entrare, niente password.</p>
-    <input type="email" id="lEmail" required placeholder="la-tua@email.it" style="font:inherit;font-size:16px;min-height:44px;padding:0 14px;border-radius:12px;border:1px solid var(--line);background:var(--bg);color:var(--ink)">
+    <input type="email" id="lEmail" required placeholder="la-tua@email.it" autocomplete="email">
     <button class="pri" type="submit">Mandami il link</button><p class="mut" id="lNote" style="margin:0"></p>
   </form>
 </div>
+
+<div class="selbar hide" id="selbar"><button class="ico" id="selX" aria-label="Annulla selezione">✕</button><b id="selN">0 selezionati</b><button id="selOutfit">Crea outfit</button><button class="pri" id="selDel">Elimina</button></div>
+
 <main>
 <!-- ARMADIO -->
 <section class="view on" id="v-armadio"><div class="wrap">
-  <div class="top"><div><h1>Il mio armadio</h1><div class="mut" id="count">Caricamento…</div></div>
-  <div class="tools" style="margin:0"><button id="rateAll">Cosa mi valorizza?</button><button id="gapBtn">Cosa mi manca?</button><button class="pri" data-go="aggiungi">+ Aggiungi capi</button></div></div>
-  <p class="mut" id="rateNote" style="margin:0 0 8px"></p>
-  <div class="panel hide" id="gapBox" style="margin-bottom:16px"><div class="top" style="margin:0 0 6px"><h2 style="margin:0">La mia lista mirata</h2><button id="gapClose" style="min-height:36px">Chiudi</button></div><p class="mut" id="gapNote" style="margin:0 0 8px"></p><div id="gapList" style="display:grid;gap:8px"></div></div>
-  <div class="chips" id="sArm"></div><div class="chips" id="fitArm"></div><div class="chips" id="fArm"></div>
+  <div class="bar"><div style="flex:1"><h1>Armadio</h1><div class="mut" id="count">Caricamento…</div></div>
+    <button class="ico" id="rateAll" aria-label="Cosa mi valorizza?" title="Cosa mi valorizza?"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"><path d="M12 3l1.8 4.6L18.5 9l-4.7 1.6L12 15l-1.8-4.4L5.5 9l4.7-1.4z"/><path d="M18.5 14.5l.8 2 2 .8-2 .8-.8 2-.8-2-2-.8 2-.8z"/></svg></button>
+    <button class="ico" id="gapBtn" aria-label="Cosa mi manca?" title="Cosa mi manca?"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M5 7h14l-1.2 12.1a2 2 0 0 1-2 1.9H8.2a2 2 0 0 1-2-1.9z"/><path d="M9 10V6a3 3 0 0 1 6 0v4"/></svg></button>
+    <button class="ico pri" data-go="aggiungi" aria-label="Aggiungi un capo" title="Aggiungi un capo"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg></button>
+  </div>
+  <div class="panel hide" id="aiBox" style="margin:0 0 12px"><div class="row" style="justify-content:space-between"><h2 style="margin:0" id="aiTitle"></h2><button class="ico" id="aiClose" aria-label="Chiudi" style="min-height:36px;width:36px">✕</button></div><p class="mut" id="aiNote" style="margin:4px 0 8px"></p><div id="aiList" style="display:grid;gap:8px"></div></div>
+  <div class="filters"><select id="fSea" aria-label="Stagione"></select><select id="fCat" aria-label="Categoria"></select><select id="fFit" aria-label="Giudizio"></select></div>
   <div class="grid" id="gArm"></div>
+  <p class="mut" id="lpHint" style="text-align:center;margin-top:14px"></p>
 </div></section>
 
-<!-- AGGIUNGI -->
-<section class="view" id="v-aggiungi"><div class="wrap">
-  <div class="top"><div><h1>Aggiungi un capo</h1><div class="mut">Foto su uno sfondo semplice: lo scontorno viene meglio.</div></div></div>
-  <div class="addbox">
-    <div>
-      <label class="big" id="pick"><input type="file" accept="image/*" multiple class="hide" id="file">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 8h3l2-3h6l2 3h3v11H4z"/><circle cx="12" cy="13" r="3.6"/></svg>
-        Scatta o scegli foto<span class="mut" style="font-weight:400;font-size:14px">Puoi selezionarne più di una</span></label>
-      <div class="preview hide" id="prev"><img id="prevImg" alt="Anteprima del capo scontornato"><div id="prog" class="hide" style="position:absolute;inset:0;display:grid;place-items:center;align-content:center;gap:10px;background:color-mix(in srgb,var(--bg) 70%,transparent)"><b id="progT">Tolgo lo sfondo…</b><div class="bar"><i id="progB"></i></div></div></div>
-      <div class="queue" id="queue"></div>
-    </div>
-    <div id="form" class="hide">
-      <h2>Categoria</h2>
-      <div class="chips" id="fCat" style="flex-wrap:wrap"></div>
-      <h2 style="margin-top:12px">Stagione <span class="mut">(anche più di una)</span></h2>
-      <div class="chips" id="fSea" style="flex-wrap:wrap"></div>
-      <h2 style="margin-top:12px">Nome <span class="mut">(facoltativo)</span></h2>
-      <input type="text" id="name" placeholder="es. camicia bianca lino" maxlength="60">
-      <div class="tools">
-        <button id="useOrig" type="button">Usa foto originale</button>
-        <button id="skip" type="button">Salta</button>
-        <button class="pri" id="save" type="button" disabled>Salva nell'armadio</button>
-      </div>
-      <p class="mut" id="addNote"></p>
+<!-- AGGIUNGI / MODIFICA -->
+<section class="view" id="v-aggiungi"><div class="wrap" style="max-width:760px">
+  <div class="bar"><button class="ico" data-back aria-label="Indietro"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M15 5l-7 7 7 7"/></svg></button><h1 id="addTitle">Nuovo capo</h1><span class="mut" id="queue"></span></div>
+  <div class="pick" id="pick">
+    <label><input type="file" accept="image/*" capture="environment" id="fileCam"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M4 8h3l2-3h6l2 3h3v11H4z"/><circle cx="12" cy="13" r="3.6"/></svg>Scatta foto</label>
+    <label><input type="file" accept="image/*" multiple id="fileGal"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><rect x="3.5" y="4.5" width="17" height="15" rx="2.5"/><circle cx="9" cy="10" r="1.8"/><path d="M4 17l5-4.5 4 3.5 3-2.5 4 3.5"/></svg>Dalla galleria</label>
+  </div>
+  <p class="mut" id="pickTip" style="margin:12px 0 0">Consiglio: appoggia il capo su un fondo semplice e in contrasto, lo sfondo viene tolto da solo.</p>
+  <div id="editArea" class="hide">
+    <div class="photo" id="photo"><img id="photoImg" alt="Anteprima del capo"><div class="over hide" id="over"><span id="overT">Tolgo lo sfondo…</span><div class="pbar"><i id="overB"></i></div></div></div>
+    <div class="form">
+      <div><span class="lbl">Categoria</span><div class="chips" id="cMacro"></div><div id="cSubBox" class="hide" style="margin-top:12px;padding:12px;background:var(--soft);border-radius:14px"><span class="lbl" id="cSubL" style="font-weight:500">Tipo</span><div class="chips sub" id="cSub"></div></div></div>
+      <div><span class="lbl">Stagione</span><div class="chips" id="cSea"></div></div>
+      <div><label class="lbl" for="desc">Descrizione</label><textarea id="desc" rows="4" maxlength="500" placeholder="Es. blazer nero monopetto in lana, corto al fianco, leggermente sciancrato, un po' stretto sul seno"></textarea><p class="mut" style="margin:4px 0 0">Più dettagli scrivi (colore, tessuto, lunghezza, come ti veste), meglio la consulente ti consiglia.</p></div>
+      <button class="pri full" id="save" disabled>Salva nell'armadio</button>
+      <p class="mut" id="addNote" style="margin:0"></p>
     </div>
   </div>
 </div></section>
 
-<!-- STUDIO -->
-<section class="view" id="v-studio"><div class="wrap">
-  <div class="top"><div><h1 id="stTitle">Nuova combinazione</h1><div class="mut">Tocca un capo per aggiungerlo, trascinalo per spostarlo, due dita per ingrandire.</div></div>
-  <div class="tools" style="margin:0"><span class="stars" id="stStars" aria-label="Il tuo voto"></span><button id="newO">Svuota</button><button class="pri" id="saveO">Salva outfit</button></div></div>
-  <div class="studio">
-    <div class="boardwrap">
-      <div class="board" id="board"></div>
-      <div class="tools" id="layerTools">
-        <span class="mut" id="selHint">Nessun capo selezionato</span>
-      </div>
-      <div class="tools">
-        <div class="chips" id="baseSw" style="padding:0"></div>
-        <label class="btn" id="mePick">Carica foto di me<input type="file" accept="image/*" class="hide" id="meFile"></label>
-      </div>
-    </div>
-    <div>
-    <div class="panel" style="margin-bottom:14px">
-      <div class="chips" id="sSt"></div><div class="chips" id="fSt"></div>
-      <div class="grid" id="gSt"></div>
-    </div>
-    <div class="panel" id="ideas" style="margin-bottom:14px">
-      <h2>La tua consulente</h2>
-      <input type="text" id="occ" placeholder="Occasione (facoltativo): ufficio, cena, weekend…" maxlength="80">
-      <div class="tools"><button class="pri" id="judge" type="button">Mi sta bene?</button><button id="sugg" type="button">Proponimi abbinamenti</button><button id="stopS" type="button" class="hide">Stop</button></div>
-      <p class="mut" id="suggNote" style="margin:6px 0 0">"Mi sta bene?" giudica la tavola pensando a te (colori, forme, il tuo stile) e propone varianti. "Proponimi" crea 3 combinazioni dai capi che ti valorizzano.</p>
-      <div id="verdict" class="verdict hide"></div>
-      <div id="suggList" style="display:grid;gap:8px;margin-top:8px"></div>
-    </div>
-    </div>
-  </div>
+<!-- SCHEDA CAPO -->
+<section class="view" id="v-capo"><div class="wrap detail" style="max-width:760px">
+  <div class="bar"><button class="ico" data-back aria-label="Indietro"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M15 5l-7 7 7 7"/></svg></button><h1 id="capoTitle"></h1>
+    <button class="ico" id="capoEdit" aria-label="Modifica" title="Modifica"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"><path d="M4 20h4L19 9l-4-4L4 16z"/><path d="M13.5 6.5l4 4"/></svg></button></div>
+  <div class="photo" style="background:var(--soft)"><img id="capoImg" alt=""></div>
+  <div id="capoBody"></div>
+</div></section>
+
+<!-- CREA -->
+<section class="view" id="v-crea"><div class="wrap">
+  <div class="bar"><h1 id="stTitle">Crea un outfit</h1><button class="ico" id="helpBtn" aria-label="Come funziona" title="Come funziona">?</button><button class="ico" id="newO" aria-label="Ricomincia" title="Ricomincia"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M4 12a8 8 0 1 0 2.4-5.7"/><path d="M4 4v4h4"/></svg></button></div>
+  <div class="info hide" id="help"><b>A cosa serve.</b> È il tuo specchio: scegli i capi dal cassetto qui sotto, li vedi insieme sulla tavola (o sulla tua foto, con "Su di me") e chiedi alla consulente se ti stanno bene. Se l'outfit ti piace lo salvi, e lo ritrovi in <b>Outfit</b>. Tocca un capo sulla tavola per spostarlo o ingrandirlo.</div>
+  <div class="cw"><div>
+    <div class="board" id="board"></div>
+    <div class="ltools" id="ltools"></div>
+  </div><div>
+    <div class="drawer"><div class="tabsx" id="dTabs"></div><div class="strip" id="dStrip"></div></div>
+    <div class="acts"><button class="pri" id="judge">Mi sta bene?</button><button id="sugg">Proponimi</button><button id="saveO">Salva</button></div>
+    <div class="row" style="justify-content:center"><span class="stars" id="stStars" aria-label="Il tuo voto"></span><span class="chips" id="baseSw"></span></div>
+    <div class="panel" id="ideas"><input type="text" id="occ" placeholder="Occasione (facoltativo): ufficio, cena, weekend…" maxlength="80"><p class="mut" id="suggNote" style="margin:8px 0 0"></p><button id="stopS" class="hide" style="margin-top:8px">Stop</button><div id="verdict" class="verdict hide"></div><div id="suggList" style="display:grid;gap:8px;margin-top:8px"></div></div>
+  </div></div>
 </div></section>
 
 <!-- OUTFIT -->
 <section class="view" id="v-outfit"><div class="wrap">
-  <div class="top"><div><h1>Le mie combinazioni</h1><div class="mut" id="oCount"></div></div><button class="pri" data-go="studio">+ Nuova</button></div>
-  <div class="chips" id="sOut"></div><div class="chips" id="okOut"></div><div class="grid" id="gOut" style="grid-template-columns:repeat(auto-fill,minmax(160px,1fr))"></div>
+  <div class="bar"><div style="flex:1"><h1>Outfit</h1><div class="mut" id="oCount"></div></div><button class="ico pri" data-go="crea" aria-label="Nuovo outfit"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg></button></div>
+  <div class="filters" style="grid-template-columns:repeat(2,minmax(0,1fr))"><select id="oSea" aria-label="Stagione"></select><select id="oSort" aria-label="Mostra"></select></div>
+  <div class="grid" id="gOut" style="grid-template-columns:repeat(auto-fill,minmax(150px,1fr))"></div>
 </div></section>
+
 <!-- STILE -->
 <section class="view" id="v-stile"><div class="wrap" style="max-width:720px">
-  <div class="top"><div><h1>Il mio stile</h1><div class="mut">La consulente usa queste informazioni per dirti cosa ti sta bene. Sono solo tue.</div></div></div>
-  <form class="form" id="pf">
-    <div class="two"><div><label for="pArm">Armocromia</label><select id="pArm"></select></div><div><label for="pH">Altezza (cm)</label><input type="text" id="pH" inputmode="numeric"></div><div><label for="pT">Taglia abituale</label><input type="text" id="pT"></div></div>
-    <label for="pMis">Misure</label><input type="text" id="pMis" placeholder="es. seno, vita, fianchi in cm">
-    <div id="pFields"></div>
-    <div class="tools"><button class="pri" type="submit">Salva il mio stile</button><span class="mut" id="pfNote"></span></div>
+  <div class="bar"><h1>Il mio stile</h1></div>
+  <p class="mut" style="margin-top:-6px">La consulente usa queste informazioni per dirti cosa ti sta bene. Sono visibili solo a te.</p>
+  <form id="pf" style="display:grid;gap:12px">
+    <div class="two" style="grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:10px"><div><label class="lbl" for="pArm">Armocromia</label><select id="pArm"></select></div><div><label class="lbl" for="pH">Altezza (cm)</label><input type="text" id="pH" inputmode="numeric"></div><div><label class="lbl" for="pT">Taglia</label><input type="text" id="pT"></div></div>
+    <div><label class="lbl" for="pMis">Misure</label><input type="text" id="pMis" placeholder="es. seno, vita, fianchi in cm"></div>
+    <div id="pFields" style="display:grid;gap:12px"></div>
+    <button class="pri" type="submit">Salva il mio stile</button>
   </form>
-  <div class="panel" style="margin-top:24px">
-    <h2>Consulente AI (Gemini, gratuito)</h2>
-    <p class="mut" style="margin-top:0">Crea una chiave gratuita su <a href="https://aistudio.google.com/apikey" target="_blank" rel="noopener">aistudio.google.com/apikey</a> e incollala qui. Resta solo in questo browser.</p>
-    <input type="text" id="gKey" placeholder="Chiave API Gemini" autocomplete="off">
-    <div class="two" style="display:grid;grid-template-columns:minmax(0,1fr) auto;gap:8px;margin-top:8px"><input type="text" id="gModel" placeholder="modello"><button id="gSave" type="button">Salva</button></div>
-    <p class="mut" id="gNote"></p>
-  </div>
-  <div class="panel" style="margin-top:14px">
-    <h2>Importa la scheda stile</h2>
-    <p class="mut" style="margin-top:0">Carica il file scheda-stile.json per riempire il profilo.</p>
-    <label class="btn">Scegli file<input type="file" accept=".json,application/json" class="hide" id="pImp"></label>
-  </div>
-  <div class="tools" style="margin-top:20px"><button id="logout" type="button">Esci</button><span class="mut" id="who"></span></div>
+  <div class="panel"><h2>La mia foto (per "Su di me")</h2><p class="mut" style="margin-top:0">Una foto a figura intera, in piedi, su fondo semplice.</p><div class="row"><img id="meThumb" alt="" class="hide" style="width:64px;height:84px;object-fit:cover;border-radius:10px"><label class="btn">Scegli foto<input type="file" accept="image/*" class="hide" id="meFile"></label></div></div>
+  <div class="panel"><h2>Consulente AI (Gemini, gratuito)</h2><p class="mut" style="margin-top:0">Crea una chiave gratuita su <a href="https://aistudio.google.com/apikey" target="_blank" rel="noopener">aistudio.google.com/apikey</a> e incollala qui. Resta solo in questo dispositivo.</p>
+    <input type="text" id="gKey" placeholder="Chiave API Gemini" autocomplete="off"><div class="row" style="margin-top:8px"><input type="text" id="gModel" placeholder="modello" style="flex:1"><button id="gSave" type="button">Salva</button></div><p class="mut" id="gNote" style="margin-bottom:0"></p></div>
+  <div class="panel"><h2>Importa una scheda</h2><label class="btn">Scegli file .json<input type="file" accept=".json,application/json" class="hide" id="pImp"></label></div>
+  <div class="row" style="margin-top:18px"><button id="logout" type="button">Esci</button><span class="mut" id="who"></span></div>
 </div></section>
 </main>
 
-<nav class="tabs" aria-label="Sezioni" style="grid-template-columns:repeat(5,1fr)">
-  <button data-go="armadio" aria-current="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 6a2 2 0 1 1 2 2c-1 0-2 .7-2 2v0L3 16.5c-.8.6-.4 1.5.5 1.5h17c.9 0 1.3-.9.5-1.5L12 10"/></svg>Armadio</button>
-  <button data-go="aggiungi"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 8h3l2-3h6l2 3h3v11H4z"/><circle cx="12" cy="13" r="3.4"/></svg>Aggiungi</button>
-  <button data-go="studio"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="4" y="3" width="16" height="18" rx="3"/><path d="M8 8h5M8 12h8M8 16h3"/></svg>Studio</button>
+<nav class="tabs" aria-label="Sezioni">
+  <button data-go="armadio" aria-current="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 6a2 2 0 1 1 2 2c-1 0-2 .7-2 2L3 16.5c-.8.6-.4 1.5.5 1.5h17c.9 0 1.3-.9.5-1.5L12 10"/></svg>Armadio</button>
+  <button data-go="crea"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="4" y="3" width="16" height="18" rx="3"/><path d="M9 9h6M9 13h6M9 17h3"/></svg>Crea</button>
   <button data-go="outfit"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 20s-7-4.4-7-10a4 4 0 0 1 7-2.6A4 4 0 0 1 19 10c0 5.6-7 10-7 10z"/></svg>Outfit</button>
   <button data-go="stile"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="8" r="4"/><path d="M4 21c1-4.5 4-6.5 8-6.5s7 2 8 6.5"/></svg>Stile</button>
 </nav>
 <div class="toast" id="toast" role="status"></div>
-<dialog id="dlg"><p id="dlgT" style="margin:0"></p><input type="text" id="dlgIn" class="hide" style="margin-top:12px" maxlength="60"><div class="chips hide" id="dlgSea" style="flex-wrap:wrap;margin-top:12px"></div><div id="dlgFit" class="hide"><p class="mut" style="margin:10px 0 4px">Mi sta bene?</p><div class="chips" id="dlgFitC" style="flex-wrap:wrap"></div><p class="mut" id="dlgFitN" style="margin:4px 0 0"></p></div><div class="row"><button id="dlgDel" class="hide" style="margin-right:auto;color:var(--acc)">Elimina</button><button id="dlgNo">Annulla</button><button class="pri" id="dlgOk">OK</button></div></dialog>
+<dialog id="dlg"><p id="dlgT" style="margin:0"></p><input type="text" id="dlgIn" class="hide" style="margin-top:12px" maxlength="60"><div class="drow"><button id="dlgNo">Annulla</button><button class="pri" id="dlgOk">OK</button></div></dialog>
 
 <script src="config.js"></script>
 <script type="module">
 {
-const $=s=>document.querySelector(s), $$=s=>[...document.querySelectorAll(s)];
+const $=s=>document.querySelector(s),$$=s=>[...document.querySelectorAll(s)];
 const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
-// categoria -> posizione e larghezza predefinite sulla tavola (in % della tavola)
-const CATS=[['top','Top',50,30,40],['camicia','Camicie',50,30,44],['maglione','Maglioni',50,31,46],['giacca','Giacche',50,32,52],['abito','Abiti',50,45,46],['pantaloni','Pantaloni',50,62,38],['gonna','Gonne',50,58,40],['scarpe','Scarpe',50,90,30],['borsa','Borse',78,55,26],['cintura','Cinture',50,47,34],['collana','Collane',50,20,20],['orecchini','Orecchini',50,9,14],['bracciali','Bracciali',24,52,14],['sciarpa','Sciarpe',50,22,34],['altro','Altro',50,50,30]];
+const URLS=new Map();const src=id=>URLS.get(id)||'';
+// categorie a due livelli: [id macro, nome, posizione/dimensione sulla tavola (x,y,w %), sottocategorie]
+const TREE=[
+ ['top','Top',[50,30,42],[['tshirt','T-shirt'],['top','Top'],['camicia','Camicie'],['blusa','Bluse'],['maglione','Maglioni e maglie'],['felpa','Felpe'],['gilet','Gilet']]],
+ ['sotto','Pantaloni e gonne',[50,62,38],[['pantaloni','Pantaloni'],['jeans','Jeans'],['gonna','Gonne'],['shorts','Shorts']]],
+ ['abiti','Abiti',[50,45,46],[['abito','Abiti'],['tuta','Tute']]],
+ ['spalla','Capispalla',[50,33,52],[['blazer','Blazer'],['giacca','Giacche'],['cappotto','Cappotti e piumini']]],
+ ['scarpe','Scarpe',[50,90,30],[['sneakers','Sneakers'],['maryjane','Mary Jane'],['stivaletti','Stivaletti e stivali'],['decollete','Décolleté'],['sandali','Sandali'],['scarpe','Altre scarpe']]],
+ ['borse','Borse',[78,56,26],[['borsa','Borse']]],
+ ['acc','Accessori',[50,47,34],[['cintura','Cinture'],['sciarpa','Sciarpe e foulard'],['cappello','Cappelli']]],
+ ['gioielli','Gioielli',[50,20,18],[['collana','Collane'],['orecchini','Orecchini'],['bracciali','Bracciali'],['anello','Anelli']]],
+ ['altro','Altro',[50,50,30],[['altro','Altro']]]];
+const SUB={},MAC={};for(const[m,n,pos,subs]of TREE){MAC[m]={n,pos};for(const[s,sn]of subs)SUB[s]={n:sn,m}}
+const SPOS={sciarpa:[50,24,34],orecchini:[50,9,14],bracciali:[24,52,14],anello:[26,56,8],cappello:[50,6,30],cintura:[50,47,34]};
+const posOf=c=>SPOS[c]||MAC[SUB[c]?.m||'altro'].pos;
+const catName=c=>SUB[c]?.n||'Altro';
 const SEAS=[['inverno','Inverno'],['mezza','Mezza stagione'],['estate','Estate']];
-const fits=(it,f)=>f==='all'||!it?.sea?.length||it.sea.includes(f);
-function seaChips(el,set,on){el.innerHTML=SEAS.map(([k,n])=>`<button type="button" data-k="${k}" aria-pressed="${set.has(k)}">${n}</button>`).join('');el.onclick=e=>{const b=e.target.closest('button');if(!b)return;set.has(b.dataset.k)?set.delete(b.dataset.k):set.add(b.dataset.k);seaChips(el,set,on);on&&on()}}
-function seaFilter(el,on){el.innerHTML=[['all','Tutte le stagioni'],...SEAS].map(([k,n])=>`<button type="button" data-k="${k}" aria-pressed="${S.fSea===k}">${n}</button>`).join('');el.onclick=e=>{const b=e.target.closest('button');if(!b)return;S.fSea=b.dataset.k;renderAll()}}
 const FIT=[['si','Mi valorizza','#1f9d55'],['forse','Così così','#d9a400'],['no','Non mi convince','#d83a3a']];const FC=Object.fromEntries(FIT.map(f=>[f[0],f]));
 const ARMO=['','Primavera Chiara','Primavera Calda','Primavera Brillante','Estate Chiara','Estate Fredda','Estate Morbida','Autunno Morbido','Autunno Caldo','Autunno Profondo','Inverno Profondo','Inverno Freddo','Inverno Brillante'];
-// valori iniziali: li modifichi in "Il mio stile"
-const PF=[['body','Fisicità e vestibilità',4],['stile','Il mio stile',3],['pal','Colori: sì e no',3],['capi','Capi che cerco (giacche, pantaloni, top, scarpe…)',7],['no','Cosa evito',5],['goal','Regola d\'oro',3]];
-const PROF0={armo:'',h:'',t:'',mis:''};
-function profTxt(){const p=S.prof||S.prof0||PROF0;return `PROFILO DI CHI SI VESTE\n- Armocromia: ${p.armo||'non nota'}\n- Altezza: ${p.h||'?'} cm, taglia ${p.t||'?'}${p.mis?'\n- Misure: '+p.mis:''}\n`+PF.map(([k,n])=>p[k]?`- ${n}: ${p[k]}`:'').filter(Boolean).join('\n')+`\nValuta sempre 4 cose: 1) vestibilità sulle sue misure reali, 2) proporzioni (lunghezze, volumi, rapporto con l'altezza), 3) colori coerenti con la sua armocromia, 4) abbinabilità con il resto del guardaroba. Non approvare qualcosa solo perché è bello o di tendenza.`}
-const CAT=Object.fromEntries(CATS.map(c=>[c[0],{n:c[1],x:c[2],y:c[3],w:c[4]}]));
-const S={db:null,assets:null,col:null,items:[],outfits:[],me:null,fArm:'all',fFit:'all',okOnly:false,prof:null,fSt:'all',fSea:'all',sea:new Set(),layers:[],sel:-1,base:'board',editing:null,queue:[],cur:null,cat:null};
-const toast=t=>{const e=$('#toast');e.textContent=t;e.classList.add('on');clearTimeout(toast.t);toast.t=setTimeout(()=>e.classList.remove('on'),2600)};
-const ask=(t,input,del,sea,fit)=>new Promise(r=>{const d=$('#dlg');$('#dlgFit').classList.toggle('hide',!fit);if(fit){const draw=()=>{$('#dlgFitC').innerHTML=FIT.map(([k,n])=>`<button type="button" data-k="${k}" aria-pressed="${fit.v===k}">${n}</button>`).join('')};draw();$('#dlgFitC').onclick=e=>{const b=e.target.closest('button');if(!b)return;fit.v=fit.v===b.dataset.k?'':b.dataset.k;fit.by='me';draw()};$('#dlgFitN').textContent=fit.note?(fit.by==='ai'?'Consulente: ':'')+fit.note:''}const ds=$('#dlgSea');ds.classList.toggle('hide',!sea);if(sea)seaChips(ds,sea);$('#dlgDel').classList.toggle('hide',!del);$('#dlgDel').onclick=()=>{d.close();r('__del')};$('#dlgT').textContent=t;const i=$('#dlgIn');i.classList.toggle('hide',input==null);i.value=input||'';d.showModal();if(input!=null)i.focus();$('#dlgOk').onclick=()=>{d.close();r(input==null?true:i.value.trim())};$('#dlgNo').onclick=()=>{d.close();r(null)}});
-const URLS=new Map();const src=id=>URLS.get(id)||'';
+const PF=[['body','Fisicità e vestibilità',4],['stile','Il mio stile',3],['pal','Colori: sì e no',3],['capi','Capi che cerco',6],['no','Cosa evito',5],['goal','Regola d\'oro',3]];
+const S={items:[],outfits:[],me:null,prof:null,fSea:'all',fCat:'all',fFit:'all',oSea:'all',oSort:'recent',layers:[],sel:-1,base:'board',editing:null,stars:0,queue:[],cur:null,form:null,capoId:null,selMode:false,selected:new Set(),dTab:'all',gaps:null};
+const fits=(it,f)=>f==='all'||!it?.sea?.length||it.sea.includes(f);
+const nameOf=it=>{const d=(it?.name||'').trim();return d?(d.length>34?d.slice(0,32)+'…':d):catName(it?.cat)};
+const toast=t=>{const e=$('#toast');e.textContent=t;e.classList.add('on');clearTimeout(toast.t);toast.t=setTimeout(()=>e.classList.remove('on'),2800)};
+const ask=(t,input)=>new Promise(r=>{const d=$('#dlg');$('#dlgT').textContent=t;const i=$('#dlgIn');i.classList.toggle('hide',input==null);i.value=input||'';d.showModal();$('#dlgOk').onclick=()=>{d.close();r(input==null?true:i.value.trim())};$('#dlgNo').onclick=()=>{d.close();r(null)}});
+function profTxt(){const p=S.prof||{};return `PROFILO DI CHI SI VESTE\n- Armocromia: ${p.armo||'non nota'}\n- Altezza: ${p.h||'?'} cm, taglia ${p.t||'?'}${p.mis?'\n- Misure: '+p.mis:''}\n`+PF.map(([k,n])=>p[k]?`- ${n}: ${p[k]}`:'').filter(Boolean).join('\n')+`\nValuta sempre 4 cose: 1) vestibilità sulle sue misure reali, 2) proporzioni (lunghezze, volumi, rapporto con l'altezza), 3) colori coerenti con la sua armocromia, 4) abbinabilità con il resto del guardaroba. Non approvare qualcosa solo perché è bello o di tendenza.`}
 
 // ---------- navigazione ----------
-function go(v){$$('.view').forEach(e=>e.classList.toggle('on',e.id==='v-'+v));$$('nav.tabs button').forEach(b=>b.setAttribute('aria-current',b.dataset.go===v));scrollTo(0,0)}
-document.addEventListener('click',e=>{const b=e.target.closest('[data-go]');if(b)go(b.dataset.go)});
-
-// ---------- filtri ----------
-function chips(el,key,onPick,withAll=true){const used=new Set(S.items.map(i=>i.cat));const list=(withAll?[['all','Tutti']]:[]).concat(CATS.filter(c=>!withAll||used.has(c[0])).map(c=>[c[0],c[1]]));
-  el.innerHTML=list.map(([k,n])=>`<button type="button" data-k="${k}" aria-pressed="${S[key]===k}">${n}</button>`).join('');
-  el.onclick=e=>{const b=e.target.closest('button');if(!b)return;S[key]=b.dataset.k;onPick()}}
+const VIEWS=['armadio','aggiungi','capo','crea','outfit','stile'];
+function show(v){$$('.view').forEach(e=>e.classList.toggle('on',e.id==='v-'+v));const tab={aggiungi:'armadio',capo:'armadio'}[v]||v;$$('nav.tabs button').forEach(b=>b.setAttribute('aria-current',b.dataset.go===tab));scrollTo(0,0);if(v!=='armadio')exitSel()}
+function go(v){if(location.hash!=='#'+v)location.hash=v;else show(v)}
+addEventListener('hashchange',()=>{const v=location.hash.slice(1);show(VIEWS.includes(v)?v:'armadio');if(v==='capo')renderCapo();if(v==='aggiungi'&&!S.form)startAdd()});
+document.addEventListener('click',e=>{const b=e.target.closest('[data-go]');if(b){if(b.dataset.go==='aggiungi')startAdd();go(b.dataset.go)}if(e.target.closest('[data-back]'))history.length>1?history.back():go('armadio')});
 
 // ---------- armadio ----------
-function renderArm(){$('#count').textContent=S.items.length?`${S.items.length} capi`:'Ancora vuoto';seaFilter($('#sArm'));chips($('#fArm'),'fArm',renderArm);
-  $('#fitArm').innerHTML=[['all','Tutti'],...FIT,['none','Da valutare']].map(([k,n])=>`<button type="button" data-k="${k}" aria-pressed="${S.fFit===k}">${n}</button>`).join('');$('#fitArm').onclick=e=>{const b=e.target.closest('button');if(b){S.fFit=b.dataset.k;renderArm()}};
-  const its=S.items.filter(i=>(S.fArm==='all'||i.cat===S.fArm)&&fits(i,S.fSea)&&(S.fFit==='all'||(S.fFit==='none'?!i.fit:i.fit===S.fFit)));
-  $('#gArm').innerHTML=S.items.length?its.map(i=>`<button class="card" data-id="${i.id}" aria-label="${esc(i.name||CAT[i.cat]?.n)}"><img src="${src(i.img)}" alt="" loading="lazy">${i.fit?`<span class="badge" style="background:${FC[i.fit][2]}" title="${FC[i.fit][1]}"></span>`:''}<span class="lb">${esc(i.name||CAT[i.cat]?.n)}${i.sea?.length?' · '+i.sea.map(x=>x==='mezza'?'mezza':x).join(', '):''}</span></button>`).join(''):`<div class="empty" style="grid-column:1/-1">Fotografa il primo capo: lo sfondo viene tolto da solo e finisce nella categoria che scegli.<br><br><button class="pri" data-go="aggiungi">Aggiungi il primo capo</button></div>`}
-$('#gArm').onclick=async e=>{const c=e.target.closest('.card');if(!c)return;const it=S.items.find(i=>i.id===c.dataset.id);
-  const sea=new Set(it.sea||[]);const fit={v:it.fit||'',note:it.fitNote||'',by:it.fitBy||''};const n=await ask(`Nome e stagioni (${CAT[it.cat]?.n||'Altro'})`,it.name||'',true,sea,fit);if(n==null)return;
-  if(n==='__del'){const ok=await ask('Eliminare questo capo? Sparirà anche dagli outfit.');if(!ok)return;try{await S.col.doc(it.id).delete();await S.assets?.delete(it.img).catch(()=>{});toast('Capo eliminato')}catch(err){toast('Non riesco a eliminarlo')}return}
-  try{await S.col.doc(it.id).update({name:n,sea:[...sea],fit:fit.v,fitBy:fit.by,fitNote:fit.by==='me'&&fit.v!==it.fit?'':fit.note});}catch{toast('Salvataggio non riuscito')}};
+function fillSel(el,opts,val){el.innerHTML=opts.map(([k,n])=>`<option value="${k}" ${k===val?'selected':''}>${n}</option>`).join('');el.classList.toggle('on',val!=='all'&&val!=='recent')}
+function renderArm(){$('#count').textContent=S.items.length?`${S.items.length} capi`:'Ancora vuoto';
+  fillSel($('#fSea'),[['all','Stagione'],...SEAS],S.fSea);
+  const used=new Set(S.items.map(i=>SUB[i.cat]?.m||'altro'));fillSel($('#fCat'),[['all','Categoria'],...TREE.filter(t=>used.has(t[0])).map(t=>[t[0],t[1]])],S.fCat);
+  fillSel($('#fFit'),[['all','Giudizio'],...FIT.map(f=>[f[0],f[1]]),['none','Da valutare']],S.fFit);
+  const its=S.items.filter(i=>(S.fCat==='all'||(SUB[i.cat]?.m||'altro')===S.fCat)&&fits(i,S.fSea)&&(S.fFit==='all'||(S.fFit==='none'?!i.fit:i.fit===S.fFit)));
+  $('#gArm').classList.toggle('selmode',S.selMode);
+  $('#gArm').innerHTML=S.items.length?(its.length?its.map(i=>`<button class="card${S.selected.has(i.id)?' sel':''}" data-id="${i.id}" aria-label="${esc(nameOf(i))}"><img src="${src(i.img)}" alt="" loading="lazy">${i.fit?`<span class="dot" style="background:${FC[i.fit][2]}"></span>`:''}<span class="chk">✓</span></button>`).join(''):'<p class="mut" style="grid-column:1/-1">Nessun capo con questi filtri.</p>'):`<div class="empty" style="grid-column:1/-1">Fotografa il primo capo: lo sfondo viene tolto da solo.<br><br><button class="pri" data-go="aggiungi">Aggiungi un capo</button></div>`;
+  $('#lpHint').textContent=S.items.length>1&&!S.selMode?'Tieni premuto un capo per selezionarne più di uno.':''}
+['fSea','fCat','fFit'].forEach(k=>$('#'+k).onchange=e=>{S[k]=e.target.value;renderArm()});
+// tocco = apri scheda, pressione lunga = selezione
+{const g=$('#gArm');let t=null,sx=0,sy=0,long=false;
+  g.addEventListener('pointerdown',e=>{const c=e.target.closest('.card[data-id]');if(!c)return;long=false;sx=e.clientX;sy=e.clientY;t=setTimeout(()=>{long=true;if(navigator.vibrate)try{navigator.vibrate(20)}catch{}S.selMode=true;S.selected.add(c.dataset.id);renderSel()},480)});
+  g.addEventListener('pointermove',e=>{if(t&&Math.hypot(e.clientX-sx,e.clientY-sy)>10){clearTimeout(t);t=null}});
+  ['pointerup','pointercancel','pointerleave'].forEach(ev=>g.addEventListener(ev,()=>{clearTimeout(t);t=null}));
+  g.addEventListener('contextmenu',e=>{if(e.target.closest('.card'))e.preventDefault()});
+  g.addEventListener('click',e=>{const c=e.target.closest('.card[data-id]');if(!c)return;if(long){long=false;return}
+    if(S.selMode){S.selected.has(c.dataset.id)?S.selected.delete(c.dataset.id):S.selected.add(c.dataset.id);if(!S.selected.size)exitSel();else renderSel();return}
+    S.capoId=c.dataset.id;go('capo');renderCapo()})}
+function renderSel(){$('#selbar').classList.toggle('hide',!S.selMode);$('#selN').textContent=`${S.selected.size} selezionat${S.selected.size===1?'o':'i'}`;renderArm()}
+function exitSel(){if(!S.selMode)return;S.selMode=false;S.selected.clear();renderSel()}
+$('#selX').onclick=exitSel;
+$('#selDel').onclick=async()=>{const n=S.selected.size;if(!n||!(await ask(`Eliminare ${n} ${n===1?'capo':'capi'}? Non si può annullare.`)))return;
+  for(const id of [...S.selected]){const it=S.items.find(i=>i.id===id);try{await S.col.doc(id).delete();if(it?.img)S.assets.delete(it.img).catch(()=>{})}catch{toast('Non riuscito su un capo')}}toast(n===1?'Capo eliminato':`${n} capi eliminati`);exitSel()};
+$('#selOutfit').onclick=()=>{const ids=[...S.selected];exitSel();S.layers=ids.map((id,i)=>{const it=S.items.find(x=>x.id===id);const p=posOf(it?.cat);return{item:id,x:p[0],y:p[1],w:p[2],r:0,z:i+1}});S.editing=null;S.stars=0;S.sel=-1;$('#stTitle').textContent='Crea un outfit';go('crea');renderCrea()};
 
-// ---------- aggiungi: scontorno ----------
+// ---------- scheda capo (sola lettura) ----------
+function renderCapo(){const it=S.items.find(i=>i.id===S.capoId);if(!it){$('#capoTitle').textContent='Capo non trovato';$('#capoBody').innerHTML='';return}
+  $('#capoTitle').textContent=catName(it.cat);$('#capoImg').src=src(it.img);
+  const used=S.outfits.filter(o=>o.layers.some(l=>l.item===it.id)).length;const f=it.fit&&FC[it.fit];
+  $('#capoBody').innerHTML=`<div class="tags"><span class="tag">${esc(MAC[SUB[it.cat]?.m||'altro'].n)} · ${esc(catName(it.cat))}</span>${(it.sea||[]).map(s=>`<span class="tag">${esc(SEAS.find(x=>x[0]===s)?.[1]||s)}</span>`).join('')||'<span class="tag">Tutte le stagioni</span>'}</div>
+  ${it.name?`<p style="margin:6px 0 10px;white-space:pre-wrap">${esc(it.name)}</p>`:'<p class="mut">Nessuna descrizione: tocca la matita per aggiungerla.</p>'}
+  ${f?`<div class="fitbox" style="--vc:${f[2]}"><b>${f[1]}</b>${it.fitNote?`<div class="mut">${it.fitBy==='ai'?'Consulente: ':''}${esc(it.fitNote)}</div>`:''}</div>`:''}
+  <p class="mut">${used?`Usato in ${used} outfit salvat${used===1?'o':'i'}.`:'Non ancora usato in un outfit.'}</p>
+  <button class="full" id="capoToOutfit">Crea un outfit con questo capo</button>`;
+  $('#capoToOutfit').onclick=()=>{const p=posOf(it.cat);S.layers=[{item:it.id,x:p[0],y:p[1],w:p[2],r:0,z:1}];S.editing=null;S.stars=0;S.sel=-1;$('#stTitle').textContent='Crea un outfit';go('crea');renderCrea()}}
+$('#capoEdit').onclick=()=>{const it=S.items.find(i=>i.id===S.capoId);if(!it)return;S.form={id:it.id,cat:it.cat,sea:new Set(it.sea||[]),name:it.name||'',fit:it.fit||''};S.cur=null;S.queue=[];
+  $('#addTitle').textContent='Modifica capo';$('#pick').classList.add('hide');$('#pickTip').classList.add('hide');$('#editArea').classList.remove('hide');$('#photoImg').src=src(it.img);$('#over').classList.add('hide');$('#desc').value=S.form.name;$('#save').textContent='Salva modifiche';$('#addNote').innerHTML='<button class="danger" id="delOne" style="margin-top:6px">Elimina capo</button>';
+  $('#delOne').onclick=async()=>{if(!(await ask('Eliminare questo capo? Non si può annullare.')))return;try{await S.col.doc(it.id).delete();S.assets.delete(it.img).catch(()=>{});S.form=null;toast('Capo eliminato');go('armadio')}catch{toast('Non riuscito')}};
+  drawForm();location.hash='aggiungi'};
+
+// ---------- aggiungi: foto, scontorno, form ----------
 let bgr=null;
 async function removeBg(blob,onp){if(!bgr)bgr=import('./vendor/bgr.mjs');const {removeBackground}=await bgr;
   return removeBackground(blob,{publicPath:new URL('bg/',location.href).href,model:'small',proxyToWorker:false,device:'cpu',output:{format:'image/png'},
-    progress:(k,c,t)=>{if(k.startsWith('fetch'))onp('Scarico il modello (solo la prima volta)…',c/t);else onp('Tolgo lo sfondo…',null)}})}
+    progress:(k,c,t)=>{if(k.startsWith('fetch'))onp('Preparo lo scontorno (solo la prima volta)…',c/t);else onp('Tolgo lo sfondo…',null)}})}
 function loadImg(blob){return new Promise((r,j)=>{const i=new Image();i.onload=()=>r(i);i.onerror=j;i.src=URL.createObjectURL(blob)})}
 async function shrink(file,max=1400){const im=await loadImg(file);const k=Math.min(1,max/Math.max(im.width,im.height));const c=document.createElement('canvas');c.width=Math.round(im.width*k);c.height=Math.round(im.height*k);c.getContext('2d').drawImage(im,0,0,c.width,c.height);return new Promise(r=>c.toBlob(r,'image/jpeg',.9))}
 async function trim(blob){const im=await loadImg(blob);const c=document.createElement('canvas');const W=c.width=im.width,H=c.height=im.height;const x=c.getContext('2d');x.drawImage(im,0,0);const id=x.getImageData(0,0,W,H),d=id.data;
   for(let i=3;i<d.length;i+=4){const v=d[i];d[i]=v<70?0:v>200?255:Math.round((v-70)/130*255)}
-  // tieni solo le parti grandi (il capo), via i puntini di sfondo
   const s=4,w=Math.ceil(W/s),h=Math.ceil(H/s),m=new Uint8Array(w*h),lab=new Int32Array(w*h).fill(-1);
   for(let y=0;y<H;y+=s)for(let X=0;X<W;X+=s)if(d[(y*W+X)*4+3]>128)m[(y/s|0)*w+(X/s|0)]=1;
   const sizes=[];for(let k=0;k<w*h;k++){if(!m[k]||lab[k]>=0)continue;const L=sizes.length;let n=0;const st=[k];lab[k]=L;while(st.length){const q=st.pop();n++;const qx=q%w,qy=q/w|0;for(const[dx,dy]of[[1,0],[-1,0],[0,1],[0,-1]]){const nx=qx+dx,ny=qy+dy;if(nx<0||ny<0||nx>=w||ny>=h)continue;const nk=ny*w+nx;if(m[nk]&&lab[nk]<0){lab[nk]=L;st.push(nk)}}}sizes.push(n)}
@@ -268,156 +315,166 @@ async function trim(blob){const im=await loadImg(blob);const c=document.createEl
   for(let y=0;y<H;y++)for(let X=0;X<W;X++)if(!ok[(y/s|0)*w+(X/s|0)])d[(y*W+X)*4+3]=0;x.putImageData(id,0,0);
   const p=8;a=Math.max(0,a*s-p);b=Math.max(0,b*s-p);r=Math.min(W,(r+1)*s+p);t=Math.min(H,(t+1)*s+p);
   const o=document.createElement('canvas');o.width=r-a;o.height=t-b;o.getContext('2d').drawImage(c,a,b,r-a,t-b,0,0,r-a,t-b);return new Promise(z=>o.toBlob(z,'image/png'))}
-$('#file').onchange=e=>{S.queue.push(...e.target.files);e.target.value='';if(!S.cur)next()};
-function renderQueue(){$('#queue').innerHTML=S.queue.length?`<span>Altre ${S.queue.length} foto in coda</span>`:''}
-async function next(){renderQueue();const f=S.queue.shift();renderQueue();
-  if(!f){S.cur=null;$('#prev').classList.add('hide');$('#pick').classList.remove('hide');$('#form').classList.add('hide');return}
-  S.cur={orig:null,cut:null,use:'cut'};$('#pick').classList.add('hide');$('#prev').classList.remove('hide');$('#form').classList.remove('hide');$('#save').disabled=true;$('#name').value='';$('#addNote').textContent='';
-  const sm=await shrink(f);S.cur.orig=sm;$('#prevImg').src=URL.createObjectURL(sm);$('#prog').classList.remove('hide');upd();$('#useOrig').textContent='Usa foto originale';
-  try{const out=await removeBg(sm,(t,p)=>{$('#progT').textContent=t;$('#progB').style.width=p==null?'100%':Math.round(p*100)+'%'});S.cur.cut=await trim(out);$('#prevImg').src=URL.createObjectURL(S.cur.cut)}
-  catch(err){console.error(err);S.cur.use='orig';$('#addNote').textContent='Lo scontorno automatico non è riuscito su questo dispositivo: salvo la foto così com\'è.'}
-  $('#prog').classList.add('hide');upd()}
-function upd(){$('#save').disabled=!S.cat||!S.cur;chips($('#fCat'),'cat',upd,false);seaChips($('#fSea'),S.sea)}
-$('#useOrig').onclick=()=>{if(!S.cur?.cut)return;S.cur.use=S.cur.use==='cut'?'orig':'cut';$('#prevImg').src=URL.createObjectURL(S.cur.use==='cut'?S.cur.cut:S.cur.orig);$('#useOrig').textContent=S.cur.use==='cut'?'Usa foto originale':'Usa versione scontornata'};
-$('#skip').onclick=()=>next();
-$('#save').onclick=async()=>{if(!S.assets||!S.col)return toast('Archivio non disponibile');$('#save').disabled=true;$('#save').textContent='Salvo…';
-  try{const blob=S.cur.use==='cut'&&S.cur.cut?S.cur.cut:S.cur.orig;const up=await S.assets.upload(blob,{type:blob.type||'image/png'});
-    await S.col.doc('it_'+Date.now().toString(36)).set({kind:'item',cat:S.cat,sea:[...S.sea],name:$('#name').value.trim(),img:up.id,at:Date.now()});toast(`Salvato in ${CAT[S.cat].n}`);next()}
-  catch(err){console.error(err);toast(err?.code==='quota_or_state'?'Spazio esaurito':'Salvataggio non riuscito, riprova')}
-  $('#save').textContent="Salva nell'armadio";upd()};
+function startAdd(){S.form=null;S.cur=null;$('#addTitle').textContent='Nuovo capo';$('#pick').classList.remove('hide');$('#pickTip').classList.remove('hide');$('#editArea').classList.add('hide');$('#save').textContent="Salva nell'armadio";$('#addNote').textContent='';$('#queue').textContent=''}
+function onFiles(e){S.queue.push(...e.target.files);e.target.value='';if(!S.cur)next()}
+$('#fileCam').onchange=onFiles;$('#fileGal').onchange=onFiles;
+async function next(){const f=S.queue.shift();$('#queue').textContent=S.queue.length?`altre ${S.queue.length}`:'';
+  if(!f){S.cur=null;S.form=null;go('armadio');return}
+  const prev=S.form;S.form={id:null,cat:prev&&!prev.id?prev.cat:null,sea:new Set(prev&&!prev.id?prev.sea:[]),name:'',fit:''};S.cur={orig:null,cut:null};
+  $('#pick').classList.add('hide');$('#pickTip').classList.add('hide');$('#editArea').classList.remove('hide');$('#desc').value='';$('#addNote').textContent='';drawForm();
+  const sm=await shrink(f);S.cur.orig=sm;$('#photoImg').src=URL.createObjectURL(sm);$('#over').classList.remove('hide');$('#overT').textContent='Tolgo lo sfondo…';$('#overB').style.width='0';drawForm();
+  try{const out=await removeBg(sm,(t,p)=>{$('#overT').textContent=t;$('#overB').style.width=p==null?'100%':Math.round(p*100)+'%'});S.cur.cut=await trim(out);$('#photoImg').src=URL.createObjectURL(S.cur.cut)}
+  catch(err){console.error(err);$('#addNote').textContent='Non sono riuscita a togliere lo sfondo: salvo la foto così com\'è.'}
+  $('#over').classList.add('hide');drawForm()}
+function drawForm(){const F=S.form;if(!F)return;const m=F.cat?SUB[F.cat]?.m:F.macro;
+  $('#cMacro').innerHTML=TREE.map(t=>`<button type="button" data-m="${t[0]}" aria-pressed="${m===t[0]}">${t[1]}</button>`).join('');
+  const subs=m?TREE.find(t=>t[0]===m)[3]:[];$('#cSubBox').classList.toggle('hide',subs.length<2);$('#cSubL').textContent='Che tipo di '+(TREE.find(t=>t[0]===m)?.[1]||'').toLowerCase()+'?';$('#cSub').innerHTML=subs.length>1?subs.map(([k,n])=>`<button type="button" data-s="${k}" aria-pressed="${F.cat===k}">${n}</button>`).join(''):'';
+  $('#cSea').innerHTML=SEAS.map(([k,n])=>`<button type="button" data-k="${k}" aria-pressed="${F.sea.has(k)}">${n}</button>`).join('');
+  $('#save').disabled=!F.cat||(!F.id&&!S.cur?.orig)}
+$('#cMacro').onclick=e=>{const b=e.target.closest('[data-m]');if(!b)return;const t=TREE.find(x=>x[0]===b.dataset.m);S.form.macro=t[0];S.form.cat=t[3].length===1?t[3][0][0]:(SUB[S.form.cat]?.m===t[0]?S.form.cat:null);drawForm()};
+$('#cSub').onclick=e=>{const b=e.target.closest('[data-s]');if(!b)return;S.form.cat=b.dataset.s;drawForm()};
+$('#cSea').onclick=e=>{const b=e.target.closest('[data-k]');if(!b)return;const s=S.form.sea;s.has(b.dataset.k)?s.delete(b.dataset.k):s.add(b.dataset.k);drawForm()};
+$('#save').onclick=async()=>{const F=S.form;if(!F?.cat)return;const btn=$('#save');btn.disabled=true;const old=btn.textContent;btn.textContent='Salvo…';
+  try{if(F.id){await S.col.doc(F.id).update({cat:F.cat,sea:[...F.sea],name:$('#desc').value.trim()});toast('Modifiche salvate');S.capoId=F.id;S.form=null;history.back()}
+    else{const blob=S.cur.cut||S.cur.orig;const up=await S.assets.upload(blob,{type:blob.type||'image/png'});await S.col.doc('it_'+Date.now().toString(36)).set({kind:'item',cat:F.cat,sea:[...F.sea],name:$('#desc').value.trim(),img:up.id,at:Date.now()});toast(`Salvato in ${catName(F.cat)}`);next()}}
+  catch(err){console.error(err);toast('Salvataggio non riuscito, riprova')}btn.textContent=old;drawForm()};
 
-// ---------- studio ----------
-function layerHTML(l,i,sel){const it=S.items.find(x=>x.id===l.item);if(!it)return'';return `<div class="layer${sel===i?' sel':''}" data-i="${i}" style="left:${l.x}%;top:${l.y}%;width:${l.w}%;z-index:${l.z};transform:translate(-50%,-50%) rotate(${l.r||0}deg)"><img src="${src(it.img)}" alt="${esc(it.name||CAT[it.cat]?.n)}"></div>`}
-function baseHTML(b){return b==='me'&&S.me?`<img class="base" src="${src(S.me)}" alt="La mia foto">`:''}
-function renderBoard(){renderVerdict();const b=$('#board');b.classList.toggle('me',S.base==='me'&&!!S.me);b.innerHTML=baseHTML(S.base)+S.layers.map((l,i)=>layerHTML(l,i,S.sel)).join('')+(S.layers.length?'':`<div style="position:absolute;inset:0;display:grid;place-items:center;color:var(--mut);padding:30px;text-align:center">Tocca i capi a destra per vestire la tavola</div>`);renderTools()}
-function renderTools(){const t=$('#layerTools');const l=S.layers[S.sel];
-  if(!l){t.innerHTML='<span class="mut">Tocca un capo sulla tavola per regolarlo</span>';return}
-  t.innerHTML=`<input type="range" min="6" max="100" value="${l.w}" id="sz" aria-label="Dimensione"><button id="rot" aria-label="Ruota">↻</button><button id="up">Davanti</button><button id="dn">Dietro</button><button id="rm">Togli</button>`;
+// ---------- crea (tavola) ----------
+const starsHTML=(n,id)=>[1,2,3,4,5].map(k=>`<button type="button" class="${k<=(n||0)?'on':''}" data-star="${k}" ${id?`data-oid="${id}"`:''} aria-label="${k} stelle">★</button>`).join('');
+const boardKey=()=>S.layers.map(l=>l.item).sort().join(',');
+function layerHTML(l,i,sel){const it=S.items.find(x=>x.id===l.item);if(!it)return'';return `<div class="layer${sel===i?' sel':''}" data-i="${i}" style="left:${l.x}%;top:${l.y}%;width:${l.w}%;z-index:${l.z};transform:translate(-50%,-50%) rotate(${l.r||0}deg)"><img src="${src(it.img)}" alt="${esc(nameOf(it))}"></div>`}
+const baseHTML=b=>b==='me'&&S.me?`<img class="base" src="${src(S.me)}" alt="La mia foto">`:'';
+function renderBoard(){const b=$('#board');b.classList.toggle('me',S.base==='me'&&!!S.me);b.innerHTML=baseHTML(S.base)+S.layers.map((l,i)=>layerHTML(l,i,S.sel)).join('')+(S.layers.length?'':`<div class="hint">${S.items.length?'Scegli i capi dal cassetto: toccane uno per metterlo qui.':'Il tuo armadio è vuoto: aggiungi prima qualche capo.'}</div>`);renderTools();renderVerdict()}
+function renderTools(){const t=$('#ltools');const l=S.layers[S.sel];
+  if(!l){t.innerHTML=S.layers.length?'<span class="mut">Tocca un capo sulla tavola per regolarlo · due dita per ingrandire</span>':'';return}
+  t.innerHTML=`<input type="range" min="6" max="100" value="${l.w}" id="sz" aria-label="Dimensione"><button class="ico" id="up" title="Porta davanti" aria-label="Porta davanti">⬆</button><button class="ico" id="dn" title="Porta dietro" aria-label="Porta dietro">⬇</button><button class="ico" id="rot" aria-label="Ruota">↻</button><button class="ico danger" id="rm" aria-label="Togli">✕</button>`;
   $('#sz').oninput=e=>{l.w=+e.target.value;const el=$(`.layer[data-i="${S.sel}"]`);if(el)el.style.width=l.w+'%'};
   $('#rot').onclick=()=>{l.r=((l.r||0)+15)%360;renderBoard()};
   $('#up').onclick=()=>{l.z=Math.max(...S.layers.map(x=>x.z))+1;renderBoard()};
   $('#dn').onclick=()=>{l.z=Math.min(...S.layers.map(x=>x.z))-1;renderBoard()};
-  $('#rm').onclick=()=>{S.layers.splice(S.sel,1);S.sel=-1;renderBoard()}}
-function renderSt(){seaFilter($('#sSt'));chips($('#fSt'),'fSt',renderSt);const its=S.items.filter(i=>(S.fSt==='all'||i.cat===S.fSt)&&fits(i,S.fSea));const on=new Set(S.layers.map(l=>l.item));
-  $('#gSt').innerHTML=S.items.length?its.map(i=>`<button class="card${on.has(i.id)?' sel':''}" data-id="${i.id}" aria-label="${esc(i.name||CAT[i.cat]?.n)}"><img src="${src(i.img)}" alt="" loading="lazy"></button>`).join(''):'<p class="mut">L\'armadio è vuoto: aggiungi qualche capo.</p>';
-  $('#baseSw').innerHTML=[['board','Tavola'],['me','Su di me']].map(([k,n])=>`<button data-b="${k}" aria-pressed="${S.base===k}" ${k==='me'&&!S.me?'disabled':''}>${n}</button>`).join('');
-  $('#mePick').firstChild.textContent=S.me?'Cambia foto di me':'Carica foto di me'}
-$('#gSt').onclick=e=>{const c=e.target.closest('.card');if(!c)return;const id=c.dataset.id;const k=S.layers.findIndex(l=>l.item===id);
-  if(k>=0){S.layers.splice(k,1);S.sel=-1}else{const it=S.items.find(i=>i.id===id);const d=CAT[it.cat]||CAT.altro;S.layers.push({item:id,x:d.x,y:d.y,w:d.w,r:0,z:S.layers.length+1});S.sel=S.layers.length-1}
-  renderBoard();renderSt()};
-$('#baseSw').onclick=e=>{const b=e.target.closest('button');if(!b||b.disabled)return;S.base=b.dataset.b;renderBoard();renderSt()};
-$('#meFile').onchange=async e=>{const f=e.target.files[0];e.target.value='';if(!f||!S.assets)return;toast('Carico la tua foto…');
-  try{const sm=await shrink(f,1600);const up=await S.assets.upload(sm,{type:'image/jpeg'});const old=S.me;await S.col.doc('me').set({kind:'me',photo:up.id});if(old)S.assets.delete(old).catch(()=>{});S.base='me';toast('Foto salvata: ora puoi vestirti')}catch(err){console.error(err);toast('Caricamento non riuscito')}};
-// trascina e pinch
+  $('#rm').onclick=()=>{S.layers.splice(S.sel,1);S.sel=-1;renderBoard();renderDrawer()}}
+function renderDrawer(){const its=S.items.filter(i=>fits(i,S.fSea)||true);const used=new Set(its.map(i=>SUB[i.cat]?.m||'altro'));
+  $('#dTabs').innerHTML=[['all','Tutti'],...TREE.filter(t=>used.has(t[0])).map(t=>[t[0],t[1]])].map(([k,n])=>`<button type="button" data-k="${k}" aria-pressed="${S.dTab===k}">${n}</button>`).join('');
+  const on=new Set(S.layers.map(l=>l.item));const list=its.filter(i=>S.dTab==='all'||(SUB[i.cat]?.m||'altro')===S.dTab);
+  $('#dStrip').innerHTML=S.items.length?list.map(i=>`<button class="card${on.has(i.id)?' on':''}" data-id="${i.id}" aria-label="${esc(nameOf(i))}"><img src="${src(i.img)}" alt="" loading="lazy">${i.fit?`<span class="dot" style="background:${FC[i.fit][2]};left:7px;right:auto"></span>`:''}</button>`).join(''):'<button class="pri" data-go="aggiungi">Aggiungi il primo capo</button>';
+  $('#stStars').innerHTML=starsHTML(S.stars);
+  $('#baseSw').innerHTML=[['board','Tavola'],['me','Su di me']].map(([k,n])=>`<button type="button" data-b="${k}" aria-pressed="${S.base===k}">${n}</button>`).join('')}
+function renderCrea(){renderBoard();renderDrawer()}
+$('#dTabs').onclick=e=>{const b=e.target.closest('[data-k]');if(b){S.dTab=b.dataset.k;renderDrawer()}};
+$('#dStrip').onclick=e=>{const c=e.target.closest('.card[data-id]');if(!c)return;const id=c.dataset.id;const k=S.layers.findIndex(l=>l.item===id);
+  if(k>=0){S.layers.splice(k,1);S.sel=-1}else{const it=S.items.find(i=>i.id===id);const p=posOf(it.cat);S.layers.push({item:id,x:p[0],y:p[1],w:p[2],r:0,z:S.layers.length+1});S.sel=S.layers.length-1}
+  renderBoard();renderDrawer()};
+$('#baseSw').onclick=e=>{const b=e.target.closest('[data-b]');if(!b)return;if(b.dataset.b==='me'&&!S.me){toast('Carica prima la tua foto in Stile');return}S.base=b.dataset.b;renderBoard();renderDrawer()};
+$('#stStars').onclick=e=>{const b=e.target.closest('[data-star]');if(!b)return;const k=+b.dataset.star;S.stars=S.stars===k?0:k;renderDrawer();if(S.editing&&S.col)S.col.doc(S.editing).update({stars:S.stars}).catch(()=>{})};
+$('#helpBtn').onclick=()=>$('#help').classList.toggle('hide');
+$('#newO').onclick=()=>{S.layers=[];S.sel=-1;S.editing=null;S.stars=0;S.verdict=null;$('#stTitle').textContent='Crea un outfit';$('#suggList').innerHTML='';$('#suggNote').textContent='';renderCrea()};
 {const b=$('#board');const pts=new Map();let st=null;
   b.addEventListener('pointerdown',e=>{const el=e.target.closest('.layer');
-    if(!el){if(!pts.size){S.sel=-1;$$('.layer.sel').forEach(x=>x.classList.remove('sel'));renderTools()}if(S.sel<0)return}
+    if(!el){if(!pts.size&&S.sel>=0){S.sel=-1;$$('.layer.sel').forEach(x=>x.classList.remove('sel'));renderTools()}if(S.sel<0)return}
     else if(+el.dataset.i!==S.sel&&!pts.size){S.sel=+el.dataset.i;$$('.layer').forEach(x=>x.classList.toggle('sel',+x.dataset.i===S.sel));renderTools()}
     b.setPointerCapture(e.pointerId);pts.set(e.pointerId,{x:e.clientX,y:e.clientY});const l=S.layers[S.sel];if(!l)return;
     const p=[...pts.values()];st={l:{...l},p:p.map(q=>({...q})),d:p.length>1?Math.hypot(p[0].x-p[1].x,p[0].y-p[1].y):0}});
   b.addEventListener('pointermove',e=>{if(!pts.has(e.pointerId)||!st)return;pts.set(e.pointerId,{x:e.clientX,y:e.clientY});const l=S.layers[S.sel];if(!l)return;const R=b.getBoundingClientRect();const p=[...pts.values()];
-    if(p.length>1&&st.d){l.w=Math.max(6,Math.min(110,st.l.w*Math.hypot(p[0].x-p[1].x,p[0].y-p[1].y)/st.d))}
+    if(p.length>1&&st.d)l.w=Math.max(6,Math.min(110,st.l.w*Math.hypot(p[0].x-p[1].x,p[0].y-p[1].y)/st.d));
     else{l.x=Math.max(0,Math.min(100,st.l.x+(p[0].x-st.p[0].x)/R.width*100));l.y=Math.max(0,Math.min(100,st.l.y+(p[0].y-st.p[0].y)/R.height*100))}
     const el=b.querySelector(`.layer[data-i="${S.sel}"]`);if(el){el.style.left=l.x+'%';el.style.top=l.y+'%';el.style.width=l.w+'%'}});
   const up=e=>{pts.delete(e.pointerId);const l=S.layers[S.sel];if(l){const p=[...pts.values()];st=p.length?{l:{...l},p:p.map(q=>({...q})),d:0}:null;const z=$('#sz');if(z)z.value=l.w}};
   b.addEventListener('pointerup',up);b.addEventListener('pointercancel',up)}
-$('#newO').onclick=()=>{S.layers=[];S.sel=-1;S.editing=null;S.stars=0;renderStars();$('#stTitle').textContent='Nuova combinazione';renderBoard();renderSt()};
 $('#saveO').onclick=async()=>{if(!S.layers.length)return toast('Aggiungi almeno un capo');const ed=S.outfits.find(o=>o.id===S.editing);
-  const n=await ask('Come la chiami?',ed?.name||'');if(n==null)return;const id=S.editing||'of_'+Date.now().toString(36);
-  try{await S.col.doc(id).set({kind:'outfit',name:n||'Senza nome',layers:S.layers.map(l=>({...l})),base:S.base,at:ed?.at||Date.now(),verdict:S.verdict&&S.verdictKey===boardKey()?S.verdict:(ed&&ed.verdictKey===boardKey()?ed.verdict:null),verdictKey:boardKey(),stars:S.stars||0});S.editing=id;$('#stTitle').textContent=n||'Senza nome';toast('Combinazione salvata')}catch(err){console.error(err);toast('Salvataggio non riuscito')}};
+  const n=await ask('Come lo chiami?',ed?.name||'');if(n==null)return;const id=S.editing||'of_'+Date.now().toString(36);
+  try{await S.col.doc(id).set({kind:'outfit',name:n||'Senza nome',layers:S.layers.map(l=>({...l})),base:S.base,at:ed?.at||Date.now(),verdict:S.verdict&&S.verdictKey===boardKey()?S.verdict:(ed&&ed.verdictKey===boardKey()?ed.verdict:null),verdictKey:boardKey(),stars:S.stars||0});S.editing=id;$('#stTitle').textContent=n||'Senza nome';toast('Outfit salvato')}catch(err){console.error(err);toast('Salvataggio non riuscito')}};
 
-// ---------- outfit salvati ----------
-function renderOut(){seaFilter($('#sOut'));S.okOnly=typeof S.okOnly==='string'?S.okOnly:'0';$('#okOut').innerHTML=[['0','Tutte'],['p','Promosse'],['4','★ 4 e 5'],['top','Più votate prima']].map(([k,n])=>`<button type="button" aria-pressed="${S.okOnly===k}" data-k="${k}">${n}</button>`).join('');$('#okOut').onclick=e=>{const b=e.target.closest('button');if(b){S.okOnly=b.dataset.k;renderOut()}};
-  const outs=S.outfits.filter(o=>o.layers.every(l=>fits(S.items.find(i=>i.id===l.item),S.fSea))&&(S.okOnly==='p'?o.verdict?.g==='promosso':S.okOnly==='4'?(o.stars||0)>=4:true));if(S.okOnly==='top'||S.okOnly==='4')outs.sort((a,b)=>(b.stars||0)-(a.stars||0));$('#oCount').textContent=S.outfits.length?`${S.outfits.length} salvate`:'';
-  $('#gOut').innerHTML=S.outfits.length?(outs.length?'':'<p class="mut">Nessuna combinazione per questa stagione.</p>')+outs.map(o=>`<div><button class="ocard" data-id="${o.id}"><div class="mini" style="${o.base==='me'&&S.me?'background:#000':''}">${baseHTML(o.base)}${o.layers.map((l,i)=>layerHTML(l,i,-1)).join('')}</div><b>${esc(o.name)}</b>${o.verdict?vBadge(o.verdict):''}</button><span class="stars">${starsHTML(o.stars,o.id)}</span><button data-del="${o.id}" style="min-height:36px;margin-top:4px;font-size:13px">Elimina</button></div>`).join(''):`<div class="empty" style="grid-column:1/-1">Nessuna combinazione salvata. Vai nello Studio, vesti la tavola e premi "Salva outfit".</div>`}
-$('#gOut').onclick=async e=>{const st=e.target.closest('[data-star]');if(st){const o=S.outfits.find(x=>x.id===st.dataset.oid);const k=+st.dataset.star;S.col.doc(o.id).update({stars:(o.stars||0)===k?0:k}).catch(()=>toast('Non riuscito'));return}const d=e.target.closest('[data-del]');if(d){if(await ask('Eliminare questa combinazione?'))S.col.doc(d.dataset.del).delete().catch(()=>toast('Non riuscito'));return}
-  const c=e.target.closest('.ocard');if(!c)return;const o=S.outfits.find(x=>x.id===c.dataset.id);S.layers=o.layers.map(l=>({...l}));S.base=o.base||'board';S.editing=o.id;S.sel=-1;S.stars=o.stars||0;renderStars();$('#stTitle').textContent=o.name;S.verdict=o.verdict||null;S.verdictKey=o.verdictKey;renderVerdict();renderBoard();renderSt();go('studio')};
-
-// ---------- suggerimenti (Claude) ----------
+// ---------- consulente ----------
 let sampleFn=null,sugCtl=null;
-async function contactSheet(its){const n=its.length,cols=Math.ceil(Math.sqrt(n*0.75)),rows=Math.ceil(n/cols),cw=200,ch=240;const c=document.createElement('canvas');c.width=cols*cw;c.height=rows*ch;const x=c.getContext('2d');x.fillStyle='#fff';x.fillRect(0,0,c.width,c.height);x.font='bold 26px sans-serif';
-  await Promise.all(its.map((it,i)=>new Promise(r=>{const im=new Image();im.crossOrigin='anonymous';im.onload=()=>{const cx=(i%cols)*cw,cy=(i/cols|0)*ch,k=Math.min((cw-20)/im.width,(ch-50)/im.height);x.drawImage(im,cx+(cw-im.width*k)/2,cy+40,im.width*k,im.height*k);x.fillStyle='#e8336d';x.fillText(String(i+1),cx+8,cy+30);r()};im.onerror=r;im.src=src(it.img)})));
-  return new Promise(r=>c.toBlob(r,'image/jpeg',.85))}
-const starsHTML=(n,id)=>[1,2,3,4,5].map(k=>`<button type="button" class="${k<=(n||0)?'on':''}" data-star="${k}" ${id?`data-oid="${id}"`:''} aria-label="${k} stelle">★</button>`).join('');
-function renderStars(){$('#stStars').innerHTML=starsHTML(S.stars)}
-$('#stStars').onclick=async e=>{const b=e.target.closest('[data-star]');if(!b)return;const k=+b.dataset.star;S.stars=S.stars===k?0:k;renderStars();if(S.editing&&S.col)S.col.doc(S.editing).update({stars:S.stars}).catch(()=>{})};
-const boardKey=()=>S.layers.map(l=>l.item).sort().join(',');
 const VG={promosso:['Promosso','#1f9d55'],quasi:['Quasi','#d9a400'],no:['Da rivedere','#d83a3a']};
 const vBadge=v=>{const g=VG[v.g]||VG.quasi;return `<span class="vb" style="background:${g[1]}">${g[0]}${v.voto?' · '+v.voto+'/10':''}</span>`};
-function itemList(its){return its.map((it,i)=>`${i+1}. ${CAT[it.cat]?.n||it.cat}${it.name?' – '+it.name:''}${it.sea?.length?' ['+it.sea.join(',')+']':''}${it.fit?' {'+FC[it.fit][1]+'}':''}`).join('\n')}
+const itemList=its=>its.map((it,i)=>`${i+1}. ${MAC[SUB[it.cat]?.m||'altro'].n} / ${catName(it.cat)}${it.name?' – '+it.name:''}${it.sea?.length?' ['+it.sea.join(',')+']':''}${it.fit?' {'+FC[it.fit][1]+'}':''}`).join('\n');
+const loadX=u=>new Promise(r=>{const im=new Image();im.crossOrigin='anonymous';im.onload=()=>r(im);im.onerror=()=>r(null);im.src=u});
+async function contactSheet(its){const n=its.length,cols=Math.ceil(Math.sqrt(n*.75)),rows=Math.ceil(n/cols),cw=200,ch=240;const c=document.createElement('canvas');c.width=cols*cw;c.height=rows*ch;const x=c.getContext('2d');x.fillStyle='#fff';x.fillRect(0,0,c.width,c.height);x.font='bold 26px sans-serif';
+  const ims=await Promise.all(its.map(it=>loadX(src(it.img))));ims.forEach((im,i)=>{const cx=(i%cols)*cw,cy=(i/cols|0)*ch;x.fillStyle='#e8336d';x.fillText(String(i+1),cx+8,cy+30);if(!im)return;const k=Math.min((cw-20)/im.width,(ch-50)/im.height);x.drawImage(im,cx+(cw-im.width*k)/2,cy+40,im.width*k,im.height*k)});
+  return new Promise(r=>c.toBlob(r,'image/jpeg',.85))}
 async function boardImage(){const c=document.createElement('canvas');c.width=600;c.height=800;const x=c.getContext('2d');const useMe=S.base==='me'&&S.me;x.fillStyle=useMe?'#000':'#f3f2f0';x.fillRect(0,0,600,800);
-  const load=u=>new Promise(r=>{const im=new Image();im.crossOrigin='anonymous';im.onload=()=>r(im);im.onerror=()=>r(null);im.src=u});
-  if(useMe){const im=await load(src(S.me));if(im){const k=Math.min(600/im.width,800/im.height);x.drawImage(im,(600-im.width*k)/2,(800-im.height*k)/2,im.width*k,im.height*k)}}
-  for(const l of [...S.layers].sort((a,b)=>a.z-b.z)){const it=S.items.find(i=>i.id===l.item);if(!it)continue;const im=await load(src(it.img));if(!im)continue;const w=l.w/100*600,h=w*im.height/im.width;x.save();x.translate(l.x/100*600,l.y/100*800);x.rotate((l.r||0)*Math.PI/180);x.drawImage(im,-w/2,-h/2,w,h);x.restore()}
+  if(useMe){const im=await loadX(src(S.me));if(im){const k=Math.min(600/im.width,800/im.height);x.drawImage(im,(600-im.width*k)/2,(800-im.height*k)/2,im.width*k,im.height*k)}}
+  for(const l of [...S.layers].sort((a,b)=>a.z-b.z)){const it=S.items.find(i=>i.id===l.item);if(!it)continue;const im=await loadX(src(it.img));if(!im)continue;const w=l.w/100*600,h=w*im.height/im.width;x.save();x.translate(l.x/100*600,l.y/100*800);x.rotate((l.r||0)*Math.PI/180);x.drawImage(im,-w/2,-h/2,w,h);x.restore()}
   return new Promise(r=>c.toBlob(r,'image/jpeg',.88))}
 function renderVerdict(){const el=$('#verdict');const v=S.verdict;if(!v||S.verdictKey!==boardKey()){el.classList.add('hide');return}const g=VG[v.g]||VG.quasi;el.style.setProperty('--vc',g[1]);el.classList.remove('hide');
-  el.innerHTML=`<div class="vh"><b>${g[0]}</b>${v.voto?`<span class="mut">${v.voto}/10</span>`:''}</div><p style="margin:4px 0">${esc(v.sintesi)}</p>${v.ok?.length?`<div class="mut">Funziona</div><ul>${v.ok.map(t=>`<li>${esc(t)}</li>`).join('')}</ul>`:''}${v.cambia?.length?`<div class="mut">Da sistemare</div><ul>${v.cambia.map(t=>`<li>${esc(t)}</li>`).join('')}</ul>`:''}${v.var?.length?'<div class="mut">Varianti con i tuoi capi</div>':''}`}
-function showSugg(out){S.sugg=out;$('#suggList').innerHTML=out.map((o,k)=>`<button class="sg" data-k="${k}"><div class="th">${o.ids.map(id=>{const it=S.items.find(i=>i.id===id);return `<img src="${src(it.img)}" alt="">`}).join('')}</div><div><b>${esc(o.name)}</b><span>${esc(o.why)}</span></div></button>`).join('')}
-const errMsg=e=>({not_granted_soft:'Aggiungi la chiave Gemini nella scheda Stile.',cancelled:'',not_granted:'La consulente non è autorizzata in questa vista.',rate_limited:'Troppe richieste, riprova tra poco.',invalid_json:'Risposta non leggibile, riprova.'}[e?.code]??'Non ci sono riuscita, riprova.');
+  el.innerHTML=`<div class="row"><b style="font-size:19px;font-weight:700">${g[0]}</b>${v.voto?`<span class="mut">${v.voto}/10</span>`:''}</div><p style="margin:4px 0">${esc(v.sintesi)}</p>${v.ok?.length?`<div class="mut">Funziona</div><ul>${v.ok.map(t=>`<li>${esc(t)}</li>`).join('')}</ul>`:''}${v.cambia?.length?`<div class="mut">Da sistemare</div><ul>${v.cambia.map(t=>`<li>${esc(t)}</li>`).join('')}</ul>`:''}`}
+function showSugg(out){S.sugg=out;$('#suggList').innerHTML=out.map((o,k)=>`<button class="sg" data-k="${k}"><div class="th">${o.ids.map(id=>{const it=S.items.find(i=>i.id===id);return it?`<img src="${src(it.img)}" alt="">`:''}).join('')}</div><div><b>${esc(o.name)}</b><span>${esc(o.why)}</span></div></button>`).join('')}
+const errMsg=e=>({no_key:'Per la consulente aggiungi la chiave Gemini in Stile.',cancelled:'',rate_limited:'Troppe richieste per oggi alla versione gratuita, riprova più tardi.',invalid_json:'Risposta non leggibile, riprova.'}[e?.code]??'Non ci sono riuscita, riprova.');
 function busy(on,msg){$('#sugg').disabled=$('#judge').disabled=on;$('#stopS').classList.toggle('hide',!on);if(msg!=null)$('#suggNote').textContent=msg}
-$('#judge').onclick=async()=>{if(!sampleFn)return;if(!S.layers.length)return toast('Metti qualche capo sulla tavola');
-  const its=S.items.filter(i=>fits(i,S.fSea)&&i.fit!=='no').slice(0,50);for(const l of S.layers){const it=S.items.find(i=>i.id===l.item);if(it&&!its.includes(it))its.push(it)}
-  const cur=S.layers.map(l=>its.findIndex(i=>i.id===l.item)+1).filter(n=>n>0);const occ=$('#occ').value.trim();const me=S.base==='me'&&S.me;
-  const prompt=`Sei una consulente d'immagine gentile e concreta, per una persona poco esperta di moda che vuole vestirsi bene e curata senza sforzo.\n${profTxt()}\n\nARMADIO (numero. categoria – nome [stagioni] {giudizio già dato}):\n${itemList(its)}\n\nLa combinazione da giudicare usa i capi ${cur.join(', ')}.${occ?' Occasione: '+occ+'.':''} La prima immagine è la combinazione${me?' indossata sopra una foto della persona (è un collage: giudica abbinamento, colori e proporzioni sul suo corpo, non la vestibilità esatta)':' composta su una tavola'}; la seconda mostra i capi numerati dell'armadio.\nValuta se le sta bene secondo i 4 criteri del profilo (vestibilità, proporzioni, colori, abbinabilità) e la coerenza con lo stile che vuole e con quello che evita. Sii onesta ma incoraggiante, frasi brevi e pratiche, niente gergo.\nPoi proponi 2 varianti che migliorano la combinazione usando SOLO capi dell'elenco (indica tutti i numeri della variante completa).\nRispondi solo con JSON: {"giudizio":"promosso|quasi|no","voto":7,"sintesi":"una frase","ok":["…"],"cambia":["…"],"varianti":[{"nome":"…","capi":[1,4,9],"perche":"una frase"}]}`;
-  sugCtl=new AbortController();busy(true,'Guardo la combinazione…');$('#suggList').innerHTML='';$('#verdict').classList.add('hide');
-  try{const imgs=[await boardImage()];try{imgs.push(await contactSheet(its))}catch{}
-    const r=await sampleFn.json(prompt,{signal:sugCtl.signal,images:imgs,cache:false});
-    const vars=(r?.varianti||[]).map(o=>({name:String(o.nome||'Variante'),why:String(o.perche||''),ids:(o.capi||[]).map(n=>its[Number(n)-1]?.id).filter(Boolean)})).filter(o=>o.ids.length);
-    S.verdict={g:['promosso','quasi','no'].includes(r?.giudizio)?r.giudizio:'quasi',voto:Number(r?.voto)||null,sintesi:String(r?.sintesi||''),ok:(r?.ok||[]).map(String).slice(0,4),cambia:(r?.cambia||[]).map(String).slice(0,4),var:vars.length};S.verdictKey=boardKey();
-    renderVerdict();showSugg(vars);busy(false,vars.length?'Tocca una variante per provarla. Ricordati di salvare quella che ti piace.':'Salva la combinazione se ti piace.')}
-  catch(e){busy(false,errMsg(e));if(e?.code==='not_granted'||e?.code==='sampling_disabled')$('#ideas').classList.add('hide')}};
-$('#rateAll').onclick=async()=>{if(!sampleFn)return toast('Consulente non disponibile qui');const its=S.items.filter(i=>!i.fit).slice(0,40);if(!its.length)return toast('Hai già valutato tutti i capi');
-  $('#rateAll').disabled=true;$('#rateNote').textContent=`Valuto ${its.length} capi pensando a te…`;
-  const prompt=`Sei una consulente d'immagine.\n${profTxt()}\n\nNell'immagine ci sono capi numerati del suo armadio:\n${itemList(its)}\n\nPer ogni capo dì se la valorizza ("si"), è così così ("forse") o non la valorizza ("no"), secondo i 4 criteri del profilo (vestibilità, proporzioni, colori, abbinabilità) e la lista di cose che evita. Nota: massimo 12 parole, pratica (es. "colore perfetto, portalo vicino al viso").\nRispondi solo con JSON: [{"n":1,"v":"si","nota":"…"}]`;
-  try{const img=await contactSheet(its);const r=await sampleFn.json(prompt,{images:[img],cache:false});let k=0;
-    for(const o of (Array.isArray(r)?r:[])){const it=its[Number(o.n)-1];if(!it||!FC[o.v])continue;await S.col.doc(it.id).update({fit:o.v,fitBy:'ai',fitNote:String(o.nota||'').slice(0,140)});k++}
-    $('#rateNote').textContent=`Valutati ${k} capi. Il pallino verde/giallo/rosso è il giudizio; tocca un capo per leggere il perché o cambiarlo.`}
-  catch(e){$('#rateNote').textContent=errMsg(e)}$('#rateAll').disabled=false};
-// ---------- buchi nell'armadio ----------
-function renderGaps(){const L=S.gaps?.list||[];if(!L.length){$('#gapList').innerHTML='';return}
-  $('#gapNote').textContent=(S.gaps.at?`Analisi del ${new Date(S.gaps.at).toLocaleDateString('it-IT')}. `:'')+'Spunta quello che compri, poi aggiungilo all\'armadio.';
-  $('#gapList').innerHTML=L.map((g,k)=>`<div class="gap${g.done?' done':''}"><h3>${k+1}. ${esc(g.capo)}</h3><p style="margin:4px 0">${esc(g.perche)}</p>${g.ids?.length?`<div class="mut">Si abbina con</div><div class="th">${g.ids.map(id=>{const it=S.items.find(i=>i.id===id);return it?`<img src="${src(it.img)}" alt="">`:''}).join('')}</div>`:''}${g.cerca?`<div class="tools" style="margin-top:4px"><span class="q">${esc(g.cerca)}</span><button data-copy="${k}" style="min-height:36px">Copia</button><button data-done="${k}" style="min-height:36px">${g.done?'Preso ✓':'Segna come preso'}</button></div>`:''}</div>`).join('')}
-$('#gapClose').onclick=()=>$('#gapBox').classList.add('hide');
-$('#gapList').onclick=async e=>{const c=e.target.closest('[data-copy]');if(c){try{await navigator.clipboard.writeText(S.gaps.list[+c.dataset.copy].cerca);toast('Copiato: incollalo su Vinted')}catch{toast('Copia non riuscita')}return}
-  const d=e.target.closest('[data-done]');if(d){const L=S.gaps.list.map(x=>({...x}));L[+d.dataset.done].done=!L[+d.dataset.done].done;try{await S.col.doc('lista').set({...S.gaps,list:L})}catch{toast('Non riuscito')}}};
-$('#gapBtn').onclick=async()=>{$('#gapBox').classList.remove('hide');if(S.gaps?.list?.length&&!(await ask('Rifare l\'analisi? La lista attuale verrà sostituita.')))return;
-  if(!sampleFn)return toast('Consulente non disponibile qui');const its=S.items.slice(0,60);if(its.length<2)return toast('Aggiungi almeno qualche capo');
-  const fav=S.outfits.filter(o=>(o.stars||0)>=4||o.verdict?.g==='promosso').map(o=>o.layers.map(l=>its.findIndex(i=>i.id===l.item)+1).filter(n=>n>0).join('+')).filter(Boolean).slice(0,15);
-  const prompt=`Sei una consulente d'immagine per una persona poco esperta di moda che vuole vestirsi bene e curata senza sforzo.\n${profTxt()}\n\nARMADIO ATTUALE (numero. categoria – nome [stagioni] {giudizio}); nell'immagine ogni capo ha il suo numero:\n${itemList(its)}\n${fav.length?'\nOutfit che le piacciono: '+fav.join('; '):''}\n\nTrova i 3-5 capi MANCANTI che, aggiunti, creerebbero più combinazioni nuove e ben riuscite con quello che ha già (privilegia i capi che la valorizzano), rispettando rigorosamente il profilo, le lunghezze e le esclusioni. Niente acquisti isolati. Ordinali per utilità.\nPer ognuno: descrizione precisa (colore, taglio, lunghezza), perché serve, con quali capi dell'elenco si abbina, quante combinazioni nuove sblocca circa, e 3-6 parole chiave per cercarlo su Vinted.\nRispondi solo con JSON: [{"capo":"…","perche":"…","abbina":[1,5],"combinazioni":6,"cerca":"…"}]`;
-  $('#gapBtn').disabled=true;$('#gapNote').textContent='Analizzo il tuo armadio…';$('#gapList').innerHTML='';
-  try{const img=await contactSheet(its);const r=await sampleFn.json(prompt,{images:[img],cache:false});
-    const list=(Array.isArray(r)?r:[]).slice(0,5).map(g=>({capo:String(g.capo||''),perche:String(g.perche||'').replace(/([^.!?])$/,'$1.')+(g.combinazioni?` Sblocca circa ${Number(g.combinazioni)} combinazioni.`:''),ids:(g.abbina||[]).map(n=>its[Number(n)-1]?.id).filter(Boolean),cerca:String(g.cerca||''),done:false})).filter(g=>g.capo);
-    const doc={kind:'gaps',at:Date.now(),list};S.gaps=doc;renderGaps();await S.col.doc('lista').set(doc)}
-  catch(e){$('#gapNote').textContent=errMsg(e)}$('#gapBtn').disabled=false};
-$('#sugg').onclick=async()=>{if(!sampleFn)return;const its=S.items.filter(i=>fits(i,S.fSea)&&i.fit!=='no').slice(0,60);if(its.length<2)return toast('Servono almeno un paio di capi');
-  const onBoard=S.layers.map(l=>its.findIndex(i=>i.id===l.item)+1).filter(n=>n>0);
-  const list=itemList(its);
-  const season=S.fSea==='all'?'qualsiasi stagione':(SEAS.find(z=>z[0]===S.fSea)[1]);const occ=$('#occ').value.trim();
-  const prompt=`Sei una consulente d'immagine per una persona poco esperta di moda che vuole vestirsi bene e curata senza sforzo.\n${profTxt()}\n\nQuesti sono capi del suo armadio; nell'immagine allegata ogni capo ha il suo numero (tra graffe il giudizio già dato, preferisci quelli che la valorizzano).\n${list}\n\nProponi 3 combinazioni facili, ben abbinate e adatte a lei (armocromia, corpo, stile) per: ${season}${occ?', occasione: '+occ:''}.${onBoard.length?` Ogni combinazione deve includere i capi ${onBoard.join(', ')}.`:''} Una combinazione completa ha di solito sopra + sotto (oppure un abito) + scarpe, più eventualmente capospalla e accessori. Usa solo i numeri dell'elenco.\nRispondi solo con JSON: [{"nome":"…","capi":[1,4,9],"perche":"una frase breve"}]`;
-  sugCtl=new AbortController();busy(true,'Ci penso…');$('#suggList').innerHTML='';S.verdict=null;renderVerdict();
-  try{let imgs;try{const lim=await sampleFn.limits();if(lim?.images)imgs=[await contactSheet(its)]}catch{}
-    const res=await sampleFn.json(prompt,{signal:sugCtl.signal,images:imgs,cache:false});
-    const out=(Array.isArray(res)?res:[]).map(o=>({name:String(o.nome||'Proposta'),why:String(o.perche||''),ids:(o.capi||[]).map(n=>its[Number(n)-1]?.id).filter(Boolean)})).filter(o=>o.ids.length);
-    showSugg(out);busy(false,out.length?'Tocca una proposta per metterla sulla tavola, poi chiedi "Mi sta bene?" o salvala.':'Nessuna proposta utile, riprova.')}
-  catch(e){busy(false,errMsg(e));if(e?.code==='not_granted'||e?.code==='sampling_disabled')$('#ideas').classList.add('hide')}};
 $('#stopS').onclick=()=>sugCtl?.abort();
-$('#suggList').onclick=e=>{const b=e.target.closest('.sg');if(!b)return;const o=S.sugg[+b.dataset.k];S.layers=o.ids.map((id,i)=>{const it=S.items.find(x=>x.id===id);const d=CAT[it.cat]||CAT.altro;return{item:id,x:d.x,y:d.y,w:d.w,r:0,z:i+1}});S.sel=-1;S.editing=null;S.stars=0;renderStars();$('#stTitle').textContent=o.name;renderBoard();renderSt();$('#board').scrollIntoView({behavior:'smooth',block:'start'})};
+$('#suggList').onclick=e=>{const b=e.target.closest('.sg');if(!b)return;const o=S.sugg[+b.dataset.k];S.layers=o.ids.map((id,i)=>{const it=S.items.find(x=>x.id===id);const p=posOf(it?.cat);return{item:id,x:p[0],y:p[1],w:p[2],r:0,z:i+1}});S.sel=-1;S.editing=null;S.stars=0;$('#stTitle').textContent=o.name;renderCrea();$('#board').scrollIntoView({behavior:'smooth',block:'start'})};
+$('#judge').onclick=async()=>{if(!S.layers.length)return toast('Metti prima qualche capo sulla tavola');
+  const its=S.items.filter(i=>i.fit!=='no').slice(0,50);for(const l of S.layers){const it=S.items.find(i=>i.id===l.item);if(it&&!its.includes(it))its.push(it)}
+  const cur=S.layers.map(l=>its.findIndex(i=>i.id===l.item)+1).filter(n=>n>0);const occ=$('#occ').value.trim();const me=S.base==='me'&&S.me;
+  const prompt=`Sei una consulente d'immagine gentile e concreta, per una persona poco esperta di moda che vuole vestirsi bene e curata senza sforzo.\n${profTxt()}\n\nARMADIO (numero. categoria – descrizione [stagioni] {giudizio già dato}):\n${itemList(its)}\n\nLa combinazione da giudicare usa i capi ${cur.join(', ')}.${occ?' Occasione: '+occ+'.':''} La prima immagine è la combinazione${me?' sopra una foto della persona (è un collage: giudica abbinamento, colori e proporzioni sul suo corpo, non la vestibilità esatta)':' composta su una tavola'}; la seconda mostra i capi numerati dell'armadio.\nValuta se le sta bene secondo i 4 criteri del profilo e la coerenza con lo stile che vuole e con quello che evita. Sii onesta ma incoraggiante, frasi brevi e pratiche, niente gergo.\nPoi proponi 2 varianti migliori usando SOLO capi dell'elenco (tutti i numeri della variante completa).\nRispondi solo con JSON: {"giudizio":"promosso|quasi|no","voto":7,"sintesi":"una frase","ok":["…"],"cambia":["…"],"varianti":[{"nome":"…","capi":[1,4,9],"perche":"una frase"}]}`;
+  sugCtl=new AbortController();busy(true,'Guardo l\'outfit…');$('#suggList').innerHTML='';
+  try{const imgs=[await boardImage(),await contactSheet(its)];const r=await sampleFn.json(prompt,{signal:sugCtl.signal,images:imgs});
+    const vars=(r?.varianti||[]).map(o=>({name:String(o.nome||'Variante'),why:String(o.perche||''),ids:(o.capi||[]).map(n=>its[Number(n)-1]?.id).filter(Boolean)})).filter(o=>o.ids.length);
+    S.verdict={g:['promosso','quasi','no'].includes(r?.giudizio)?r.giudizio:'quasi',voto:Number(r?.voto)||null,sintesi:String(r?.sintesi||''),ok:(r?.ok||[]).map(String).slice(0,4),cambia:(r?.cambia||[]).map(String).slice(0,4)};S.verdictKey=boardKey();
+    renderVerdict();showSugg(vars);busy(false,vars.length?'Varianti con i tuoi capi: toccane una per provarla.':'')}
+  catch(e){busy(false,errMsg(e))}};
+$('#sugg').onclick=async()=>{const its=S.items.filter(i=>i.fit!=='no').slice(0,60);if(its.length<2)return toast('Servono almeno un paio di capi');
+  const onBoard=S.layers.map(l=>its.findIndex(i=>i.id===l.item)+1).filter(n=>n>0);const occ=$('#occ').value.trim();
+  const prompt=`Sei una consulente d'immagine per una persona poco esperta di moda che vuole vestirsi bene e curata senza sforzo.\n${profTxt()}\n\nCapi del suo armadio; nell'immagine ogni capo ha il suo numero (tra graffe il giudizio già dato: preferisci quelli che la valorizzano).\n${itemList(its)}\n\nProponi 3 combinazioni facili, ben abbinate, fresche e non banali, adatte a lei${occ?', occasione: '+occ:''}.${onBoard.length?` Ogni combinazione deve includere i capi ${onBoard.join(', ')}.`:''} Una combinazione completa ha di solito sopra + sotto (oppure un abito) + scarpe, più eventualmente capospalla e accessori. Usa solo i numeri dell'elenco.\nRispondi solo con JSON: [{"nome":"…","capi":[1,4,9],"perche":"una frase breve"}]`;
+  sugCtl=new AbortController();busy(true,'Ci penso…');$('#suggList').innerHTML='';S.verdict=null;renderVerdict();
+  try{const r=await sampleFn.json(prompt,{signal:sugCtl.signal,images:[await contactSheet(its)]});
+    const out=(Array.isArray(r)?r:[]).map(o=>({name:String(o.nome||'Proposta'),why:String(o.perche||''),ids:(o.capi||[]).map(n=>its[Number(n)-1]?.id).filter(Boolean)})).filter(o=>o.ids.length);
+    showSugg(out);busy(false,out.length?'Tocca una proposta per metterla sulla tavola.':'Nessuna proposta utile, riprova.')}
+  catch(e){busy(false,errMsg(e))}};
+// armadio: valuta e cosa manca
+function aiOpen(title,note){$('#aiBox').classList.remove('hide');$('#aiTitle').textContent=title;$('#aiNote').textContent=note;$('#aiList').innerHTML=''}
+$('#aiClose').onclick=()=>$('#aiBox').classList.add('hide');
+$('#rateAll').onclick=async()=>{const its=S.items.filter(i=>!i.fit).slice(0,40);if(!S.items.length)return toast('Aggiungi prima qualche capo');if(!its.length){aiOpen('Cosa mi valorizza','Hai già un giudizio su tutti i capi: il pallino colorato su ogni capo. Usa il filtro "Giudizio" per vederli.');return}
+  aiOpen('Cosa mi valorizza',`Valuto ${its.length} capi pensando a te…`);$('#rateAll').disabled=true;
+  const prompt=`Sei una consulente d'immagine.\n${profTxt()}\n\nNell'immagine ci sono capi numerati del suo armadio:\n${itemList(its)}\n\nPer ogni capo dì se la valorizza ("si"), è così così ("forse") o non la valorizza ("no"), secondo i 4 criteri del profilo e la lista di cose che evita. Nota: massimo 14 parole, pratica.\nRispondi solo con JSON: [{"n":1,"v":"si","nota":"…"}]`;
+  try{const r=await sampleFn.json(prompt,{images:[await contactSheet(its)]});let k=0;
+    for(const o of (Array.isArray(r)?r:[])){const it=its[Number(o.n)-1];if(!it||!FC[o.v])continue;await S.col.doc(it.id).update({fit:o.v,fitBy:'ai',fitNote:String(o.nota||'').slice(0,160)});k++}
+    $('#aiNote').textContent=`Fatto: ${k} capi valutati. Pallino verde = ti valorizza, giallo = così così, rosso = non ti convince. Apri un capo per leggere il perché.`}
+  catch(e){$('#aiNote').textContent=errMsg(e)}$('#rateAll').disabled=false};
+function renderGaps(){const L=S.gaps?.list||[];if(!L.length)return;
+  $('#aiList').innerHTML=L.map((g,k)=>`<div class="gap${g.done?' done':''}"><h3>${k+1}. ${esc(g.capo)}</h3><p style="margin:4px 0">${esc(g.perche)}</p>${g.ids?.length?`<div class="th">${g.ids.map(id=>{const it=S.items.find(i=>i.id===id);return it?`<img src="${src(it.img)}" alt="">`:''}).join('')}</div>`:''}<div class="row">${g.cerca?`<span class="q">${esc(g.cerca)}</span><button data-copy="${k}" style="min-height:36px">Copia</button>`:''}<button data-done="${k}" style="min-height:36px">${g.done?'Preso ✓':'Segna come preso'}</button></div></div>`).join('')}
+$('#aiList').onclick=async e=>{const c=e.target.closest('[data-copy]');if(c){try{await navigator.clipboard.writeText(S.gaps.list[+c.dataset.copy].cerca);toast('Copiato: incollalo su Vinted')}catch{toast('Copia non riuscita')}return}
+  const d=e.target.closest('[data-done]');if(d){const L=S.gaps.list.map(x=>({...x}));L[+d.dataset.done].done=!L[+d.dataset.done].done;try{await S.col.doc('lista').set({...S.gaps,list:L})}catch{toast('Non riuscito')}}};
+$('#gapBtn').onclick=async()=>{if(S.gaps?.list?.length&&$('#aiBox').classList.contains('hide')){aiOpen('Cosa mi manca',`Lista del ${new Date(S.gaps.at).toLocaleDateString('it-IT')}.`);$('#aiNote').innerHTML+=' <button id="gapRedo" style="min-height:34px">Rifai l\'analisi</button>';$('#gapRedo').onclick=runGaps;renderGaps();return}runGaps()};
+async function runGaps(){const its=S.items.slice(0,60);if(its.length<2)return toast('Aggiungi prima qualche capo');aiOpen('Cosa mi manca','Analizzo il tuo armadio…');$('#gapBtn').disabled=true;
+  const fav=S.outfits.filter(o=>(o.stars||0)>=4||o.verdict?.g==='promosso').map(o=>o.layers.map(l=>its.findIndex(i=>i.id===l.item)+1).filter(n=>n>0).join('+')).filter(Boolean).slice(0,15);
+  const prompt=`Sei una consulente d'immagine per una persona poco esperta di moda che vuole vestirsi bene e curata senza sforzo.\n${profTxt()}\n\nARMADIO ATTUALE; nell'immagine ogni capo ha il suo numero:\n${itemList(its)}\n${fav.length?'\nOutfit che le piacciono: '+fav.join('; '):''}\n\nTrova i 3-5 capi MANCANTI che, aggiunti, creerebbero più combinazioni nuove e ben riuscite con quello che ha già, rispettando rigorosamente il profilo, le lunghezze e le esclusioni. Niente acquisti isolati. Ordinali per utilità.\nPer ognuno: descrizione precisa (colore, taglio, lunghezza), perché serve, con quali capi dell'elenco si abbina, quante combinazioni nuove sblocca circa, 3-6 parole chiave per cercarlo su Vinted.\nRispondi solo con JSON: [{"capo":"…","perche":"…","abbina":[1,5],"combinazioni":6,"cerca":"…"}]`;
+  try{const r=await sampleFn.json(prompt,{images:[await contactSheet(its)]});
+    const list=(Array.isArray(r)?r:[]).slice(0,5).map(g=>({capo:String(g.capo||''),perche:String(g.perche||'').replace(/([^.!?])$/,'$1.')+(g.combinazioni?` Sblocca circa ${Number(g.combinazioni)} combinazioni.`:''),ids:(g.abbina||[]).map(n=>its[Number(n)-1]?.id).filter(Boolean),cerca:String(g.cerca||''),done:false})).filter(g=>g.capo);
+    S.gaps={kind:'gaps',at:Date.now(),list};$('#aiNote').textContent='La tua lista mirata. Spunta quello che compri.';renderGaps();await S.col.doc('lista').set(S.gaps)}
+  catch(e){$('#aiNote').textContent=errMsg(e)}$('#gapBtn').disabled=false}
 
-function renderProf(){const p=S.prof||S.prof0||PROF0;$('#pArm').innerHTML=ARMO.map(a=>`<option ${a===p.armo?'selected':''} value="${esc(a)}">${a||'Non so'}</option>`).join('');$('#pH').value=p.h||'';$('#pT').value=p.t||'';$('#pMis').value=p.mis||'';
-  $('#pFields').innerHTML=PF.map(([k,n,r])=>`<label for="pf_${k}">${n}</label><textarea id="pf_${k}" rows="${r}">${esc(p[k]||'')}</textarea>`).join('');$('#pfNote').innerHTML=S.prof?(S.prof0?'<button type="button" id="useP0">Ricarica la scheda completa</button>':''):'Valori iniziali dalla tua scheda: controllali e salva.';const u=$('#useP0');if(u)u.onclick=()=>{const keep=S.prof;S.prof=null;renderProf();S.prof=keep;$('#pfNote').textContent='Scheda caricata: premi Salva per usarla.'}}
-$('#pf').onsubmit=async e=>{e.preventDefault();if(!S.col)return toast('Archivio non disponibile');const v={kind:'profile',armo:$('#pArm').value,h:$('#pH').value.trim(),t:$('#pT').value.trim(),mis:$('#pMis').value.trim()};for(const [k] of PF)v[k]=$('#pf_'+k).value.trim();
+// ---------- outfit salvati ----------
+function renderOut(){fillSel($('#oSea'),[['all','Stagione'],...SEAS],S.oSea);fillSel($('#oSort'),[['recent','Più recenti'],['top','Più votati'],['ok','Solo promossi']],S.oSort);
+  let outs=S.outfits.filter(o=>o.layers.every(l=>fits(S.items.find(i=>i.id===l.item),S.oSea)));if(S.oSort==='ok')outs=outs.filter(o=>o.verdict?.g==='promosso');if(S.oSort==='top')outs=[...outs].sort((a,b)=>(b.stars||0)-(a.stars||0));
+  $('#oCount').textContent=S.outfits.length?`${S.outfits.length} salvati`:'';
+  $('#gOut').innerHTML=S.outfits.length?(outs.length?outs.map(o=>`<div><button class="ocard" data-id="${o.id}"><div class="mini" style="${o.base==='me'&&S.me?'background:#000':''}">${baseHTML(o.base)}${o.layers.map((l,i)=>layerHTML(l,i,-1)).join('')}</div><b>${esc(o.name)}</b>${o.verdict?vBadge(o.verdict):''}</button><div class="row" style="justify-content:space-between"><span class="stars">${starsHTML(o.stars,o.id)}</span><button class="ico" data-del="${o.id}" aria-label="Elimina outfit" style="min-height:36px;width:36px;border:0">✕</button></div></div>`).join(''):'<p class="mut" style="grid-column:1/-1">Nessun outfit con questi filtri.</p>'):`<div class="empty" style="grid-column:1/-1">Ancora nessun outfit. Vai in <b>Crea</b>, scegli i capi e salvali.</div>`}
+$('#oSea').onchange=e=>{S.oSea=e.target.value;renderOut()};$('#oSort').onchange=e=>{S.oSort=e.target.value;renderOut()};
+$('#gOut').onclick=async e=>{const st=e.target.closest('[data-star]');if(st){const o=S.outfits.find(x=>x.id===st.dataset.oid);const k=+st.dataset.star;S.col.doc(o.id).update({stars:(o.stars||0)===k?0:k}).catch(()=>toast('Non riuscito'));return}
+  const d=e.target.closest('[data-del]');if(d){if(await ask('Eliminare questo outfit?'))S.col.doc(d.dataset.del).delete().catch(()=>toast('Non riuscito'));return}
+  const c=e.target.closest('.ocard');if(!c)return;const o=S.outfits.find(x=>x.id===c.dataset.id);S.layers=o.layers.map(l=>({...l}));S.base=o.base||'board';S.editing=o.id;S.sel=-1;S.stars=o.stars||0;S.verdict=o.verdict||null;S.verdictKey=o.verdictKey;$('#stTitle').textContent=o.name;go('crea');renderCrea()};
+
+// ---------- stile ----------
+function renderProf(){const p=S.prof||{};$('#pArm').innerHTML=ARMO.map(a=>`<option ${a===p.armo?'selected':''} value="${esc(a)}">${a||'Non so'}</option>`).join('');$('#pH').value=p.h||'';$('#pT').value=p.t||'';$('#pMis').value=p.mis||'';
+  $('#pFields').innerHTML=PF.map(([k,n,r])=>`<div><label class="lbl" for="pf_${k}">${n}</label><textarea id="pf_${k}" rows="${r}">${esc(p[k]||'')}</textarea></div>`).join('');
+  $('#meThumb').classList.toggle('hide',!S.me);if(S.me)$('#meThumb').src=src(S.me)}
+$('#pf').onsubmit=async e=>{e.preventDefault();const v={kind:'profile',armo:$('#pArm').value,h:$('#pH').value.trim(),t:$('#pT').value.trim(),mis:$('#pMis').value.trim()};for(const [k] of PF)v[k]=$('#pf_'+k).value.trim();
   try{await S.col.doc('profilo').set(v);toast('Stile salvato')}catch{toast('Salvataggio non riuscito')}};
-function renderAll(){renderStars();if(!document.activeElement?.closest('#pf'))renderProf();renderArm();renderSt();renderBoard();renderOut()}
-renderAll();
+$('#meFile').onchange=async e=>{const f=e.target.files[0];e.target.value='';if(!f)return;toast('Carico la tua foto…');
+  try{const sm=await shrink(f,1600);const up=await S.assets.upload(sm,{type:'image/jpeg'});const old=S.me;await S.col.doc('me').set({kind:'me',photo:up.id});if(old)S.assets.delete(old).catch(()=>{});toast('Foto salvata')}catch(err){console.error(err);toast('Caricamento non riuscito')}};
+
+function renderAll(){const active=document.activeElement;if(!active?.closest('#pf'))renderProf();renderArm();renderCrea();renderOut();if(location.hash==='#capo')renderCapo();if(!$('#aiBox').classList.contains('hide')&&$('#aiTitle').textContent==='Cosa mi manca')renderGaps()}
 
 // ---------- dati (Supabase) + consulente (Gemini) ----------
 const CFG=window.GUARDAROBA||{};
 (async()=>{
+  const v0=location.hash.slice(1);show(['armadio','crea','outfit','stile'].includes(v0)?v0:'armadio');
   if(!CFG.supabaseUrl||!CFG.supabaseKey){$('#count').textContent='Configurazione mancante (config.js).';return}
   const {createClient}=await import('https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/+esm');
   const sb=createClient(CFG.supabaseUrl,CFG.supabaseKey);
   const {data:{session}}=await sb.auth.getSession();
-  sb.auth.onAuthStateChange((ev,ses)=>{if(ev==='SIGNED_IN'&&!S.uid)location.reload();if(ev==='SIGNED_OUT')location.reload()});
+  sb.auth.onAuthStateChange((ev)=>{if(ev==='SIGNED_IN'&&!S.uid)location.reload();if(ev==='SIGNED_OUT')location.reload()});
   if(!session){$('#login').classList.remove('hide');
     $('#lf').onsubmit=async e=>{e.preventDefault();$('#lNote').textContent='Invio…';const {error}=await sb.auth.signInWithOtp({email:$('#lEmail').value.trim(),options:{emailRedirectTo:location.origin+location.pathname,shouldCreateUser:CFG.allowSignup!==false}});$('#lNote').textContent=error?'Non riuscito: '+error.message:'Fatto! Apri la mail e tocca il link.'};return}
   const uid=session.user.id;S.uid=uid;$('#who').textContent=session.user.email;$('#logout').onclick=()=>sb.auth.signOut();
@@ -425,36 +482,33 @@ const CFG=window.GUARDAROBA||{};
   async function signAll(){const paths=[...all.values()].map(d=>d.kind==='item'?d.img:d.kind==='me'?d.photo:null).filter(p=>p&&!URLS.has(p));
     for(let k=0;k<paths.length;k+=100){const {data}=await sb.storage.from('foto').createSignedUrls(paths.slice(k,k+100),60*60*24*7);(data||[]).forEach(x=>{if(x.signedUrl)URLS.set(x.path,x.signedUrl)})}}
   function apply(){const arr=[...all.values()];S.items=arr.filter(d=>d.kind==='item').sort((a,b)=>b.at-a.at);S.outfits=arr.filter(d=>d.kind==='outfit').sort((a,b)=>b.at-a.at);S.me=arr.find(d=>d.kind==='me')?.photo||null;
-    const pr=arr.find(d=>d.kind==='profile');if(pr)S.prof=pr;const gp=arr.find(d=>d.kind==='gaps');if(gp){S.gaps=gp;if(gp.list?.length)$('#gapBox').classList.remove('hide')}renderGaps();
-    const ids=new Set(S.items.map(i=>i.id));S.layers=S.layers.filter(l=>ids.has(l.item));if(S.sel>=S.layers.length)S.sel=-1;renderAll()}
+    S.prof=arr.find(d=>d.kind==='profile')||null;S.gaps=arr.find(d=>d.kind==='gaps')||null;
+    const ids=new Set(S.items.map(i=>i.id));S.layers=S.layers.filter(l=>ids.has(l.item));if(S.sel>=S.layers.length)S.sel=-1;for(const id of [...S.selected])if(!ids.has(id))S.selected.delete(id);renderAll()}
   const T=sb.from('docs');
   S.col={doc:id=>({
     set:async v=>{const {error}=await T.upsert({user_id:uid,id,kind:v.kind||null,data:v});if(error)throw error;all.set(id,{id,...v});apply()},
     update:async v=>{const cur=all.get(id);if(!cur)throw new Error('missing');const {id:_,...rest}=cur;const nv={...rest,...v};const {error}=await T.upsert({user_id:uid,id,kind:nv.kind||null,data:nv});if(error)throw error;all.set(id,{id,...nv});apply()},
     delete:async()=>{const {error}=await T.delete().eq('user_id',uid).eq('id',id);if(error)throw error;all.delete(id);apply()}})};
   S.assets={upload:async(blob,o)=>{const ext=(o?.type||blob.type)==='image/png'?'png':'jpg';const path=`${uid}/${Date.now().toString(36)}${Math.random().toString(36).slice(2,6)}.${ext}`;
-      const {error}=await sb.storage.from('foto').upload(path,blob,{contentType:o?.type||blob.type,cacheControl:'31536000'});if(error)throw error;URLS.set(path,URL.createObjectURL(blob));return{id:path,url:URLS.get(path)}},
+      const {error}=await sb.storage.from('foto').upload(path,blob,{contentType:o?.type||blob.type,cacheControl:'31536000'});if(error)throw error;URLS.set(path,URL.createObjectURL(blob));return{id:path}},
     delete:async p=>{await sb.storage.from('foto').remove([p]);return{deleted:true}}};
-  // consulente Gemini
   const gk=()=>{try{return localStorage.getItem('gemini_key')||''}catch{return ''}},gm=()=>{try{return localStorage.getItem('gemini_model')||'gemini-2.5-flash'}catch{return 'gemini-2.5-flash'}};
-  $('#gKey').value=gk();$('#gModel').value=gm();$('#gNote').textContent=gk()?'Chiave salvata.':'Senza chiave la consulente è spenta.';
+  $('#gKey').value=gk();$('#gModel').value=gm();$('#gNote').textContent=gk()?'Chiave salvata su questo dispositivo.':'Senza chiave la consulente è spenta.';
   $('#gSave').onclick=()=>{try{localStorage.setItem('gemini_key',$('#gKey').value.trim());localStorage.setItem('gemini_model',$('#gModel').value.trim()||'gemini-2.5-flash')}catch{}$('#gNote').textContent='Salvato.';toast('Consulente pronta')};
   const b64=b=>new Promise(r=>{const f=new FileReader();f.onload=()=>r(String(f.result).split(',')[1]);f.readAsDataURL(b)});
-  const gem=async(prompt,o={})=>{const key=gk();if(!key){toast('Aggiungi la chiave Gemini in Stile');throw{code:'not_granted_soft'}}
-    const parts=[{text:prompt}];for(const im of (o.images||[]))parts.push({inline_data:{mime_type:im.type||'image/jpeg',data:await b64(im)}});
-    let res;try{res=await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${encodeURIComponent(gm())}:generateContent`,{method:'POST',signal:o.signal,headers:{'Content-Type':'application/json','x-goog-api-key':key},body:JSON.stringify({contents:[{role:'user',parts}],generationConfig:{responseMimeType:'application/json',temperature:0.6}})})}
+  sampleFn={json:async(prompt,o={})=>{const key=gk();if(!key)throw{code:'no_key'};
+    const parts=[{text:prompt}];for(const im of (o.images||[]))if(im)parts.push({inline_data:{mime_type:im.type||'image/jpeg',data:await b64(im)}});
+    let res;try{res=await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${encodeURIComponent(gm())}:generateContent`,{method:'POST',signal:o.signal,headers:{'Content-Type':'application/json','x-goog-api-key':key},body:JSON.stringify({contents:[{role:'user',parts}],generationConfig:{responseMimeType:'application/json',temperature:.6}})})}
     catch(e){throw{code:e?.name==='AbortError'?'cancelled':'upstream_error'}}
     if(res.status===429)throw{code:'rate_limited'};if(!res.ok)throw{code:'upstream_error',message:await res.text()};
     const j=await res.json();const t=(j.candidates?.[0]?.content?.parts||[]).map(p=>p.text||'').join('');
-    try{return JSON.parse(t)}catch{const m=t.match(/[\[{][\s\S]*[\]}]/);if(m)try{return JSON.parse(m[0])}catch{}throw{code:'invalid_json'}}};
-  sampleFn={json:gem,limits:async()=>({images:{maxCount:4}})};
-  // import scheda
+    try{return JSON.parse(t)}catch{const m=t.match(/[\[{][\s\S]*[\]}]/);if(m)try{return JSON.parse(m[0])}catch{}throw{code:'invalid_json'}}}};
   $('#pImp').onchange=async e=>{const f=e.target.files[0];e.target.value='';if(!f)return;try{const v=JSON.parse(await f.text());await S.col.doc('profilo').set({...v,kind:'profile'});renderProf();toast('Scheda importata')}catch{toast('File non valido')}};
-  // carica
   const t=setTimeout(()=>$('#count').textContent='Non riesco ancora a raggiungere l\'archivio…',10000);
   const {data,error}=await T.select('id,data').eq('user_id',uid);clearTimeout(t);
   if(error){$('#count').textContent='Archivio non disponibile: '+error.message;return}
   (data||[]).forEach(r=>all.set(r.id,{id:r.id,...r.data}));await signAll().catch(()=>{});apply();
+  if(location.hash==='#aggiungi')startAdd();
 })();
 }
 </script>
